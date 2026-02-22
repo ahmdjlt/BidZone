@@ -5,6 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import CountdownTimer from "@/components/auction/CountdownTimer";
 import BidHistory, { type Bid } from "@/components/auction/BidHistory";
+import BidForm from "@/components/auction/BidForm";
 
 const demoBids: Bid[] = [
   { id: "b1", bidder: "Alex M.", amount: "$2,840", time: "2 min ago" },
@@ -67,6 +68,12 @@ export default function AuctionDetailPage({
           <section>
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">BidHistory — Empty</p>
             <BidHistory bids={[]} />
+          </section>
+
+          {/* BidForm demo */}
+          <section>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">BidForm — Current bid $2,840</p>
+            <BidForm currentBid={2840} minIncrement={50} />
           </section>
         </div>
       </main>
