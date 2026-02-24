@@ -1,10 +1,9 @@
 "use client";
 
-// CountdownTimer - shows remaining time for an auction with live countdown
 import { useEffect, useState } from "react";
 
 interface CountdownTimerProps {
-  endTime: string; // ISO timestamp, e.g. "2026-02-21T18:00:00Z"
+  endTime: string;
 }
 
 function calculateTimeLeft(endTime: string) {
@@ -56,8 +55,8 @@ export default function CountdownTimer({ endTime }: CountdownTimerProps) {
   return (
     <div
       className={`rounded-2xl border p-4 transition-colors duration-500 ${isUrgent
-          ? "border-red-200 bg-red-50/70"
-          : "border-blue-100 bg-blue-50/70"
+        ? "border-red-200 bg-red-50/70"
+        : "border-blue-100 bg-blue-50/70"
         }`}
     >
       <div className="mb-3 flex items-center justify-between">
@@ -101,8 +100,8 @@ function TimeBlock({
   return (
     <div
       className={`flex min-w-[3.2rem] flex-col items-center rounded-xl border px-3 py-2 ${urgent
-          ? "border-red-200 bg-white shadow-[0_8px_24px_-12px_rgba(220,38,38,0.35)]"
-          : "border-blue-100 bg-white shadow-[0_8px_24px_-12px_rgba(27,111,242,0.3)]"
+        ? "border-red-200 bg-white shadow-[0_8px_24px_-12px_rgba(220,38,38,0.35)]"
+        : "border-blue-100 bg-white shadow-[0_8px_24px_-12px_rgba(27,111,242,0.3)]"
         }`}
     >
       <span
