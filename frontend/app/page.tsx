@@ -14,6 +14,7 @@ const featuredAuctions: AuctionPreview[] = [
     bids: 37,
     endsIn: "Ends in 2h 11m",
     watchers: 91,
+    imageUrl: "/auction-images/rare-seiko-chrono.svg",
     imageAccent: "linear-gradient(135deg,#2f80ff,#8ec5ff)",
   },
   {
@@ -24,6 +25,7 @@ const featuredAuctions: AuctionPreview[] = [
     bids: 52,
     endsIn: "Ends in 5h 44m",
     watchers: 138,
+    imageUrl: "/auction-images/psa10-jordan-rookie.svg",
     imageAccent: "linear-gradient(135deg,#3d9bff,#d5ebff)",
   },
   {
@@ -34,6 +36,7 @@ const featuredAuctions: AuctionPreview[] = [
     bids: 19,
     endsIn: "Ends in 1d 03h",
     watchers: 64,
+    imageUrl: "/auction-images/mid-century-lounge-chair.svg",
     imageAccent: "linear-gradient(135deg,#2c6ce8,#5fc7ff)",
   },
   {
@@ -44,6 +47,7 @@ const featuredAuctions: AuctionPreview[] = [
     bids: 26,
     endsIn: "Ends in 8h 14m",
     watchers: 58,
+    imageUrl: "/auction-images/signed-first-edition.svg",
     imageAccent: "linear-gradient(135deg,#105ed6,#8cbcff)",
   },
   {
@@ -54,6 +58,7 @@ const featuredAuctions: AuctionPreview[] = [
     bids: 14,
     endsIn: "Ends in 3d 06h",
     watchers: 72,
+    imageUrl: "/auction-images/lens-master-kit.svg",
     imageAccent: "linear-gradient(135deg,#1a7cf4,#88d6ff)",
   },
 ];

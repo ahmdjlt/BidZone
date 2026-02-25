@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Vintage Polaroid SX-70">
+  <defs>
+    <linearGradient id="bg" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#204d94" />
+      <stop offset="100%" stop-color="#84ccff" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)" />
+  <rect x="300" y="180" width="600" height="430" rx="36" fill="#f6f9ff" />
+  <circle cx="600" cy="390" r="135" fill="#234f97" />
+  <circle cx="600" cy="390" r="85" fill="#79d4ff" />
+  <rect x="380" y="520" width="440" height="50" rx="25" fill="#2b63b8" fill-opacity=".55" />
+  <rect x="380" y="240" width="200" height="40" rx="20" fill="#d8ebff" />
+</svg>
