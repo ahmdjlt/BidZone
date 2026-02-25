@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="BidZone.BLL/BidZone.BLL.csproj" />
+  <Project Path="BidZone.DAL/BidZone.DAL.csproj" />
+  <Project Path="BidZone.Models/BidZone.Models.csproj" />
+  <Project Path="BidZone.WebApi/BidZone.WebApi.csproj" />
+</Solution>

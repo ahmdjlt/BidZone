@@ -1,0 +1,16 @@
+D:\Development\BidZone\backend\BidZone.DAL\bin\Debug\net10.0\BidZone.DAL.deps.json
+D:\Development\BidZone\backend\BidZone.DAL\bin\Debug\net10.0\BidZone.DAL.dll
+D:\Development\BidZone\backend\BidZone.DAL\bin\Debug\net10.0\BidZone.DAL.pdb
+D:\Development\BidZone\backend\BidZone.DAL\bin\Debug\net10.0\BidZone.Models.dll
+D:\Development\BidZone\backend\BidZone.DAL\bin\Debug\net10.0\BidZone.Models.pdb
+D:\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone.DAL.csproj.AssemblyReference.cache
+D:\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone.DAL.GeneratedMSBuildEditorConfig.editorconfig
+D:\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone.DAL.AssemblyInfoInputs.cache
+D:\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone.DAL.AssemblyInfo.cs
+D:\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone.DAL.csproj.CoreCompileInputs.cache
+D:\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone.DAL.sourcelink.json
+D:\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone..DAB34CF2.Up2Date
+D:\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone.DAL.dll
+D:\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\refint\BidZone.DAL.dll
+D:\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone.DAL.pdb
+D:\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\ref\BidZone.DAL.dll
