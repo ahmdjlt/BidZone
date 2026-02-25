@@ -1,4 +1,5 @@
 // AuctionCard - displays a single auction preview with image, title, current bid, and countdown
+import Image from "next/image";
 import Link from "next/link";
 
 export interface AuctionPreview {
@@ -9,6 +10,7 @@ export interface AuctionPreview {
   bids: number;
   endsIn: string;
   watchers: number;
+  imageUrl: string;
   imageAccent: string;
 }
 
@@ -24,23 +26,34 @@ export default function AuctionCard({ auction, priority = false }: AuctionCardPr
         priority ? "lg:col-span-2" : ""
       }`}
     >
-      <div
-        className="absolute right-0 top-0 h-24 w-24 rounded-bl-[2.5rem] opacity-90"
-        style={{ background: auction.imageAccent }}
-      />
+      <div className="relative mb-5 overflow-hidden rounded-[1.5rem]">
+        <Image
+          src={auction.imageUrl}
+          alt={auction.title}
+          width={860}
+          height={600}
+          priority={priority}
+          className="h-44 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+        />
+        <div
+          className="pointer-events-none absolute inset-0 opacity-65"
+          style={{ background: `linear-gradient(to top, rgba(1, 22, 70, 0.48), transparent 58%), ${auction.imageAccent}` }}
+        />
+        <span className="absolute left-3 top-3 rounded-full border border-white/60 bg-white/90 px-3 py-1 text-xs font-semibold text-blue-900">
+          {auction.category}
+        </span>
+        <span className="absolute right-3 top-3 rounded-full bg-blue-950/70 px-3 py-1 text-xs font-semibold text-blue-50">
+          {auction.endsIn}
+        </span>
+      </div>
+
       <div className="relative space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
-              {auction.category}
-            </p>
-            <h3 className="mt-2 text-xl font-semibold tracking-tight text-blue-950">
+            <h3 className="text-xl font-semibold tracking-tight text-blue-950">
               {auction.title}
             </h3>
           </div>
-          <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-            {auction.endsIn}
-          </span>
         </div>
 
         <div className="grid grid-cols-2 gap-3">

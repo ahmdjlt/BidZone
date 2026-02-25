@@ -13,14 +13,14 @@ type Category = (typeof categories)[number];
 const sortOptions = ["Ending Soon", "Most Bids", "Price: Low → High", "Price: High → Low"] as const;
 
 const allAuctions: AuctionPreview[] = [
-  { id: "rare-seiko-chrono", title: "Rare Seiko Chronograph", category: "Collectibles", currentBid: "$1,240", bids: 37, endsIn: "Ends in 2h 11m", watchers: 91, imageAccent: "linear-gradient(135deg,#2f80ff,#8ec5ff)" },
-  { id: "psa10-jordan-rookie", title: "PSA 10 Jordan Rookie Card", category: "Sports Cards", currentBid: "$6,850", bids: 52, endsIn: "Ends in 5h 44m", watchers: 138, imageAccent: "linear-gradient(135deg,#3d9bff,#d5ebff)" },
-  { id: "mid-century-lounge-chair", title: "Mid-Century Lounge Chair", category: "Home Design", currentBid: "$2,100", bids: 19, endsIn: "Ends in 1d 03h", watchers: 64, imageAccent: "linear-gradient(135deg,#2c6ce8,#5fc7ff)" },
-  { id: "signed-first-edition", title: "Signed First Edition Novel", category: "Books", currentBid: "$740", bids: 26, endsIn: "Ends in 8h 14m", watchers: 58, imageAccent: "linear-gradient(135deg,#105ed6,#8cbcff)" },
-  { id: "lens-master-kit", title: "Cinema Lens Master Kit", category: "Gear", currentBid: "$4,920", bids: 14, endsIn: "Ends in 3d 06h", watchers: 72, imageAccent: "linear-gradient(135deg,#1a7cf4,#88d6ff)" },
-  { id: "vintage-polaroid", title: "Vintage Polaroid SX-70", category: "Electronics", currentBid: "$380", bids: 41, endsIn: "Ends in 1h 35m", watchers: 104, imageAccent: "linear-gradient(135deg,#2468d6,#7ec4ff)" },
-  { id: "abstract-oil-canvas", title: "Abstract Oil on Canvas", category: "Art", currentBid: "$3,200", bids: 22, endsIn: "Ends in 2d 18h", watchers: 87, imageAccent: "linear-gradient(135deg,#1955c0,#63b3ff)" },
-  { id: "limited-sneakers", title: "Limited Edition Air Max 1", category: "Collectibles", currentBid: "$890", bids: 33, endsIn: "Ends in 6h 02m", watchers: 112, imageAccent: "linear-gradient(135deg,#3576e8,#a2d4ff)" },
+  { id: "rare-seiko-chrono", title: "Rare Seiko Chronograph", category: "Collectibles", currentBid: "$1,240", bids: 37, endsIn: "Ends in 2h 11m", watchers: 91, imageUrl: "/auction-images/rare-seiko-chrono.svg", imageAccent: "linear-gradient(135deg,#2f80ff,#8ec5ff)" },
+  { id: "psa10-jordan-rookie", title: "PSA 10 Jordan Rookie Card", category: "Sports Cards", currentBid: "$6,850", bids: 52, endsIn: "Ends in 5h 44m", watchers: 138, imageUrl: "/auction-images/psa10-jordan-rookie.svg", imageAccent: "linear-gradient(135deg,#3d9bff,#d5ebff)" },
+  { id: "mid-century-lounge-chair", title: "Mid-Century Lounge Chair", category: "Home Design", currentBid: "$2,100", bids: 19, endsIn: "Ends in 1d 03h", watchers: 64, imageUrl: "/auction-images/mid-century-lounge-chair.svg", imageAccent: "linear-gradient(135deg,#2c6ce8,#5fc7ff)" },
+  { id: "signed-first-edition", title: "Signed First Edition Novel", category: "Books", currentBid: "$740", bids: 26, endsIn: "Ends in 8h 14m", watchers: 58, imageUrl: "/auction-images/signed-first-edition.svg", imageAccent: "linear-gradient(135deg,#105ed6,#8cbcff)" },
+  { id: "lens-master-kit", title: "Cinema Lens Master Kit", category: "Gear", currentBid: "$4,920", bids: 14, endsIn: "Ends in 3d 06h", watchers: 72, imageUrl: "/auction-images/lens-master-kit.svg", imageAccent: "linear-gradient(135deg,#1a7cf4,#88d6ff)" },
+  { id: "vintage-polaroid", title: "Vintage Polaroid SX-70", category: "Electronics", currentBid: "$380", bids: 41, endsIn: "Ends in 1h 35m", watchers: 104, imageUrl: "/auction-images/vintage-polaroid.svg", imageAccent: "linear-gradient(135deg,#2468d6,#7ec4ff)" },
+  { id: "abstract-oil-canvas", title: "Abstract Oil on Canvas", category: "Art", currentBid: "$3,200", bids: 22, endsIn: "Ends in 2d 18h", watchers: 87, imageUrl: "/auction-images/abstract-oil-canvas.svg", imageAccent: "linear-gradient(135deg,#1955c0,#63b3ff)" },
+  { id: "limited-sneakers", title: "Limited Edition Air Max 1", category: "Collectibles", currentBid: "$890", bids: 33, endsIn: "Ends in 6h 02m", watchers: 112, imageUrl: "/auction-images/limited-sneakers.svg", imageAccent: "linear-gradient(135deg,#3576e8,#a2d4ff)" },
 ];
 
 export default function AuctionsPage() {

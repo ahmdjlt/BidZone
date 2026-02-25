@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Abstract Oil on Canvas">
+  <defs>
+    <linearGradient id="bg" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#173c84" />
+      <stop offset="100%" stop-color="#67b8ff" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)" />
+  <rect x="220" y="130" width="760" height="540" rx="30" fill="#f4f8ff" />
+  <path d="M290 510c90-140 180-150 260-40s180 110 280-20 190-110 260 20" fill="none" stroke="#2f6ec9" stroke-width="34" stroke-linecap="round" />
+  <circle cx="430" cy="320" r="70" fill="#9bd8ff" />
+  <circle cx="650" cy="270" r="52" fill="#2f6ec9" fill-opacity=".65" />
+  <circle cx="790" cy="370" r="44" fill="#1d4b96" fill-opacity=".75" />
+</svg>
