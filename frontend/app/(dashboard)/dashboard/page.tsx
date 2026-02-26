@@ -156,6 +156,25 @@ export default function DashboardPage() {
           ))}
         </div>
       </section>
+
+      {/* Danger zone */}
+      <section className="rounded-[1.5rem] border border-red-200 bg-red-50/60 p-5 shadow-[0_16px_40px_-28px_rgba(220,38,38,0.4)] sm:p-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.13em] text-red-700">
+          Danger zone
+        </p>
+        <h2 className="mt-2 text-xl font-semibold tracking-tight text-red-900">
+          Delete account
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm text-red-800/90">
+          Permanently remove your account and all associated auctions, bids, and profile data.
+        </p>
+        <button
+          type="button"
+          className="mt-4 rounded-xl border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus:ring-4 focus:ring-red-200/70"
+        >
+          Delete account
+        </button>
+      </section>
     </div>
   );
 }
