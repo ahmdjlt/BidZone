@@ -24,9 +24,7 @@ export default function AuctionCard({ auction, priority = false }: AuctionCardPr
     <Link
       href={`/auctions/${auction.id}`}
       aria-label={`View auction ${auction.title}`}
-      className={`group relative overflow-hidden rounded-[2rem] border border-blue-100 bg-white p-5 shadow-[0_24px_70px_-36px_rgba(27,111,242,0.6)] transition duration-300 hover:-translate-y-1 hover:border-blue-200 ${
-        priority ? "lg:col-span-2" : ""
-      } block focus:outline-none focus:ring-2 focus:ring-blue-200`}
+      className="group relative block overflow-hidden rounded-[2rem] border border-blue-100 bg-white p-5 shadow-[0_24px_70px_-36px_rgba(27,111,242,0.6)] transition duration-300 hover:-translate-y-1 hover:border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-200"
     >
       <div className="relative mb-5 overflow-hidden rounded-[1.5rem]">
         <Image
@@ -36,10 +34,6 @@ export default function AuctionCard({ auction, priority = false }: AuctionCardPr
           height={600}
           priority={priority}
           className="h-44 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-        />
-        <div
-          className="pointer-events-none absolute inset-0 opacity-65"
-          style={{ background: `linear-gradient(to top, rgba(1, 22, 70, 0.48), transparent 58%), ${auction.imageAccent}` }}
         />
         <span className="absolute left-3 top-3 rounded-full border border-white/60 bg-white/90 px-3 py-1 text-xs font-semibold text-blue-900">
           {auction.category}
