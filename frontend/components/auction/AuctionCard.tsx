@@ -21,10 +21,12 @@ interface AuctionCardProps {
 
 export default function AuctionCard({ auction, priority = false }: AuctionCardProps) {
   return (
-    <article
+    <Link
+      href={`/auctions/${auction.id}`}
+      aria-label={`View auction ${auction.title}`}
       className={`group relative overflow-hidden rounded-[2rem] border border-blue-100 bg-white p-5 shadow-[0_24px_70px_-36px_rgba(27,111,242,0.6)] transition duration-300 hover:-translate-y-1 hover:border-blue-200 ${
         priority ? "lg:col-span-2" : ""
-      }`}
+      } block focus:outline-none focus:ring-2 focus:ring-blue-200`}
     >
       <div className="relative mb-5 overflow-hidden rounded-[1.5rem]">
         <Image
@@ -73,14 +75,11 @@ export default function AuctionCard({ auction, priority = false }: AuctionCardPr
 
         <div className="flex items-center justify-between">
           <p className="text-sm text-slate-600">{auction.watchers} watchers</p>
-          <Link
-            href={`/auctions/${auction.id}`}
-            className="rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
-          >
+          <span className="rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition group-hover:bg-blue-700">
             Place bid
-          </Link>
+          </span>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
