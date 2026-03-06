@@ -4,24 +4,24 @@ import Navbar from "@/components/layout/Navbar";
 
 export default function LoginPage() {
   return (
-    <div className="relative overflow-x-clip bg-[radial-gradient(circle_at_top_right,#d5e8ff_0,transparent_34%),linear-gradient(to_bottom,#f5f9ff_0%,#eef5ff_52%,#f6faff_100%)]">
+    <div className="page-gradient relative overflow-x-clip">
       <Navbar />
 
       <main className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
         <div className="flex min-h-[60vh] items-center justify-center">
-          <div className="w-full max-w-md space-y-8 rounded-3xl border border-blue-100/50 bg-white/80 p-8 shadow-2xl backdrop-blur-xl">
+          <div className="w-full max-w-md space-y-8 rounded-3xl border border-border/50 bg-card-bg/80 p-8 shadow-2xl backdrop-blur-xl">
             <div className="text-center">
-              <h1 className="mb-2 bg-gradient-to-r from-blue-900 to-blue-700 bg-clip-text text-4xl font-bold text-transparent">
+              <h1 className="mb-2 bg-gradient-to-r from-text-heading to-text-label bg-clip-text text-4xl font-bold text-transparent">
                 Welcome Back
               </h1>
-              <p className="text-slate-600">Sign in to your BidZone account</p>
+              <p className="text-text-body">Sign in to your BidZone account</p>
             </div>
 
             <form className="space-y-6">
               <div>
                 <label
                   htmlFor="email"
-                  className="mb-2 block text-sm font-semibold text-blue-900"
+                  className="mb-2 block text-sm font-semibold text-text-heading"
                 >
                   Email address
                 </label>
@@ -30,14 +30,14 @@ export default function LoginPage() {
                   type="email"
                   required
                   placeholder="your@email.com"
-                  className="w-full rounded-2xl border border-blue-200 bg-blue-50/50 px-4 py-3 text-lg placeholder:text-slate-400 transition-all duration-200 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200/50"
+                  className="w-full rounded-2xl border border-border-strong bg-accent-soft/50 px-4 py-3 text-lg text-text-heading placeholder:text-text-muted transition-all duration-200 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="password"
-                  className="mb-2 block text-sm font-semibold text-blue-900"
+                  className="mb-2 block text-sm font-semibold text-text-heading"
                 >
                   Password
                 </label>
@@ -46,21 +46,21 @@ export default function LoginPage() {
                   type="password"
                   required
                   placeholder="........"
-                  className="w-full rounded-2xl border border-blue-200 bg-blue-50/50 px-4 py-3 text-lg placeholder:text-slate-400 transition-all duration-200 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200/50"
+                  className="w-full rounded-2xl border border-border-strong bg-accent-soft/50 px-4 py-3 text-lg text-text-heading placeholder:text-text-muted transition-all duration-200 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
                 />
               </div>
 
               <div className="relative flex items-center py-1">
-                <div className="flex-grow border-t border-blue-200/50" />
-                <span className="mx-4 flex-shrink px-2 text-xs uppercase tracking-wider text-slate-500">
+                <div className="flex-grow border-t border-border-strong/50" />
+                <span className="mx-4 flex-shrink px-2 text-xs uppercase tracking-wider text-text-muted">
                   Or continue with
                 </span>
-                <div className="flex-grow border-t border-blue-200/50" />
+                <div className="flex-grow border-t border-border-strong/50" />
               </div>
 
               <button
                 type="button"
-                className="flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-blue-200/50 bg-white/85 px-6 py-3 text-sm font-semibold text-blue-900 shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:bg-white hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-200/50"
+                className="flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-border-strong/50 bg-card-bg/85 px-6 py-3 text-sm font-semibold text-text-heading shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:border-border-strong hover:bg-card-bg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-accent/20"
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
                   <path
@@ -86,13 +86,13 @@ export default function LoginPage() {
               <div className="flex items-center justify-between">
                 <Link
                   href="/forgot-password"
-                  className="text-sm font-semibold text-blue-600 hover:text-blue-700"
+                  className="text-sm font-semibold text-accent hover:brightness-110"
                 >
                   Forgot password?
                 </Link>
                 <button
                   type="submit"
-                  className="rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-3 text-lg font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-200/50"
+                  className="rounded-2xl bg-gradient-to-r from-accent to-blue-700 px-8 py-3 text-lg font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-accent/20 dark:from-accent dark:to-blue-500"
                 >
                   Sign In
                 </button>
@@ -100,11 +100,11 @@ export default function LoginPage() {
             </form>
 
             <div className="text-center">
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-text-body">
                 Don&apos;t have an account?{" "}
                 <Link
                   href="/register"
-                  className="font-semibold text-blue-600 hover:text-blue-700"
+                  className="font-semibold text-accent hover:brightness-110"
                 >
                   Sign up
                 </Link>

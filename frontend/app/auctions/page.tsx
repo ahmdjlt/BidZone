@@ -77,19 +77,19 @@ export default function AuctionsPage() {
   }, [filtered, activeSort]);
 
   return (
-    <div className="relative min-h-screen bg-[radial-gradient(circle_at_top_right,#d5e8ff_0,transparent_34%),linear-gradient(to_bottom,#f5f9ff_0%,#eef5ff_52%,#f6faff_100%)]">
+    <div className="page-gradient relative min-h-screen">
       <Navbar />
 
       <main className="mx-auto w-full max-w-6xl px-4 pb-10 pt-10 sm:px-6">
         {/* Header */}
         <div className="mb-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
             Marketplace
           </p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-blue-950 sm:text-4xl">
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-text-heading sm:text-4xl">
             Browse Auctions
           </h1>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600">
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-body">
             Discover live auctions across every category. Place your bid before time runs out.
           </p>
         </div>
@@ -97,13 +97,13 @@ export default function AuctionsPage() {
         {/* Search bar */}
         <div className="mb-6">
           <div className="relative sm:max-w-sm">
-            <svg className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
               type="text"
               placeholder="Search auctions..."
-              className="w-full rounded-xl border border-blue-200 bg-white py-2.5 pl-10 pr-4 text-sm text-blue-950 placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-xl border border-border-strong bg-input-bg py-2.5 pl-10 pr-4 text-sm text-text-heading placeholder:text-text-muted focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
             />
           </div>
         </div>
@@ -116,8 +116,8 @@ export default function AuctionsPage() {
               onClick={() => setActiveCategory(cat)}
               className={`rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
                 activeCategory === cat
-                  ? "bg-blue-600 text-white shadow-[0_12px_28px_-18px_rgba(8,72,184,0.95)]"
-                  : "border border-blue-200 bg-white text-blue-700 hover:bg-blue-50"
+                  ? "bg-accent text-white shadow-[0_12px_28px_-18px_rgba(8,72,184,0.95)]"
+                  : "border border-border-strong bg-card-bg text-text-label hover:bg-accent-soft"
               }`}
             >
               {cat}
@@ -127,18 +127,18 @@ export default function AuctionsPage() {
 
         {/* Results + Sort */}
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-slate-500">
-            Showing <span className="font-semibold text-blue-950">{sortedAuctions.length}</span> auctions
+          <p className="text-sm text-text-muted">
+            Showing <span className="font-semibold text-text-heading">{sortedAuctions.length}</span> auctions
           </p>
           <div ref={sortDropdownRef} className="relative w-full sm:w-auto">
             <button
               type="button"
               onClick={() => setIsSortOpen((prev) => !prev)}
-              className="flex w-full items-center justify-between gap-2 rounded-xl border border-blue-200 bg-white px-4 py-2.5 text-left text-sm font-medium text-blue-950 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100 sm:min-w-[190px]"
+              className="flex w-full items-center justify-between gap-2 rounded-xl border border-border-strong bg-input-bg px-4 py-2.5 text-left text-sm font-medium text-text-heading focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 sm:min-w-[190px]"
             >
               <span>{activeSort}</span>
               <svg
-                className={`h-4 w-4 text-blue-900 transition-transform ${isSortOpen ? "rotate-180" : ""}`}
+                className={`h-4 w-4 text-text-heading transition-transform ${isSortOpen ? "rotate-180" : ""}`}
                 viewBox="0 0 20 20"
                 fill="none"
                 aria-hidden="true"
@@ -154,7 +154,7 @@ export default function AuctionsPage() {
             </button>
 
             {isSortOpen && (
-              <div className="absolute left-0 z-20 mt-1 w-full overflow-hidden rounded-xl border border-blue-200 bg-white shadow-[0_12px_24px_-16px_rgba(27,111,242,0.45)]">
+              <div className="absolute left-0 z-20 mt-1 w-full overflow-hidden rounded-xl border border-border-strong bg-card-bg shadow-[0_12px_24px_-16px_var(--card-shadow)]">
                 {sortOptions.map((option) => (
                   <button
                     key={option}
@@ -165,8 +165,8 @@ export default function AuctionsPage() {
                     }}
                     className={`block w-full px-4 py-2.5 text-left text-sm leading-tight ${
                       option === activeSort
-                        ? "bg-blue-600 font-medium text-white"
-                        : "text-blue-950 hover:bg-blue-50"
+                        ? "bg-accent font-medium text-white"
+                        : "text-text-heading hover:bg-accent-soft"
                     }`}
                   >
                     {option}

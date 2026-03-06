@@ -116,7 +116,7 @@ function StarRating({ rating }: { rating: number }) {
       {[1, 2, 3, 4, 5].map((star) => (
         <svg
           key={star}
-          className={`h-3.5 w-3.5 ${star <= rating ? "text-yellow-400" : "text-slate-200"}`}
+          className={`h-3.5 w-3.5 ${star <= rating ? "text-yellow-400" : "text-text-muted/30"}`}
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -133,20 +133,20 @@ function AuctionRulesSection({
   rules: { title: string; items: string[] }[];
 }) {
   return (
-    <div className="rounded-2xl border border-blue-100 bg-white">
-      <div className="border-b border-blue-100 px-5 py-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
+    <div className="rounded-2xl border border-border bg-card-bg">
+      <div className="border-b border-border px-5 py-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
           Auction Rules & Policies
         </p>
       </div>
-      <div className="divide-y divide-blue-50 p-5">
+      <div className="divide-y divide-divider p-5">
         {rules.map((rule, index) => (
           <div key={index} className={index > 0 ? "pt-4" : ""}>
-            <p className="mb-2 text-sm font-semibold text-blue-950">{rule.title}</p>
+            <p className="mb-2 text-sm font-semibold text-text-heading">{rule.title}</p>
             <ul className="space-y-1">
               {rule.items.map((item, itemIndex) => (
-                <li key={itemIndex} className="flex items-start gap-2 text-sm text-slate-600">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-300" />
+                <li key={itemIndex} className="flex items-start gap-2 text-sm text-text-body">
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent/50" />
                   {item}
                 </li>
               ))}
@@ -161,18 +161,18 @@ function AuctionRulesSection({
 export default function AuctionDetailPage(
   props: AuctionDetailPageProps
 ) {
-  const auction = props.auction || defaultProps.auction;
+  const auction = props.auction || defaultProps.auction!;
   const [selectedImage, setSelectedImage] = useState(0);
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_right,#d5e8ff_0,transparent_34%),linear-gradient(to_bottom,#f5f9ff_0%,#eef5ff_52%,#f6faff_100%)]">
+    <div className="min-h-screen page-gradient">
       <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Main Content Grid */}
         <div className="grid gap-8 lg:grid-cols-5 lg:gap-12">
           {/* Left Column - Images */}
           <div className="lg:col-span-3">
             {/* Main Image */}
-            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_24px_70px_-36px_rgba(27,111,242,0.6)]">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-card-bg card-shadow">
               <Image
                 src={auction.images[selectedImage]}
                 alt={auction.title}
@@ -191,8 +191,8 @@ export default function AuctionDetailPage(
                     onClick={() => setSelectedImage(index)}
                     className={`relative aspect-square w-20 shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
                       selectedImage === index
-                        ? "border-blue-500 shadow-[0_4px_12px_-4px_rgba(16,84,209,0.5)]"
-                        : "border-blue-100 hover:border-blue-200"
+                        ? "border-accent shadow-[0_4px_12px_-4px_rgba(16,84,209,0.5)]"
+                        : "border-border hover:border-border-strong"
                     }`}
                   >
                     <Image
@@ -208,13 +208,13 @@ export default function AuctionDetailPage(
 
             {/* Description */}
             <div className="mt-8">
-              <h2 className="mb-4 text-lg font-semibold text-blue-950">Description</h2>
-              <p className="leading-relaxed text-slate-600">{auction.description}</p>
+              <h2 className="mb-4 text-lg font-semibold text-text-heading">Description</h2>
+              <p className="leading-relaxed text-text-body">{auction.description}</p>
             </div>
 
             {/* Seller Info */}
-            <div className="mt-8 rounded-2xl border border-blue-100 bg-white p-5">
-              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            <div className="mt-8 rounded-2xl border border-border bg-card-bg p-5">
+              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-text-muted">
                 Seller Information
               </p>
               <div className="flex items-center gap-4">
@@ -227,21 +227,21 @@ export default function AuctionDetailPage(
                     className="h-14 w-14 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-100 text-lg font-bold text-blue-700">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent-soft text-lg font-bold text-text-label">
                     {auction.seller.name.slice(0, 2).toUpperCase()}
                   </div>
                 )}
                 <div>
-                  <p className="text-base font-semibold text-blue-950">
+                  <p className="text-base font-semibold text-text-heading">
                     {auction.seller.name}
                   </p>
                   <div className="mt-1 flex items-center gap-2">
                     <StarRating rating={Math.round(auction.seller.rating)} />
-                    <span className="text-sm font-medium text-blue-700">
+                    <span className="text-sm font-medium text-text-label">
                       {auction.seller.rating.toFixed(1)}
                     </span>
                   </div>
-                  <p className="mt-0.5 text-xs text-slate-400">
+                  <p className="mt-0.5 text-xs text-text-muted">
                     Member since {auction.seller.memberSince}
                   </p>
                 </div>
@@ -258,47 +258,47 @@ export default function AuctionDetailPage(
           <div className="lg:col-span-2">
             {/* Category Badge */}
             <div className="mb-4">
-              <span className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+              <span className="inline-flex rounded-full border border-border-strong bg-accent-soft px-3 py-1 text-xs font-semibold text-text-label">
                 {auction.category}
               </span>
             </div>
 
             {/* Title */}
-            <h1 className="text-2xl font-semibold tracking-tight text-blue-950 sm:text-3xl lg:text-[1.75rem]">
+            <h1 className="text-2xl font-semibold tracking-tight text-text-heading sm:text-3xl lg:text-[1.75rem]">
               {auction.title}
             </h1>
 
             {/* Estimated Value */}
             <div className="mt-4 flex items-center gap-2">
-              <p className="text-sm text-slate-500">Estimated Value:</p>
-              <p className="text-lg font-semibold text-blue-700">
+              <p className="text-sm text-text-muted">Estimated Value:</p>
+              <p className="text-lg font-semibold text-text-label">
                 ${auction.estimatedValue.toLocaleString()}
               </p>
             </div>
 
             {/* Stats Badges */}
             <div className="mt-5 flex flex-wrap gap-3">
-              <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-blue-600">
+              <div className="rounded-xl border border-border-strong bg-accent-soft px-4 py-2">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-label">
                   Current Bid
                 </p>
-                <p className="mt-0.5 text-lg font-semibold text-blue-950">
+                <p className="mt-0.5 text-lg font-semibold text-text-heading">
                   ${auction.currentBid.toLocaleString()}
                 </p>
               </div>
-              <div className="rounded-xl border border-blue-100 bg-white px-4 py-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+              <div className="rounded-xl border border-border bg-card-bg px-4 py-2">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">
                   Total Bids
                 </p>
-                <p className="mt-0.5 text-lg font-semibold text-blue-950">
+                <p className="mt-0.5 text-lg font-semibold text-text-heading">
                   {auction.totalBids}
                 </p>
               </div>
-              <div className="rounded-xl border border-blue-100 bg-white px-4 py-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+              <div className="rounded-xl border border-border bg-card-bg px-4 py-2">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">
                   Starting Price
                 </p>
-                <p className="mt-0.5 text-lg font-semibold text-blue-950">
+                <p className="mt-0.5 text-lg font-semibold text-text-heading">
                   ${auction.startingPrice.toLocaleString()}
                 </p>
               </div>

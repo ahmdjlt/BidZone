@@ -97,44 +97,44 @@ const steps = [
 
 export default function HomePage() {
   return (
-    <div className="relative overflow-x-clip bg-[radial-gradient(circle_at_top_right,#d5e8ff_0,transparent_34%),linear-gradient(to_bottom,#f5f9ff_0%,#eef5ff_52%,#f6faff_100%)]">
+    <div className="page-gradient relative overflow-x-clip">
       <Navbar />
 
       <main className="mx-auto w-full max-w-6xl px-4 pb-10 pt-10 sm:px-6">
         <section className="relative grid gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-center">
           <div className="animate-rise space-y-6">
-            <span className="inline-flex items-center rounded-full border border-blue-200 bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
+            <span className="inline-flex items-center rounded-full border border-border-strong bg-card-bg px-4 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
               Live auctions. Real urgency.
             </span>
-            <h1 className="max-w-xl text-4xl font-semibold leading-tight tracking-tight text-blue-950 sm:text-5xl">
+            <h1 className="max-w-xl text-4xl font-semibold leading-tight tracking-tight text-text-heading sm:text-5xl">
               The auction marketplace built for speed, trust, and smarter bids.
             </h1>
-            <p className="max-w-xl text-lg leading-relaxed text-slate-600">
+            <p className="max-w-xl text-lg leading-relaxed text-text-body">
               BidZone pairs intense live bidding with a clean seller workflow so
               every listing can reach its best possible value.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/auctions"
-                className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-[0_20px_40px_-24px_rgba(16,84,209,0.85)] transition hover:bg-blue-700"
+                className="rounded-2xl bg-accent px-5 py-3 text-sm font-semibold text-white shadow-[0_20px_40px_-24px_rgba(16,84,209,0.85)] transition hover:brightness-110"
               >
                 Explore live auctions
               </Link>
               <Link
                 href="/auctions/create"
-                className="rounded-2xl border border-blue-200 bg-white px-5 py-3 text-sm font-semibold text-blue-700 transition hover:border-blue-300 hover:bg-blue-50"
+                className="rounded-2xl border border-border-strong bg-card-bg px-5 py-3 text-sm font-semibold text-text-label transition hover:border-accent/50 hover:bg-accent-soft"
               >
                 Start selling
               </Link>
             </div>
           </div>
 
-          <div className="animate-float relative rounded-[2.2rem] border border-blue-100 bg-white p-6 shadow-[0_36px_90px_-46px_rgba(17,90,225,0.65)]">
-            <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-blue-200/45 blur-2xl" />
+          <div className="animate-float relative rounded-[2.2rem] border border-border bg-card-bg p-6 card-shadow-heavy">
+            <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-accent/20 blur-2xl" />
             <div className="space-y-5">
-              <div className="flex items-center justify-between rounded-2xl bg-blue-600 px-4 py-3 text-white">
+              <div className="flex items-center justify-between rounded-2xl bg-accent px-4 py-3 text-white">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.12em] text-blue-100">
+                  <p className="text-xs uppercase tracking-[0.12em] text-blue-100 dark:text-blue-200">
                     Ending now
                   </p>
                   <p className="text-base font-semibold">Vintage Lens Bundle</p>
@@ -143,24 +143,24 @@ export default function HomePage() {
                   01:49
                 </span>
               </div>
-              <div className="grid gap-3 rounded-2xl border border-blue-100 p-4">
-                <p className="text-sm font-semibold text-blue-900">Current battle</p>
+              <div className="grid gap-3 rounded-2xl border border-border p-4">
+                <p className="text-sm font-semibold text-text-heading">Current battle</p>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm text-slate-600">
+                  <div className="flex items-center justify-between text-sm text-text-body">
                     <span>Highest bid</span>
-                    <strong className="text-blue-900">$2,840</strong>
+                    <strong className="text-text-heading">$2,840</strong>
                   </div>
-                  <div className="flex items-center justify-between text-sm text-slate-600">
+                  <div className="flex items-center justify-between text-sm text-text-body">
                     <span>Bidders in room</span>
-                    <strong className="text-blue-900">48 live</strong>
+                    <strong className="text-text-heading">48 live</strong>
                   </div>
-                  <div className="flex items-center justify-between text-sm text-slate-600">
+                  <div className="flex items-center justify-between text-sm text-text-body">
                     <span>Bid increments</span>
-                    <strong className="text-blue-900">$50 minimum</strong>
+                    <strong className="text-text-heading">$50 minimum</strong>
                   </div>
                 </div>
               </div>
-              <p className="text-sm leading-relaxed text-slate-600">
+              <p className="text-sm leading-relaxed text-text-body">
                 When bids arrive in the final minute, the timer automatically
                 extends to keep every bidder in play.
               </p>
@@ -168,13 +168,13 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="mt-14 grid gap-4 rounded-[2rem] border border-blue-100 bg-white/85 p-5 sm:grid-cols-3 sm:p-6">
+        <section className="mt-14 grid gap-4 rounded-[2rem] border border-border bg-card-bg/85 p-5 sm:grid-cols-3 sm:p-6">
           {metrics.map((metric) => (
-            <div key={metric.label} className="rounded-2xl border border-blue-100/80 bg-blue-50/70 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.13em] text-blue-700">
+            <div key={metric.label} className="rounded-2xl border border-border/80 bg-accent-soft/70 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.13em] text-text-label">
                 {metric.label}
               </p>
-              <p className="mt-2 text-3xl font-semibold tracking-tight text-blue-950">
+              <p className="mt-2 text-3xl font-semibold tracking-tight text-text-heading">
                 {metric.value}
               </p>
             </div>
@@ -184,16 +184,16 @@ export default function HomePage() {
         <section className="mt-16">
           <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
                 Featured listings
               </p>
-              <h2 className="mt-1 text-3xl font-semibold tracking-tight text-blue-950">
+              <h2 className="mt-1 text-3xl font-semibold tracking-tight text-text-heading">
                 High-activity auctions
               </h2>
             </div>
             <Link
               href="/auctions"
-              className="rounded-xl border border-blue-200 bg-white px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50"
+              className="rounded-xl border border-border-strong bg-card-bg px-4 py-2 text-sm font-semibold text-text-label hover:bg-accent-soft"
             >
               View all auctions
             </Link>
@@ -205,36 +205,36 @@ export default function HomePage() {
           {steps.map((step, index) => (
             <article
               key={step.title}
-              className="rounded-[1.7rem] border border-blue-100 bg-white p-6 shadow-[0_24px_60px_-40px_rgba(27,111,242,0.65)]"
+              className="rounded-[1.7rem] border border-border bg-card-bg p-6 card-shadow-heavy"
             >
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
                 Step 0{index + 1}
               </p>
-              <h3 className="mt-2 text-xl font-semibold tracking-tight text-blue-950">
+              <h3 className="mt-2 text-xl font-semibold tracking-tight text-text-heading">
                 {step.title}
               </h3>
-              <p className="mt-3 text-sm leading-relaxed text-slate-600">{step.text}</p>
+              <p className="mt-3 text-sm leading-relaxed text-text-body">{step.text}</p>
             </article>
           ))}
         </section>
 
-        <section className="mt-16 rounded-[2.3rem] border border-blue-200 bg-[linear-gradient(135deg,#f8fbff_0%,#dbe9ff_100%)] p-8">
+        <section className="mt-16 rounded-[2.3rem] border border-border-strong cta-gradient p-8">
           <div className="grid gap-6 lg:grid-cols-[1.15fr_1fr] lg:items-center">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
                 Built for confidence
               </p>
-              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-blue-950">
+              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-text-heading">
                 Seller tools + buyer protection in one flow.
               </h2>
-              <p className="mt-3 max-w-xl text-slate-700">
+              <p className="mt-3 max-w-xl text-text-body">
                 Verified profiles, transparent bid history, and status tracking
                 after checkout create a marketplace people return to.
               </p>
             </div>
-            <div className="rounded-3xl bg-white p-6 shadow-[0_24px_70px_-45px_rgba(9,63,181,0.8)]">
-              <p className="text-sm font-semibold text-blue-900">This week on BidZone</p>
-              <ul className="mt-4 space-y-3 text-sm text-slate-700">
+            <div className="rounded-3xl bg-card-bg p-6 shadow-[0_24px_70px_-45px_var(--card-shadow-heavy)]">
+              <p className="text-sm font-semibold text-text-heading">This week on BidZone</p>
+              <ul className="mt-4 space-y-3 text-sm text-text-body">
                 <li>94.7% completed transactions closed within 24 hours.</li>
                 <li>Average time from listing to first bid: 11 minutes.</li>
                 <li>Top categories: watches, cards, and studio gear.</li>

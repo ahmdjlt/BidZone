@@ -58,14 +58,14 @@ export default function Sidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 border-r border-blue-100 bg-white md:flex md:flex-col">
+      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 border-r border-border bg-card-bg md:flex md:flex-col">
         <div className="flex h-full flex-col px-4 py-6">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 px-2">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#0f5ddd,#4ea2ff)] text-xs font-black tracking-[0.12em] text-white">
               BZ
             </span>
-            <span className="text-lg font-semibold tracking-tight text-blue-950">
+            <span className="text-lg font-semibold tracking-tight text-text-heading">
               BidZone
             </span>
           </Link>
@@ -83,8 +83,8 @@ export default function Sidebar() {
                   href={item.href}
                   className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-blue-50 text-blue-700"
-                      : "text-slate-600 hover:bg-blue-50/60 hover:text-blue-700"
+                      ? "bg-accent-soft text-text-label"
+                      : "text-text-body hover:bg-accent-soft/60 hover:text-text-label"
                   }`}
                 >
                   {item.icon}
@@ -95,7 +95,7 @@ export default function Sidebar() {
           </nav>
 
           {/* Sign out */}
-          <button className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600">
+          <button className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-text-muted transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30">
             <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1" />
             </svg>
@@ -105,12 +105,12 @@ export default function Sidebar() {
       </aside>
 
       {/* Mobile top bar */}
-      <div className="flex items-center justify-between border-b border-blue-100 bg-white px-4 py-3 md:hidden">
+      <div className="flex items-center justify-between border-b border-border bg-card-bg px-4 py-3 md:hidden">
         <Link href="/" className="flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#0f5ddd,#4ea2ff)] text-[10px] font-black tracking-[0.12em] text-white">
             BZ
           </span>
-          <span className="text-base font-semibold tracking-tight text-blue-950">
+          <span className="text-base font-semibold tracking-tight text-text-heading">
             BidZone
           </span>
         </Link>
@@ -125,7 +125,7 @@ export default function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={`rounded-lg p-2 transition-colors ${
-                  isActive ? "bg-blue-50 text-blue-700" : "text-slate-500 hover:text-blue-700"
+                  isActive ? "bg-accent-soft text-text-label" : "text-text-muted hover:text-text-label"
                 }`}
               >
                 {item.icon}

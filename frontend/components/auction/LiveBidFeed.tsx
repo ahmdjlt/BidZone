@@ -71,18 +71,18 @@ export default function LiveBidFeed({
   }
 
   return (
-    <div className="rounded-2xl border border-blue-100 bg-white">
-      <div className="flex items-center justify-between border-b border-blue-100 px-5 py-3">
+    <div className="rounded-2xl border border-border bg-card-bg">
+      <div className="flex items-center justify-between border-b border-border px-5 py-3">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2.5 w-2.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
           </span>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
             Live feed
           </p>
         </div>
-        <span className="text-xs text-slate-400">
+        <span className="text-xs text-text-muted">
           {bids.length} bids
         </span>
       </div>
@@ -90,43 +90,43 @@ export default function LiveBidFeed({
       <div ref={listRef} className="max-h-72 overflow-y-auto">
         {bids.length === 0 ? (
           <div className="px-5 py-8 text-center">
-            <p className="text-sm text-slate-400">Waiting for bids...</p>
+            <p className="text-sm text-text-muted">Waiting for bids...</p>
             <div className="mt-3 flex justify-center gap-1">
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-300 [animation-delay:0ms]" />
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-300 [animation-delay:150ms]" />
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-300 [animation-delay:300ms]" />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-accent/50 [animation-delay:0ms]" />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-accent/50 [animation-delay:150ms]" />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-accent/50 [animation-delay:300ms]" />
             </div>
           </div>
         ) : (
-          <ul className="divide-y divide-blue-50">
+          <ul className="divide-y divide-divider">
             {bids.map((bid, index) => (
               <li
                 key={bid.id}
                 className={`flex items-center justify-between px-5 py-2.5 transition-all duration-500 ${index === 0
-                    ? "animate-[slideIn_400ms_ease] bg-blue-50/60"
+                    ? "animate-[slideIn_400ms_ease] bg-accent-soft/60"
                     : ""
                   }`}
               >
                 <div className="flex items-center gap-2.5">
                   <div
                     className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold ${index === 0
-                        ? "bg-blue-600 text-white"
-                        : "bg-blue-100 text-blue-600"
+                        ? "bg-accent text-white"
+                        : "bg-accent-soft text-text-label"
                       }`}
                   >
                     {bid.bidder.slice(0, 2).toUpperCase()}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-blue-950">
+                    <p className="text-sm font-medium text-text-heading">
                       {bid.bidder}
                     </p>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-text-muted">
                       {timeAgo(bid.timestamp)}
                     </p>
                   </div>
                 </div>
                 <p
-                  className={`text-sm font-semibold tabular-nums ${index === 0 ? "text-blue-700" : "text-blue-950"
+                  className={`text-sm font-semibold tabular-nums ${index === 0 ? "text-text-label" : "text-text-heading"
                     }`}
                 >
                   {bid.amount}

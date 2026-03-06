@@ -6,7 +6,7 @@ export default function RegisterForm() {
       <div>
         <label
           htmlFor="fullName"
-          className="mb-2 block text-sm font-semibold text-blue-900"
+          className="mb-2 block text-sm font-semibold text-text-heading"
         >
           Full name
         </label>
@@ -16,14 +16,14 @@ export default function RegisterForm() {
           type="text"
           required
           placeholder="Alex Johnson"
-          className="w-full rounded-2xl border border-blue-200 bg-blue-50/50 px-4 py-3 text-lg placeholder:text-slate-400 transition-all duration-200 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200/50"
+          className="w-full rounded-2xl border border-border-strong bg-accent-soft/50 px-4 py-3 text-lg text-text-heading placeholder:text-text-muted transition-all duration-200 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
         />
       </div>
 
       <div>
         <label
           htmlFor="email"
-          className="mb-2 block text-sm font-semibold text-blue-900"
+          className="mb-2 block text-sm font-semibold text-text-heading"
         >
           Email address
         </label>
@@ -33,14 +33,14 @@ export default function RegisterForm() {
           type="email"
           required
           placeholder="your@email.com"
-          className="w-full rounded-2xl border border-blue-200 bg-blue-50/50 px-4 py-3 text-lg placeholder:text-slate-400 transition-all duration-200 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200/50"
+          className="w-full rounded-2xl border border-border-strong bg-accent-soft/50 px-4 py-3 text-lg text-text-heading placeholder:text-text-muted transition-all duration-200 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
         />
       </div>
 
       <div>
         <label
           htmlFor="password"
-          className="mb-2 block text-sm font-semibold text-blue-900"
+          className="mb-2 block text-sm font-semibold text-text-heading"
         >
           Password
         </label>
@@ -51,14 +51,14 @@ export default function RegisterForm() {
           required
           minLength={8}
           placeholder="Minimum 8 characters"
-          className="w-full rounded-2xl border border-blue-200 bg-blue-50/50 px-4 py-3 text-lg placeholder:text-slate-400 transition-all duration-200 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200/50"
+          className="w-full rounded-2xl border border-border-strong bg-accent-soft/50 px-4 py-3 text-lg text-text-heading placeholder:text-text-muted transition-all duration-200 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
         />
       </div>
 
       <div>
         <label
           htmlFor="confirmPassword"
-          className="mb-2 block text-sm font-semibold text-blue-900"
+          className="mb-2 block text-sm font-semibold text-text-heading"
         >
           Confirm password
         </label>
@@ -69,21 +69,21 @@ export default function RegisterForm() {
           required
           minLength={8}
           placeholder="Re-enter your password"
-          className="w-full rounded-2xl border border-blue-200 bg-blue-50/50 px-4 py-3 text-lg placeholder:text-slate-400 transition-all duration-200 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-200/50"
+          className="w-full rounded-2xl border border-border-strong bg-accent-soft/50 px-4 py-3 text-lg text-text-heading placeholder:text-text-muted transition-all duration-200 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
         />
       </div>
 
       <div className="relative flex items-center py-1">
-        <div className="flex-grow border-t border-blue-200/50" />
-        <span className="mx-4 flex-shrink px-2 text-xs uppercase tracking-wider text-slate-500">
+        <div className="flex-grow border-t border-border-strong/50" />
+        <span className="mx-4 flex-shrink px-2 text-xs uppercase tracking-wider text-text-muted">
           Or continue with
         </span>
-        <div className="flex-grow border-t border-blue-200/50" />
+        <div className="flex-grow border-t border-border-strong/50" />
       </div>
 
       <button
         type="button"
-        className="flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-blue-200/50 bg-white/85 px-6 py-3 text-sm font-semibold text-blue-900 shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:bg-white hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-200/50"
+        className="flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-border-strong/50 bg-card-bg/85 px-6 py-3 text-sm font-semibold text-text-heading shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:border-border-strong hover:bg-card-bg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-accent/20"
       >
         <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
           <path
@@ -106,19 +106,19 @@ export default function RegisterForm() {
         Continue with Google
       </button>
 
-      <label className="flex items-start gap-3 text-sm text-slate-600">
+      <label className="flex items-start gap-3 text-sm text-text-body">
         <input
           type="checkbox"
           required
-          className="mt-0.5 h-4 w-4 rounded border-blue-300 text-blue-600 focus:ring-blue-300"
+          className="mt-0.5 h-4 w-4 rounded border-border-strong text-accent focus:ring-accent/50"
         />
         <span>
           I agree to the{" "}
-          <Link href="/terms" className="font-semibold text-blue-600 hover:text-blue-700">
+          <Link href="/terms" className="font-semibold text-accent hover:brightness-110">
             Terms
           </Link>{" "}
           and{" "}
-          <Link href="/privacy" className="font-semibold text-blue-600 hover:text-blue-700">
+          <Link href="/privacy" className="font-semibold text-accent hover:brightness-110">
             Privacy Policy
           </Link>
           .
@@ -127,7 +127,7 @@ export default function RegisterForm() {
 
       <button
         type="submit"
-        className="w-full rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-3 text-lg font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-200/50"
+        className="w-full rounded-2xl bg-gradient-to-r from-accent to-blue-700 px-8 py-3 text-lg font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-accent/20 dark:from-accent dark:to-blue-500"
       >
         Create account
       </button>

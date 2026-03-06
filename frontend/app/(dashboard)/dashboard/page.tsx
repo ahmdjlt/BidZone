@@ -2,10 +2,10 @@
 import Link from "next/link";
 
 const stats = [
-  { label: "Active Listings", value: "8", accent: "bg-blue-50 border-blue-100/80" },
-  { label: "Total Bids Received", value: "214", accent: "bg-blue-50 border-blue-100/80" },
-  { label: "Revenue", value: "$18,430", accent: "bg-blue-50 border-blue-100/80" },
-  { label: "Avg. Sell Uplift", value: "+31%", accent: "bg-blue-50 border-blue-100/80" },
+  { label: "Active Listings", value: "8" },
+  { label: "Total Bids Received", value: "214" },
+  { label: "Revenue", value: "$18,430" },
+  { label: "Avg. Sell Uplift", value: "+31%" },
 ];
 
 const activeAuctions = [
@@ -26,10 +26,10 @@ const recentBids = [
 function StatusBadge({ status }: { status: string }) {
   const styles =
     status === "Ending Soon"
-      ? "bg-amber-50 text-amber-700 border-amber-200"
+      ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800"
       : status === "Ended"
-        ? "bg-slate-50 text-slate-500 border-slate-200"
-        : "bg-emerald-50 text-emerald-700 border-emerald-200";
+        ? "bg-surface-alt text-text-muted border-border-strong"
+        : "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800";
 
   return (
     <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold ${styles}`}>
@@ -43,13 +43,13 @@ export default function DashboardPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
           Seller dashboard
         </p>
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight text-blue-950">
+        <h1 className="mt-1 text-3xl font-semibold tracking-tight text-text-heading">
           Welcome back, Alex
         </h1>
-        <p className="mt-1 text-sm text-slate-600">
+        <p className="mt-1 text-sm text-text-body">
           Here&apos;s what&apos;s happening with your auctions today.
         </p>
       </div>
@@ -59,12 +59,12 @@ export default function DashboardPage() {
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className={`rounded-2xl border p-4 ${stat.accent}`}
+            className="rounded-2xl border border-border/80 bg-accent-soft/70 p-4"
           >
-            <p className="text-[11px] font-semibold uppercase tracking-[0.13em] text-blue-700">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.13em] text-text-label">
               {stat.label}
             </p>
-            <p className="mt-2 text-3xl font-semibold tracking-tight text-blue-950">
+            <p className="mt-2 text-3xl font-semibold tracking-tight text-text-heading">
               {stat.value}
             </p>
           </div>
@@ -74,49 +74,49 @@ export default function DashboardPage() {
       {/* Active Auctions */}
       <section>
         <div className="mb-4 flex items-end justify-between">
-          <h2 className="text-xl font-semibold tracking-tight text-blue-950">
+          <h2 className="text-xl font-semibold tracking-tight text-text-heading">
             My Active Auctions
           </h2>
           <Link
             href="/auctions/create"
-            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_28px_-18px_rgba(8,72,184,0.95)] transition hover:bg-blue-700"
+            className="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_28px_-18px_rgba(8,72,184,0.95)] transition hover:brightness-110"
           >
             + New listing
           </Link>
         </div>
-        <div className="overflow-hidden rounded-[1.5rem] border border-blue-100 bg-white shadow-[0_24px_60px_-40px_rgba(27,111,242,0.25)]">
+        <div className="overflow-hidden rounded-[1.5rem] border border-border bg-card-bg card-shadow-light">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-blue-100 bg-blue-50/60">
-                  <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-blue-700">
+                <tr className="border-b border-border bg-accent-soft/60">
+                  <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-text-label">
                     Auction
                   </th>
-                  <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-blue-700">
+                  <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-text-label">
                     Current Bid
                   </th>
-                  <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-blue-700">
+                  <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-text-label">
                     Bids
                   </th>
-                  <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-blue-700">
+                  <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-text-label">
                     Time Left
                   </th>
-                  <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-blue-700">
+                  <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-text-label">
                     Status
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-blue-50">
+              <tbody className="divide-y divide-divider">
                 {activeAuctions.map((auction) => (
-                  <tr key={auction.id} className="transition-colors hover:bg-blue-50/40">
+                  <tr key={auction.id} className="transition-colors hover:bg-accent-soft/40">
                     <td className="px-5 py-3.5">
-                      <Link href={`/auctions/${auction.id}`} className="font-medium text-blue-950 hover:text-blue-700">
+                      <Link href={`/auctions/${auction.id}`} className="font-medium text-text-heading hover:text-text-label">
                         {auction.title}
                       </Link>
                     </td>
-                    <td className="px-5 py-3.5 font-semibold text-blue-950">{auction.currentBid}</td>
-                    <td className="px-5 py-3.5 text-slate-600">{auction.bids}</td>
-                    <td className="px-5 py-3.5 text-slate-600">{auction.endsIn}</td>
+                    <td className="px-5 py-3.5 font-semibold text-text-heading">{auction.currentBid}</td>
+                    <td className="px-5 py-3.5 text-text-body">{auction.bids}</td>
+                    <td className="px-5 py-3.5 text-text-body">{auction.endsIn}</td>
                     <td className="px-5 py-3.5">
                       <StatusBadge status={auction.status} />
                     </td>
@@ -130,27 +130,27 @@ export default function DashboardPage() {
 
       {/* Recent Bids */}
       <section>
-        <h2 className="mb-4 text-xl font-semibold tracking-tight text-blue-950">
+        <h2 className="mb-4 text-xl font-semibold tracking-tight text-text-heading">
           Recent Bids
         </h2>
         <div className="space-y-3">
           {recentBids.map((bid, i) => (
             <div
               key={i}
-              className="flex items-center justify-between rounded-2xl border border-blue-100 bg-white px-5 py-3.5 shadow-[0_8px_30px_-20px_rgba(27,111,242,0.15)]"
+              className="flex items-center justify-between rounded-2xl border border-border bg-card-bg px-5 py-3.5 shadow-[0_8px_30px_-20px_var(--card-shadow-light)]"
             >
               <div className="flex items-center gap-4">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 text-xs font-bold text-blue-700">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent-soft text-xs font-bold text-text-label">
                   {bid.bidder.split(" ").map((n) => n[0]).join("")}
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-blue-950">{bid.bidder}</p>
-                  <p className="text-xs text-slate-500">on {bid.auction}</p>
+                  <p className="text-sm font-medium text-text-heading">{bid.bidder}</p>
+                  <p className="text-xs text-text-muted">on {bid.auction}</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-sm font-semibold text-blue-950">{bid.amount}</p>
-                <p className="text-xs text-slate-500">{bid.time}</p>
+                <p className="text-sm font-semibold text-text-heading">{bid.amount}</p>
+                <p className="text-xs text-text-muted">{bid.time}</p>
               </div>
             </div>
           ))}
@@ -158,19 +158,19 @@ export default function DashboardPage() {
       </section>
 
       {/* Danger zone */}
-      <section className="rounded-[1.5rem] border border-red-200 bg-red-50/60 p-5 shadow-[0_16px_40px_-28px_rgba(220,38,38,0.4)] sm:p-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.13em] text-red-700">
+      <section className="rounded-[1.5rem] border border-red-200 bg-red-50/60 p-5 shadow-[0_16px_40px_-28px_rgba(220,38,38,0.4)] dark:border-red-800 dark:bg-red-950/30 sm:p-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.13em] text-red-700 dark:text-red-400">
           Danger zone
         </p>
-        <h2 className="mt-2 text-xl font-semibold tracking-tight text-red-900">
+        <h2 className="mt-2 text-xl font-semibold tracking-tight text-red-900 dark:text-red-300">
           Delete account
         </h2>
-        <p className="mt-2 max-w-2xl text-sm text-red-800/90">
+        <p className="mt-2 max-w-2xl text-sm text-red-800/90 dark:text-red-400/80">
           Permanently remove your account and all associated auctions, bids, and profile data.
         </p>
         <button
           type="button"
-          className="mt-4 rounded-xl border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus:ring-4 focus:ring-red-200/70"
+          className="mt-4 rounded-xl border border-red-300 bg-card-bg px-4 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus:ring-4 focus:ring-red-200/70 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950/50"
         >
           Delete account
         </button>

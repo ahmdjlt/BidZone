@@ -43,11 +43,11 @@ export default function CountdownTimer({ endTime }: CountdownTimerProps) {
 
   if (timeLeft.expired) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+      <div className="rounded-2xl border border-border-strong bg-surface-alt p-4 text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-muted">
           Auction ended
         </p>
-        <p className="mt-2 text-lg font-semibold text-slate-400">00 : 00 : 00</p>
+        <p className="mt-2 text-lg font-semibold text-text-muted">00 : 00 : 00</p>
       </div>
     );
   }
@@ -55,13 +55,13 @@ export default function CountdownTimer({ endTime }: CountdownTimerProps) {
   return (
     <div
       className={`rounded-2xl border p-4 transition-colors duration-500 ${isUrgent
-        ? "border-red-200 bg-red-50/70"
-        : "border-blue-100 bg-blue-50/70"
+        ? "border-red-200 bg-red-50/70 dark:border-red-800 dark:bg-red-950/30"
+        : "border-border bg-accent-soft/70"
         }`}
     >
       <div className="mb-3 flex items-center justify-between">
         <p
-          className={`text-xs font-semibold uppercase tracking-[0.14em] ${isUrgent ? "text-red-600" : "text-blue-700"
+          className={`text-xs font-semibold uppercase tracking-[0.14em] ${isUrgent ? "text-red-600 dark:text-red-400" : "text-text-label"
             }`}
         >
           {isUrgent ? "Ending soon!" : "Time remaining"}
@@ -100,18 +100,18 @@ function TimeBlock({
   return (
     <div
       className={`flex min-w-[3.2rem] flex-col items-center rounded-xl border px-3 py-2 ${urgent
-        ? "border-red-200 bg-white shadow-[0_8px_24px_-12px_rgba(220,38,38,0.35)]"
-        : "border-blue-100 bg-white shadow-[0_8px_24px_-12px_rgba(27,111,242,0.3)]"
+        ? "border-red-200 bg-card-bg shadow-[0_8px_24px_-12px_rgba(220,38,38,0.35)] dark:border-red-800"
+        : "border-border bg-card-bg shadow-[0_8px_24px_-12px_var(--card-shadow)]"
         }`}
     >
       <span
-        className={`text-2xl font-semibold tabular-nums tracking-tight ${urgent ? "text-red-700" : "text-blue-950"
+        className={`text-2xl font-semibold tabular-nums tracking-tight ${urgent ? "text-red-700 dark:text-red-400" : "text-text-heading"
           }`}
       >
         {pad(value)}
       </span>
       <span
-        className={`text-[10px] font-semibold uppercase tracking-[0.12em] ${urgent ? "text-red-400" : "text-blue-400"
+        className={`text-[10px] font-semibold uppercase tracking-[0.12em] ${urgent ? "text-red-400 dark:text-red-500" : "text-text-muted"
           }`}
       >
         {label}
@@ -123,7 +123,7 @@ function TimeBlock({
 function Separator({ urgent }: { urgent: boolean }) {
   return (
     <span
-      className={`text-lg font-bold ${urgent ? "text-red-300" : "text-blue-300"}`}
+      className={`text-lg font-bold ${urgent ? "text-red-300 dark:text-red-700" : "text-text-muted"}`}
     >
       :
     </span>
