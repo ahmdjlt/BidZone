@@ -24,7 +24,7 @@ const navItems = [
     ),
   },
   {
-    href: "/auctions/create",
+    href: "/create-listing",
     label: "Create Auction",
     icon: (
       <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -33,7 +33,7 @@ const navItems = [
     ),
   },
   {
-    href: "/auctions",
+    href: "/browse",
     label: "Browse",
     icon: (
       <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -42,7 +42,7 @@ const navItems = [
     ),
   },
   {
-    href: "/profile/me",
+    href: "/profile",
     label: "Profile",
     icon: (
       <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
