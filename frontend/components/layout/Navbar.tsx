@@ -3,9 +3,9 @@ import Link from "next/link";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 
 const navLinks = [
-  { href: "/auctions",        label: "Browse"    },
-  { href: "/auctions/create", label: "Sell"      },
-  { href: "/dashboard",       label: "Dashboard" },
+  { href: "/auctions",        label: "Browse"       },
+  { href: "/how-it-works",    label: "How It Works" },
+  { href: "/auctions/create", label: "Sell"         },
 ];
 
 export default function Navbar() {
