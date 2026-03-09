@@ -1,10 +1,96 @@
 // Create auction page - form for sellers to create a new auction listing
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 const categories = ["Collectibles", "Electronics", "Art", "Sports Cards", "Gear", "Books", "Home Design", "Other"];
 const durations = ["1 day", "3 days", "5 days", "7 days", "10 days", "14 days"];
 
+function Dropdown({
+  label,
+  options,
+  placeholder,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: string[];
+  placeholder?: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div>
+      <label className="mb-1.5 block text-sm font-semibold text-text-heading">
+        {label}
+      </label>
+      <div ref={ref} className="relative">
+        <button
+          type="button"
+          onClick={() => setIsOpen((prev) => !prev)}
+          className="flex w-full items-center justify-between gap-2 rounded-xl border border-border-strong bg-input-bg px-4 py-2.5 text-left text-sm font-medium text-text-heading focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+        >
+          <span className={value ? "" : "text-text-muted"}>{value || placeholder || "Select..."}</span>
+          <svg
+            className={`h-4 w-4 text-text-heading transition-transform ${isOpen ? "rotate-180" : ""}`}
+            viewBox="0 0 20 20"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M6 8l4 4 4-4"
+              stroke="currentColor"
+              strokeWidth="1.9"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+
+        {isOpen && (
+          <div className="absolute left-0 z-20 mt-1 w-full overflow-hidden rounded-xl border border-border-strong bg-card-bg shadow-[0_12px_24px_-16px_var(--card-shadow)]">
+            {options.map((option) => (
+              <button
+                key={option}
+                type="button"
+                onClick={() => {
+                  onChange(option);
+                  setIsOpen(false);
+                }}
+                className={`block w-full px-4 py-2.5 text-left text-sm leading-tight ${
+                  option === value
+                    ? "bg-accent font-medium text-white"
+                    : "text-text-heading hover:bg-accent-soft"
+                }`}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function CreateAuctionPage() {
+  const [category, setCategory] = useState("");
+  const [duration, setDuration] = useState("7 days");
+
   return (
     <>
       {/* Header */}
@@ -49,27 +135,19 @@ export default function CreateAuctionPage() {
 
           {/* Category + Duration */}
           <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-1.5 block text-sm font-semibold text-text-heading">
-                Category
-              </label>
-              <select className="w-full rounded-xl border border-border-strong bg-input-bg px-4 py-2.5 text-sm text-text-heading focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20">
-                <option value="">Select category</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-sm font-semibold text-text-heading">
-                Duration
-              </label>
-              <select className="w-full rounded-xl border border-border-strong bg-input-bg px-4 py-2.5 text-sm text-text-heading focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20">
-                {durations.map((d) => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
-            </div>
+            <Dropdown
+              label="Category"
+              options={categories}
+              placeholder="Select category"
+              value={category}
+              onChange={setCategory}
+            />
+            <Dropdown
+              label="Duration"
+              options={durations}
+              value={duration}
+              onChange={setDuration}
+            />
           </div>
 
           {/* Starting Price + Reserve Price */}
