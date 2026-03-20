@@ -1,31 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj": {}
+    "C:\\Users\\Irina Ghidenco\\Documents\\Development\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj": {}
   },
   "projects": {
-    "C:\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj": {
+    "C:\\Users\\Irina Ghidenco\\Documents\\Development\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj",
+        "projectUniqueName": "C:\\Users\\Irina Ghidenco\\Documents\\Development\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj",
         "projectName": "BidZone.Models",
-        "projectPath": "C:\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj",
-        "packagesPath": "C:\\Users\\george\\.nuget\\packages\\",
-        "outputPath": "C:\\BidZone\\backend\\BidZone.Models\\obj\\",
+        "projectPath": "C:\\Users\\Irina Ghidenco\\Documents\\Development\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj",
+        "packagesPath": "C:\\Users\\Irina Ghidenco\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Irina Ghidenco\\Documents\\Development\\BidZone\\backend\\BidZone.Models\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\george\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\Irina Ghidenco\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -44,7 +38,7 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "10.0.200"
       },
       "frameworks": {
         "net10.0": {
@@ -52,17 +46,17 @@
           "dependencies": {
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[8.0.*, )"
+              "version": "[10.0.*, )"
             },
             "Microsoft.EntityFrameworkCore.Tools": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[8.0.*, )"
+              "version": "[10.0.*, )"
             },
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
-              "version": "[8.0.*, )"
+              "version": "[10.0.*, )"
             },
             "System.ComponentModel.Annotations": {
               "target": "Package",
@@ -85,7 +79,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",

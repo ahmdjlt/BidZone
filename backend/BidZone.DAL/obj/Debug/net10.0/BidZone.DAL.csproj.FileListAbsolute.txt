@@ -30,3 +30,19 @@ C:\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone.DAL.dll
 C:\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\refint\BidZone.DAL.dll
 C:\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone.DAL.pdb
 C:\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\ref\BidZone.DAL.dll
+C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.DAL\bin\Debug\net10.0\BidZone.DAL.deps.json
+C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.DAL\bin\Debug\net10.0\BidZone.DAL.dll
+C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.DAL\bin\Debug\net10.0\BidZone.DAL.pdb
+C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.DAL\bin\Debug\net10.0\BidZone.Models.dll
+C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.DAL\bin\Debug\net10.0\BidZone.Models.pdb
+C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone.DAL.csproj.AssemblyReference.cache
+C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone.DAL.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone.DAL.AssemblyInfoInputs.cache
+C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone.DAL.AssemblyInfo.cs
+C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone.DAL.csproj.CoreCompileInputs.cache
+C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone.DAL.sourcelink.json
+C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone..DAB34CF2.Up2Date
+C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone.DAL.dll
+C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\refint\BidZone.DAL.dll
+C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\BidZone.DAL.pdb
+C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.DAL\obj\Debug\net10.0\ref\BidZone.DAL.dll
