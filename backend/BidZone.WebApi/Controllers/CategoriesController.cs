@@ -7,26 +7,24 @@ namespace BidZone.WebApi.Controllers;
 [Route("api/categories")]
 public class CategoriesController : ControllerBase
 {
-    private readonly ICategoryLogic _categoryLogic;
-    private readonly IAuctionLogic _auctionLogic;
+    private readonly IBusinessLogic _businessLogic;
 
-    public CategoriesController(ICategoryLogic categoryLogic, IAuctionLogic auctionLogic)
+    public CategoriesController(IBusinessLogic businessLogic)
     {
-        _categoryLogic = categoryLogic;
-        _auctionLogic = auctionLogic;
+        _businessLogic = businessLogic;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var categories = await _categoryLogic.GetAllAsync();
+        var categories = await _businessLogic.Categories.GetAllAsync();
         return Ok(categories);
     }
 
     [HttpGet("{id}/auctions")]
     public async Task<IActionResult> GetAuctionsByCategory(int id)
     {
-        var auctions = await _auctionLogic.GetByCategoryAsync(id);
+        var auctions = await _businessLogic.Auctions.GetByCategoryAsync(id);
         return Ok(auctions);
     }
 }

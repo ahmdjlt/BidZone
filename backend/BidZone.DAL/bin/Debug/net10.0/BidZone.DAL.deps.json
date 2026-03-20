@@ -9,36 +9,36 @@
       "BidZone.DAL/1.0.0": {
         "dependencies": {
           "BidZone.Models": "1.0.0",
-          "Microsoft.EntityFrameworkCore": "8.0.24"
+          "Microsoft.EntityFrameworkCore": "8.0.25"
         },
         "runtime": {
           "BidZone.DAL.dll": {}
         }
       },
-      "Microsoft.EntityFrameworkCore/8.0.24": {
+      "Microsoft.EntityFrameworkCore/8.0.25": {
         "dependencies": {
-          "Microsoft.EntityFrameworkCore.Abstractions": "8.0.24",
+          "Microsoft.EntityFrameworkCore.Abstractions": "8.0.25",
           "Microsoft.Extensions.Caching.Memory": "8.0.1",
           "Microsoft.Extensions.Logging": "8.0.1"
         },
         "runtime": {
           "lib/net8.0/Microsoft.EntityFrameworkCore.dll": {
-            "assemblyVersion": "8.0.24.0",
-            "fileVersion": "8.0.2426.7202"
+            "assemblyVersion": "8.0.25.0",
+            "fileVersion": "8.0.2526.11206"
           }
         }
       },
-      "Microsoft.EntityFrameworkCore.Abstractions/8.0.24": {
+      "Microsoft.EntityFrameworkCore.Abstractions/8.0.25": {
         "runtime": {
           "lib/net8.0/Microsoft.EntityFrameworkCore.Abstractions.dll": {
-            "assemblyVersion": "8.0.24.0",
-            "fileVersion": "8.0.2426.7202"
+            "assemblyVersion": "8.0.25.0",
+            "fileVersion": "8.0.2526.11206"
           }
         }
       },
       "Microsoft.EntityFrameworkCore.Relational/8.0.11": {
         "dependencies": {
-          "Microsoft.EntityFrameworkCore": "8.0.24",
+          "Microsoft.EntityFrameworkCore": "8.0.25",
           "Microsoft.Extensions.Configuration.Abstractions": "8.0.0"
         },
         "runtime": {
@@ -161,8 +161,8 @@
       },
       "Npgsql.EntityFrameworkCore.PostgreSQL/8.0.11": {
         "dependencies": {
-          "Microsoft.EntityFrameworkCore": "8.0.24",
-          "Microsoft.EntityFrameworkCore.Abstractions": "8.0.24",
+          "Microsoft.EntityFrameworkCore": "8.0.25",
+          "Microsoft.EntityFrameworkCore.Abstractions": "8.0.25",
           "Microsoft.EntityFrameworkCore.Relational": "8.0.11",
           "Npgsql": "8.0.6"
         },
@@ -175,7 +175,7 @@
       },
       "BidZone.Models/1.0.0": {
         "dependencies": {
-          "Microsoft.EntityFrameworkCore": "8.0.24",
+          "Microsoft.EntityFrameworkCore": "8.0.25",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.11"
         },
         "runtime": {
@@ -193,19 +193,19 @@
       "serviceable": false,
       "sha512": ""
     },
-    "Microsoft.EntityFrameworkCore/8.0.24": {
+    "Microsoft.EntityFrameworkCore/8.0.25": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-Jf82MqfFU3Nte4Cpmtq5HXhQfXHYhJawFawWuy281uiibg/Ch9z9D/gMnORFhjmGSxzSA4CmRaHwDm2lU9H/ZA==",
-      "path": "microsoft.entityframeworkcore/8.0.24",
-      "hashPath": "microsoft.entityframeworkcore.8.0.24.nupkg.sha512"
+      "sha512": "sha512-1seNis+YnJwiQpwzBCQVWTlyfnlfwotQUkCC0MINwS6yt5Gco4XZ/xOz1fB5uwAWjO/TrDzL/sIMk2hXPxeHbg==",
+      "path": "microsoft.entityframeworkcore/8.0.25",
+      "hashPath": "microsoft.entityframeworkcore.8.0.25.nupkg.sha512"
     },
-    "Microsoft.EntityFrameworkCore.Abstractions/8.0.24": {
+    "Microsoft.EntityFrameworkCore.Abstractions/8.0.25": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-epzWc4RnG6aQS+MfIK1gg1XbL8ZTYgKtW8L1lDVHG4C3nilLd6tX8moX6Sv8sXQkH/tMhWhT2e4Nm811kYeoxg==",
-      "path": "microsoft.entityframeworkcore.abstractions/8.0.24",
-      "hashPath": "microsoft.entityframeworkcore.abstractions.8.0.24.nupkg.sha512"
+      "sha512": "sha512-YGJD4/P34LsQetSH5R0J58nAWSFGn7BE11zThfCkILTW8wy+9/kwqM2P0ciHhuzlPzwApputDfQ5u35+fH6BGQ==",
+      "path": "microsoft.entityframeworkcore.abstractions/8.0.25",
+      "hashPath": "microsoft.entityframeworkcore.abstractions.8.0.25.nupkg.sha512"
     },
     "Microsoft.EntityFrameworkCore.Relational/8.0.11": {
       "type": "package",

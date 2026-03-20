@@ -9,24 +9,24 @@ namespace BidZone.WebApi.Controllers;
 [AuthorizeRoles("Admin")]
 public class ReportsController : ControllerBase
 {
-    private readonly IReportLogic _reportLogic;
+    private readonly IBusinessLogic _businessLogic;
 
-    public ReportsController(IReportLogic reportLogic)
+    public ReportsController(IBusinessLogic businessLogic)
     {
-        _reportLogic = reportLogic;
+        _businessLogic = businessLogic;
     }
 
     [HttpGet("dashboard")]
     public async Task<IActionResult> GetDashboardStats()
     {
-        var stats = await _reportLogic.GetDashboardStatsAsync();
+        var stats = await _businessLogic.Reports.GetDashboardStatsAsync();
         return Ok(stats);
     }
 
     [HttpGet("bid-activity")]
     public async Task<IActionResult> GetBidActivity([FromQuery] int days = 30)
     {
-        var activity = await _reportLogic.GetBidActivityAsync(days);
+        var activity = await _businessLogic.Reports.GetBidActivityAsync(days);
         return Ok(activity);
     }
 }

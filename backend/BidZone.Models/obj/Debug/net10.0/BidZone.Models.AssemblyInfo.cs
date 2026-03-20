@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BidZone.Models")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d224c641e1aa179554f82e7562a4abd69a027b9d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+781f6b88c435f7d3ea8197528431bc2e169507b7")]
 [assembly: System.Reflection.AssemblyProductAttribute("BidZone.Models")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BidZone.Models")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
