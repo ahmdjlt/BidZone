@@ -29,6 +29,7 @@ builder.Services.AddScoped<ICategoryLogic, CategoryLogic>();
 builder.Services.AddScoped<IWatchlistLogic, WatchlistLogic>();
 builder.Services.AddScoped<IUserLogic, UserLogic>();
 builder.Services.AddScoped<IReportLogic, ReportLogic>();
+builder.Services.AddScoped<IBusinessLogic, BusinessLogic>();
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

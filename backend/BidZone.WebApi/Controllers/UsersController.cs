@@ -9,17 +9,17 @@ namespace BidZone.WebApi.Controllers;
 [Route("api/users")]
 public class UsersController : ControllerBase
 {
-    private readonly IUserLogic _userLogic;
+    private readonly IBusinessLogic _businessLogic;
 
-    public UsersController(IUserLogic userLogic)
+    public UsersController(IBusinessLogic businessLogic)
     {
-        _userLogic = userLogic;
+        _businessLogic = businessLogic;
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var user = await _userLogic.GetByIdAsync(id);
+        var user = await _businessLogic.Users.GetByIdAsync(id);
         if (user == null)
             return NotFound();
         return Ok(user);
@@ -35,7 +35,7 @@ public class UsersController : ControllerBase
         if (userId != id && role != "Admin")
             return Forbid();
 
-        var user = await _userLogic.UpdateAsync(id, dto);
+        var user = await _businessLogic.Users.UpdateAsync(id, dto);
         if (user == null)
             return NotFound();
         return Ok(user);
@@ -45,7 +45,7 @@ public class UsersController : ControllerBase
     [AuthorizeRoles("Admin")]
     public async Task<IActionResult> GetAll()
     {
-        var users = await _userLogic.GetAllAsync();
+        var users = await _businessLogic.Users.GetAllAsync();
         return Ok(users);
     }
 
@@ -53,7 +53,7 @@ public class UsersController : ControllerBase
     [AuthorizeRoles("Admin")]
     public async Task<IActionResult> Delete(int id)
     {
-        var result = await _userLogic.DeleteAsync(id);
+        var result = await _businessLogic.Users.DeleteAsync(id);
         if (!result)
             return NotFound();
         return NoContent();

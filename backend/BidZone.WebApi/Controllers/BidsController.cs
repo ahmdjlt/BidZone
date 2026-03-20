@@ -9,11 +9,11 @@ namespace BidZone.WebApi.Controllers;
 [Route("api/bids")]
 public class BidsController : ControllerBase
 {
-    private readonly IBidLogic _bidLogic;
+    private readonly IBusinessLogic _businessLogic;
 
-    public BidsController(IBidLogic bidLogic)
+    public BidsController(IBusinessLogic businessLogic)
     {
-        _bidLogic = bidLogic;
+        _businessLogic = businessLogic;
     }
 
     [HttpPost]
@@ -21,7 +21,7 @@ public class BidsController : ControllerBase
     public async Task<IActionResult> PlaceBid([FromBody] PlaceBidDto dto)
     {
         var bidderId = (int)HttpContext.Items["UserId"]!;
-        var bid = await _bidLogic.PlaceBidAsync(dto, bidderId);
+        var bid = await _businessLogic.Bids.PlaceBidAsync(dto, bidderId);
         if (bid == null)
             return BadRequest(new { message = "Cannot place bid. Check auction status and bid amount." });
         return Ok(bid);
@@ -30,7 +30,7 @@ public class BidsController : ControllerBase
     [HttpGet("auction/{auctionId}")]
     public async Task<IActionResult> GetByAuction(int auctionId)
     {
-        var bids = await _bidLogic.GetByAuctionAsync(auctionId);
+        var bids = await _businessLogic.Bids.GetByAuctionAsync(auctionId);
         return Ok(bids);
     }
 
@@ -39,14 +39,14 @@ public class BidsController : ControllerBase
     public async Task<IActionResult> GetMyBids()
     {
         var userId = (int)HttpContext.Items["UserId"]!;
-        var bids = await _bidLogic.GetByUserAsync(userId);
+        var bids = await _businessLogic.Bids.GetByUserAsync(userId);
         return Ok(bids);
     }
 
     [HttpGet("auction/{auctionId}/highest")]
     public async Task<IActionResult> GetHighestBid(int auctionId)
     {
-        var bid = await _bidLogic.GetHighestBidAsync(auctionId);
+        var bid = await _businessLogic.Bids.GetHighestBidAsync(auctionId);
         if (bid == null)
             return NotFound();
         return Ok(bid);

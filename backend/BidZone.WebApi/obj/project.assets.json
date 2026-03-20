@@ -315,11 +315,11 @@
           }
         }
       },
-      "Microsoft.EntityFrameworkCore/8.0.24": {
+      "Microsoft.EntityFrameworkCore/8.0.25": {
         "type": "package",
         "dependencies": {
-          "Microsoft.EntityFrameworkCore.Abstractions": "8.0.24",
-          "Microsoft.EntityFrameworkCore.Analyzers": "8.0.24"
+          "Microsoft.EntityFrameworkCore.Abstractions": "8.0.25",
+          "Microsoft.EntityFrameworkCore.Analyzers": "8.0.25"
         },
         "compile": {
           "lib/net8.0/Microsoft.EntityFrameworkCore.dll": {
@@ -335,7 +335,7 @@
           "buildTransitive/net8.0/Microsoft.EntityFrameworkCore.props": {}
         }
       },
-      "Microsoft.EntityFrameworkCore.Abstractions/8.0.24": {
+      "Microsoft.EntityFrameworkCore.Abstractions/8.0.25": {
         "type": "package",
         "compile": {
           "lib/net8.0/Microsoft.EntityFrameworkCore.Abstractions.dll": {
@@ -348,7 +348,7 @@
           }
         }
       },
-      "Microsoft.EntityFrameworkCore.Analyzers/8.0.24": {
+      "Microsoft.EntityFrameworkCore.Analyzers/8.0.25": {
         "type": "package",
         "compile": {
           "lib/netstandard2.0/_._": {}
@@ -357,12 +357,12 @@
           "lib/netstandard2.0/_._": {}
         }
       },
-      "Microsoft.EntityFrameworkCore.Design/8.0.24": {
+      "Microsoft.EntityFrameworkCore.Design/8.0.25": {
         "type": "package",
         "dependencies": {
           "Humanizer.Core": "2.14.1",
           "Microsoft.CodeAnalysis.CSharp.Workspaces": "4.5.0",
-          "Microsoft.EntityFrameworkCore.Relational": "8.0.24",
+          "Microsoft.EntityFrameworkCore.Relational": "8.0.25",
           "Microsoft.Extensions.DependencyModel": "8.0.2",
           "Mono.TextTemplating": "2.2.1"
         },
@@ -380,10 +380,10 @@
           "build/net8.0/Microsoft.EntityFrameworkCore.Design.props": {}
         }
       },
-      "Microsoft.EntityFrameworkCore.Relational/8.0.24": {
+      "Microsoft.EntityFrameworkCore.Relational/8.0.25": {
         "type": "package",
         "dependencies": {
-          "Microsoft.EntityFrameworkCore": "8.0.24"
+          "Microsoft.EntityFrameworkCore": "8.0.25"
         },
         "compile": {
           "lib/net8.0/Microsoft.EntityFrameworkCore.Relational.dll": {
@@ -1240,10 +1240,10 @@
         "microsoft.codeanalysis.workspaces.common.nuspec"
       ]
     },
-    "Microsoft.EntityFrameworkCore/8.0.24": {
-      "sha512": "Jf82MqfFU3Nte4Cpmtq5HXhQfXHYhJawFawWuy281uiibg/Ch9z9D/gMnORFhjmGSxzSA4CmRaHwDm2lU9H/ZA==",
+    "Microsoft.EntityFrameworkCore/8.0.25": {
+      "sha512": "1seNis+YnJwiQpwzBCQVWTlyfnlfwotQUkCC0MINwS6yt5Gco4XZ/xOz1fB5uwAWjO/TrDzL/sIMk2hXPxeHbg==",
       "type": "package",
-      "path": "microsoft.entityframeworkcore/8.0.24",
+      "path": "microsoft.entityframeworkcore/8.0.25",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -1252,14 +1252,14 @@
         "buildTransitive/net8.0/Microsoft.EntityFrameworkCore.props",
         "lib/net8.0/Microsoft.EntityFrameworkCore.dll",
         "lib/net8.0/Microsoft.EntityFrameworkCore.xml",
-        "microsoft.entityframeworkcore.8.0.24.nupkg.sha512",
+        "microsoft.entityframeworkcore.8.0.25.nupkg.sha512",
         "microsoft.entityframeworkcore.nuspec"
       ]
     },
-    "Microsoft.EntityFrameworkCore.Abstractions/8.0.24": {
-      "sha512": "epzWc4RnG6aQS+MfIK1gg1XbL8ZTYgKtW8L1lDVHG4C3nilLd6tX8moX6Sv8sXQkH/tMhWhT2e4Nm811kYeoxg==",
+    "Microsoft.EntityFrameworkCore.Abstractions/8.0.25": {
+      "sha512": "YGJD4/P34LsQetSH5R0J58nAWSFGn7BE11zThfCkILTW8wy+9/kwqM2P0ciHhuzlPzwApputDfQ5u35+fH6BGQ==",
       "type": "package",
-      "path": "microsoft.entityframeworkcore.abstractions/8.0.24",
+      "path": "microsoft.entityframeworkcore.abstractions/8.0.25",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -1267,14 +1267,14 @@
         "PACKAGE.md",
         "lib/net8.0/Microsoft.EntityFrameworkCore.Abstractions.dll",
         "lib/net8.0/Microsoft.EntityFrameworkCore.Abstractions.xml",
-        "microsoft.entityframeworkcore.abstractions.8.0.24.nupkg.sha512",
+        "microsoft.entityframeworkcore.abstractions.8.0.25.nupkg.sha512",
         "microsoft.entityframeworkcore.abstractions.nuspec"
       ]
     },
-    "Microsoft.EntityFrameworkCore.Analyzers/8.0.24": {
-      "sha512": "nuMx9iCGkZgHvPKlnrYBjlxRgy8VDe443H0PbiDUvxQ8+4nC5JYhqQ9u5lg+FssnTh+QyvwVVVHvkCyAnrpajA==",
+    "Microsoft.EntityFrameworkCore.Analyzers/8.0.25": {
+      "sha512": "jHtsaYPDBoNsIA085ZbqrZGidG+rnoZGJ/0JTL6QHR0XV4JLnLoJgPao7zVsqhEVJUnS7JOfVClr0UThAxoiuQ==",
       "type": "package",
-      "path": "microsoft.entityframeworkcore.analyzers/8.0.24",
+      "path": "microsoft.entityframeworkcore.analyzers/8.0.25",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -1282,14 +1282,14 @@
         "analyzers/dotnet/cs/Microsoft.EntityFrameworkCore.Analyzers.dll",
         "docs/PACKAGE.md",
         "lib/netstandard2.0/_._",
-        "microsoft.entityframeworkcore.analyzers.8.0.24.nupkg.sha512",
+        "microsoft.entityframeworkcore.analyzers.8.0.25.nupkg.sha512",
         "microsoft.entityframeworkcore.analyzers.nuspec"
       ]
     },
-    "Microsoft.EntityFrameworkCore.Design/8.0.24": {
-      "sha512": "C/4u0K68tnv7+gci1aB8x6MMS/U+00SS/2/u2tyaF9S5azIrELc3c8qf7UGB2GT7/sXHP0fhT/od2dg4gU0sSg==",
+    "Microsoft.EntityFrameworkCore.Design/8.0.25": {
+      "sha512": "f/cgXiK0rJs95yE0A+7eYF29hW+P66frX1QVguM8rBhAooXFzeVT9WHPkEAkQbYXExpTRQk9B8JGPDfLs3ze5w==",
       "type": "package",
-      "path": "microsoft.entityframeworkcore.design/8.0.24",
+      "path": "microsoft.entityframeworkcore.design/8.0.25",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -1298,14 +1298,14 @@
         "build/net8.0/Microsoft.EntityFrameworkCore.Design.props",
         "lib/net8.0/Microsoft.EntityFrameworkCore.Design.dll",
         "lib/net8.0/Microsoft.EntityFrameworkCore.Design.xml",
-        "microsoft.entityframeworkcore.design.8.0.24.nupkg.sha512",
+        "microsoft.entityframeworkcore.design.8.0.25.nupkg.sha512",
         "microsoft.entityframeworkcore.design.nuspec"
       ]
     },
-    "Microsoft.EntityFrameworkCore.Relational/8.0.24": {
-      "sha512": "QMGORS3ltx2RWHBCUcBjadS0eNYGkTGXsOdZf3oSM6pZuNBBl16z6gThA3a+BF8T5HY3jThxVDFKaPHxmpueXA==",
+    "Microsoft.EntityFrameworkCore.Relational/8.0.25": {
+      "sha512": "/6S+I5PvmlzDeLMCXZGCXmnUNiJdLyucUrnwkItNhNRZB8ftVYXdyM0omNwm3UDvRSQVMnb3e5s7+YusLvvYeg==",
       "type": "package",
-      "path": "microsoft.entityframeworkcore.relational/8.0.24",
+      "path": "microsoft.entityframeworkcore.relational/8.0.25",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -1313,7 +1313,7 @@
         "PACKAGE.md",
         "lib/net8.0/Microsoft.EntityFrameworkCore.Relational.dll",
         "lib/net8.0/Microsoft.EntityFrameworkCore.Relational.xml",
-        "microsoft.entityframeworkcore.relational.8.0.24.nupkg.sha512",
+        "microsoft.entityframeworkcore.relational.8.0.25.nupkg.sha512",
         "microsoft.entityframeworkcore.relational.nuspec"
       ]
     },
@@ -2024,19 +2024,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Roman\\.nuget\\packages\\": {}
+    "C:\\Users\\george\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Development\\BidZone\\backend\\BidZone.WebApi\\BidZone.WebApi.csproj",
+      "projectUniqueName": "C:\\BidZone\\backend\\BidZone.WebApi\\BidZone.WebApi.csproj",
       "projectName": "BidZone.WebApi",
-      "projectPath": "D:\\Development\\BidZone\\backend\\BidZone.WebApi\\BidZone.WebApi.csproj",
-      "packagesPath": "C:\\Users\\Roman\\.nuget\\packages\\",
-      "outputPath": "D:\\Development\\BidZone\\backend\\BidZone.WebApi\\obj\\",
+      "projectPath": "C:\\BidZone\\backend\\BidZone.WebApi\\BidZone.WebApi.csproj",
+      "packagesPath": "C:\\Users\\george\\.nuget\\packages\\",
+      "outputPath": "C:\\BidZone\\backend\\BidZone.WebApi\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "C:\\Users\\Roman\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\george\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -2044,21 +2049,20 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net10.0": {
           "targetAlias": "net10.0",
           "projectReferences": {
-            "D:\\Development\\BidZone\\backend\\BidZone.BLL\\BidZone.BLL.csproj": {
-              "projectPath": "D:\\Development\\BidZone\\backend\\BidZone.BLL\\BidZone.BLL.csproj"
+            "C:\\BidZone\\backend\\BidZone.BLL\\BidZone.BLL.csproj": {
+              "projectPath": "C:\\BidZone\\backend\\BidZone.BLL\\BidZone.BLL.csproj"
             },
-            "D:\\Development\\BidZone\\backend\\BidZone.DAL\\BidZone.DAL.csproj": {
-              "projectPath": "D:\\Development\\BidZone\\backend\\BidZone.DAL\\BidZone.DAL.csproj"
+            "C:\\BidZone\\backend\\BidZone.DAL\\BidZone.DAL.csproj": {
+              "projectPath": "C:\\BidZone\\backend\\BidZone.DAL\\BidZone.DAL.csproj"
             },
-            "D:\\Development\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj": {
-              "projectPath": "D:\\Development\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj"
+            "C:\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj": {
+              "projectPath": "C:\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj"
             }
           }
         }
@@ -2534,5 +2538,17 @@
         }
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Package 'AutoMapper' 12.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x",
+      "libraryId": "AutoMapper",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
 }
