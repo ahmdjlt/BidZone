@@ -1,4 +1,4 @@
-using BidZone.DAL.Interfaces;
+using BidZone.BLL.Interfaces;
 
 namespace BidZone.WebApi.Middleware;
 
@@ -11,7 +11,7 @@ public class AuthMiddleware
         _next = next;
     }
 
-    public async Task InvokeAsync(HttpContext context, ISessionRepository sessionRepo)
+    public async Task InvokeAsync(HttpContext context, IAuthLogic authLogic)
     {
         string? token = null;
 
@@ -33,11 +33,11 @@ public class AuthMiddleware
 
         if (!string.IsNullOrEmpty(token))
         {
-            var session = await sessionRepo.GetByTokenAsync(token);
-            if (session != null)
+            var user = await authLogic.ValidateTokenAsync(token);
+            if (user != null)
             {
-                context.Items["UserId"] = session.UserId;
-                context.Items["UserRole"] = session.User.Role;
+                context.Items["UserId"] = user.Id;
+                context.Items["UserRole"] = user.Role;
                 context.Items["Token"] = token;
             }
         }

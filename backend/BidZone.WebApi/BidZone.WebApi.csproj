@@ -19,7 +19,6 @@
   <ItemGroup>
     <ProjectReference Include="..\BidZone.BLL\BidZone.BLL.csproj" />
     <ProjectReference Include="..\BidZone.Models\BidZone.Models.csproj" />
-    <ProjectReference Include="..\BidZone.DAL\BidZone.DAL.csproj" />
   </ItemGroup>
 
 </Project>

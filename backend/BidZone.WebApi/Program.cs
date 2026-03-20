@@ -1,8 +1,4 @@
 using BidZone.BLL;
-using BidZone.BLL.Interfaces;
-using BidZone.BLL.Logics;
-using BidZone.DAL.Interfaces;
-using BidZone.DAL.Repositories;
 using BidZone.Models;
 using BidZone.WebApi.Middleware;
 using Microsoft.EntityFrameworkCore;
@@ -13,26 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Repositories
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IAuctionRepository, AuctionRepository>();
-builder.Services.AddScoped<IBidRepository, BidRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<IWatchlistRepository, WatchlistRepository>();
-builder.Services.AddScoped<ISessionRepository, SessionRepository>();
-
-// Business Logic
-builder.Services.AddScoped<IAuthLogic, AuthLogic>();
-builder.Services.AddScoped<IAuctionLogic, AuctionLogic>();
-builder.Services.AddScoped<IBidLogic, BidLogic>();
-builder.Services.AddScoped<ICategoryLogic, CategoryLogic>();
-builder.Services.AddScoped<IWatchlistLogic, WatchlistLogic>();
-builder.Services.AddScoped<IUserLogic, UserLogic>();
-builder.Services.AddScoped<IReportLogic, ReportLogic>();
-builder.Services.AddScoped<IBusinessLogic, BusinessLogic>();
-
-// AutoMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+// DAL + BLL + AutoMapper (toate înregistrate prin BLL)
+builder.Services.AddBidZoneServices();
 
 // Controllers
 builder.Services.AddControllers();
