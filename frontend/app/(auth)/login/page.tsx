@@ -1,8 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
 
 export default function LoginPage() {
+  const router = useRouter();
   return (
     <div className="page-gradient relative overflow-x-clip">
       <Navbar />
@@ -17,7 +21,7 @@ export default function LoginPage() {
               <p className="text-text-body">Sign in to your BidZone account</p>
             </div>
 
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); router.push("/dashboard"); }}>
               <div>
                 <label
                   htmlFor="email"
@@ -28,7 +32,7 @@ export default function LoginPage() {
                 <input
                   id="email"
                   type="email"
-                  required
+
                   placeholder="your@email.com"
                   className="w-full rounded-2xl border border-border-strong bg-accent-soft/50 px-4 py-3 text-lg text-text-heading placeholder:text-text-muted transition-all duration-200 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
                 />
@@ -44,7 +48,7 @@ export default function LoginPage() {
                 <input
                   id="password"
                   type="password"
-                  required
+
                   placeholder="........"
                   className="w-full rounded-2xl border border-border-strong bg-accent-soft/50 px-4 py-3 text-lg text-text-heading placeholder:text-text-muted transition-all duration-200 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
                 />

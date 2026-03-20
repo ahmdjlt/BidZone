@@ -1,8 +1,13 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function RegisterForm() {
+  const router = useRouter();
+
   return (
-    <form className="space-y-6">
+    <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); router.push("/dashboard"); }}>
       <div>
         <label
           htmlFor="fullName"
@@ -14,7 +19,7 @@ export default function RegisterForm() {
           id="fullName"
           name="fullName"
           type="text"
-          required
+
           placeholder="Alex Johnson"
           className="w-full rounded-2xl border border-border-strong bg-accent-soft/50 px-4 py-3 text-lg text-text-heading placeholder:text-text-muted transition-all duration-200 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
         />
@@ -31,7 +36,7 @@ export default function RegisterForm() {
           id="email"
           name="email"
           type="email"
-          required
+
           placeholder="your@email.com"
           className="w-full rounded-2xl border border-border-strong bg-accent-soft/50 px-4 py-3 text-lg text-text-heading placeholder:text-text-muted transition-all duration-200 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
         />
@@ -48,8 +53,8 @@ export default function RegisterForm() {
           id="password"
           name="password"
           type="password"
-          required
-          minLength={8}
+
+
           placeholder="Minimum 8 characters"
           className="w-full rounded-2xl border border-border-strong bg-accent-soft/50 px-4 py-3 text-lg text-text-heading placeholder:text-text-muted transition-all duration-200 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
         />
@@ -66,8 +71,8 @@ export default function RegisterForm() {
           id="confirmPassword"
           name="confirmPassword"
           type="password"
-          required
-          minLength={8}
+
+
           placeholder="Re-enter your password"
           className="w-full rounded-2xl border border-border-strong bg-accent-soft/50 px-4 py-3 text-lg text-text-heading placeholder:text-text-muted transition-all duration-200 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
         />
@@ -109,7 +114,7 @@ export default function RegisterForm() {
       <label className="flex items-start gap-3 text-sm text-text-body">
         <input
           type="checkbox"
-          required
+
           className="mt-0.5 h-4 w-4 rounded border-border-strong text-accent focus:ring-accent/50"
         />
         <span>

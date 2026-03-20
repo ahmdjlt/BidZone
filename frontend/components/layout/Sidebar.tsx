@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const navItems = [
   {
@@ -24,7 +24,7 @@ const navItems = [
     ),
   },
   {
-    href: "/auctions/create",
+    href: "/create-listing",
     label: "Create Auction",
     icon: (
       <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -33,7 +33,7 @@ const navItems = [
     ),
   },
   {
-    href: "/auctions",
+    href: "/browse",
     label: "Browse",
     icon: (
       <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -42,7 +42,7 @@ const navItems = [
     ),
   },
   {
-    href: "/profile/me",
+    href: "/profile",
     label: "Profile",
     icon: (
       <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -54,6 +54,7 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <>
@@ -95,7 +96,7 @@ export default function Sidebar() {
           </nav>
 
           {/* Sign out */}
-          <button className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-text-muted transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30">
+          <button onClick={() => router.push("/login")} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-text-muted transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30">
             <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1" />
             </svg>
