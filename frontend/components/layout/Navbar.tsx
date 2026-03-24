@@ -10,7 +10,7 @@ const navLinks = [
 
 export default function Navbar() {
   return (
-    <header className="sticky top-0 z-50 px-4 pt-6">
+    <header className="z-50 px-4 pt-6">
       <div className="navbar-glass mx-auto flex w-full max-w-6xl items-center justify-between rounded-3xl border border-border bg-card-bg/85 px-5 py-3 backdrop-blur-xl sm:px-7">
 
         {/* Logo */}
