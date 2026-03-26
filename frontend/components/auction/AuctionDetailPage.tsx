@@ -5,7 +5,6 @@ import Image from "next/image";
 import CountdownTimer from "./CountdownTimer";
 import BidForm from "./BidForm";
 import BidHistory, { type Bid } from "./BidHistory";
-import LiveBidFeed, { type LiveBid } from "./LiveBidFeed";
 
 export interface AuctionDetailPageProps {
   auction?: {
@@ -104,12 +103,6 @@ const demoBids: Bid[] = [
   { id: "b8", bidder: "Clara D.", amount: "$21,500", time: "1h ago" },
 ];
 
-const initialLiveBids: LiveBid[] = [
-  { id: "l1", bidder: "Alex M.", amount: "$28,400", timestamp: new Date(Date.now() - 2 * 60 * 1000) },
-  { id: "l2", bidder: "Sarah K.", amount: "$27,900", timestamp: new Date(Date.now() - 5 * 60 * 1000) },
-  { id: "l3", bidder: "Dan P.", amount: "$27,000", timestamp: new Date(Date.now() - 12 * 60 * 1000) },
-];
-
 function StarRating({ rating }: { rating: number }) {
   return (
     <div className="flex items-center gap-0.5">
@@ -127,36 +120,6 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-function AuctionRulesSection({
-  rules,
-}: {
-  rules: { title: string; items: string[] }[];
-}) {
-  return (
-    <div className="rounded-2xl border border-border bg-card-bg">
-      <div className="border-b border-border px-5 py-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
-          Auction Rules & Policies
-        </p>
-      </div>
-      <div className="divide-y divide-divider p-5">
-        {rules.map((rule, index) => (
-          <div key={index} className={index > 0 ? "pt-4" : ""}>
-            <p className="mb-2 text-sm font-semibold text-text-heading">{rule.title}</p>
-            <ul className="space-y-1">
-              {rule.items.map((item, itemIndex) => (
-                <li key={itemIndex} className="flex items-start gap-2 text-sm text-text-body">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent/50" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export default function AuctionDetailPage(
   props: AuctionDetailPageProps
@@ -207,8 +170,10 @@ export default function AuctionDetailPage(
             )}
 
             {/* Description */}
-            <div className="mt-8">
-              <h2 className="mb-4 text-lg font-semibold text-text-heading">Description</h2>
+            <div className="mt-8 rounded-2xl border border-border bg-card-bg p-5">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
+                Description
+              </p>
               <p className="leading-relaxed text-text-body">{auction.description}</p>
             </div>
 
@@ -248,10 +213,6 @@ export default function AuctionDetailPage(
               </div>
             </div>
 
-            {/* Auction Rules */}
-            <div className="mt-8">
-              <AuctionRulesSection rules={auction.rules} />
-            </div>
           </div>
 
           {/* Right Column - Details & Bid */}
@@ -316,11 +277,6 @@ export default function AuctionDetailPage(
                 minIncrement={100}
                 onPlaceBid={(amount) => console.log("Bid placed:", amount)}
               />
-            </div>
-
-            {/* Live Bid Feed */}
-            <div className="mt-6">
-              <LiveBidFeed initialBids={initialLiveBids} simulateRealTime={true} />
             </div>
 
             {/* Bid History */}
