@@ -130,8 +130,7 @@ export default function HomePage() {
           </div>
 
           <div className="animate-float relative rounded-[2.2rem] border border-border bg-card-bg p-6 card-shadow-heavy">
-            <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-accent/20 blur-2xl" />
-            <div className="space-y-5">
+<div className="space-y-5">
               <div className="flex items-center justify-between rounded-2xl bg-accent px-4 py-3 text-white">
                 <div>
                   <p className="text-xs uppercase tracking-[0.12em] text-blue-100 dark:text-blue-200">
