@@ -216,31 +216,6 @@ export default function HomePage() {
             </article>
           ))}
         </section>
-
-        <section className="mt-16 rounded-[2.3rem] border border-border-strong cta-gradient p-8">
-          <div className="grid gap-6 lg:grid-cols-[1.15fr_1fr] lg:items-center">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
-                Built for confidence
-              </p>
-              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-text-heading">
-                Seller tools + buyer protection in one flow.
-              </h2>
-              <p className="mt-3 max-w-xl text-text-body">
-                Verified profiles, transparent bid history, and status tracking
-                after checkout create a marketplace people return to.
-              </p>
-            </div>
-            <div className="rounded-3xl bg-card-bg p-6 shadow-[0_24px_70px_-45px_var(--card-shadow-heavy)]">
-              <p className="text-sm font-semibold text-text-heading">This week on BidZone</p>
-              <ul className="mt-4 space-y-3 text-sm text-text-body">
-                <li>94.7% completed transactions closed within 24 hours.</li>
-                <li>Average time from listing to first bid: 11 minutes.</li>
-                <li>Top categories: watches, cards, and studio gear.</li>
-              </ul>
-            </div>
-          </div>
-        </section>
       </main>
 
       <Footer />
