@@ -100,7 +100,7 @@ export default function HomePage() {
     <div className="page-gradient relative overflow-x-clip">
       <Navbar />
 
-      <main className="mx-auto w-full max-w-6xl px-4 pb-10 pt-10 sm:px-6">
+      <main className="mx-auto w-full max-w-7xl px-6 pb-10 pt-10 sm:px-8">
         <section className="relative grid gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-center">
           <div className="animate-rise space-y-6">
             <span className="inline-flex items-center rounded-full border border-border-strong bg-card-bg px-4 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-text-label">

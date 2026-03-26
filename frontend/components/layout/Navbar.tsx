@@ -29,11 +29,11 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 px-4 pt-6 transition-transform duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${
           visible ? "translate-y-0" : "-translate-y-full"
         }`}
       >
-        <div className="navbar-glass mx-auto flex w-full max-w-6xl items-center justify-between rounded-3xl border border-border bg-card-bg/85 px-5 py-3 backdrop-blur-xl sm:px-7">
+        <div className="navbar-glass flex w-full items-center justify-between border-b border-border bg-card-bg/85 px-5 py-3 backdrop-blur-xl sm:px-10">
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3">
@@ -71,7 +71,7 @@ export default function Navbar() {
         </div>
       </header>
       {/* Spacer to prevent content from hiding behind the fixed header */}
-      <div className="h-[88px]" />
+      <div className="h-[60px]" />
     </>
   );
 }

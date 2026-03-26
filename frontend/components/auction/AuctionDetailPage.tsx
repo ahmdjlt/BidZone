@@ -166,7 +166,7 @@ export default function AuctionDetailPage(
 
   return (
     <div className="min-h-screen page-gradient">
-      <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-7xl px-6 py-8 sm:px-8">
         {/* Main Content Grid */}
         <div className="grid gap-8 lg:grid-cols-5 lg:gap-12">
           {/* Left Column - Images */}
