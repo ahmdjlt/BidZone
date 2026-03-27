@@ -6,7 +6,7 @@ export default function Footer() {
 
   return (
     <footer className="mt-20 border-t border-border bg-card-bg/95">
-      <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+      <div className="mx-auto grid w-full max-w-7xl gap-10 px-6 py-12 sm:grid-cols-2 sm:px-8 lg:grid-cols-4">
 
         {/* Brand blurb */}
         <div className="space-y-3">
@@ -42,8 +42,14 @@ export default function Footer() {
         </div>
 
       </div>
-      <div className="border-t border-border/80 px-4 py-4 text-center text-xs text-text-muted">
-        Copyright {year} BidZone. All rights reserved.
+      <div className="border-t border-border/80 px-6 py-4 sm:px-8">
+        <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
+          <p className="text-xs text-text-muted">Copyright {year} BidZone. All rights reserved.</p>
+          <div className="flex items-center gap-4">
+            <Link href="/terms" className="text-xs text-text-muted hover:text-text-label transition-colors">Terms & Conditions</Link>
+            <Link href="/privacy" className="text-xs text-text-muted hover:text-text-label transition-colors">Privacy Policy</Link>
+          </div>
+        </div>
       </div>
     </footer>
   );

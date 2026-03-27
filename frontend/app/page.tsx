@@ -100,7 +100,7 @@ export default function HomePage() {
     <div className="page-gradient relative overflow-x-clip">
       <Navbar />
 
-      <main className="mx-auto w-full max-w-6xl px-4 pb-10 pt-10 sm:px-6">
+      <main className="mx-auto w-full max-w-7xl px-6 pb-10 pt-10 sm:px-8">
         <section className="relative grid gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-center">
           <div className="animate-rise space-y-6">
             <span className="inline-flex items-center rounded-full border border-border-strong bg-card-bg px-4 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
@@ -130,8 +130,7 @@ export default function HomePage() {
           </div>
 
           <div className="animate-float relative rounded-[2.2rem] border border-border bg-card-bg p-6 card-shadow-heavy">
-            <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-accent/20 blur-2xl" />
-            <div className="space-y-5">
+<div className="space-y-5">
               <div className="flex items-center justify-between rounded-2xl bg-accent px-4 py-3 text-white">
                 <div>
                   <p className="text-xs uppercase tracking-[0.12em] text-blue-100 dark:text-blue-200">
@@ -216,31 +215,6 @@ export default function HomePage() {
               <p className="mt-3 text-sm leading-relaxed text-text-body">{step.text}</p>
             </article>
           ))}
-        </section>
-
-        <section className="mt-16 rounded-[2.3rem] border border-border-strong cta-gradient p-8">
-          <div className="grid gap-6 lg:grid-cols-[1.15fr_1fr] lg:items-center">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
-                Built for confidence
-              </p>
-              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-text-heading">
-                Seller tools + buyer protection in one flow.
-              </h2>
-              <p className="mt-3 max-w-xl text-text-body">
-                Verified profiles, transparent bid history, and status tracking
-                after checkout create a marketplace people return to.
-              </p>
-            </div>
-            <div className="rounded-3xl bg-card-bg p-6 shadow-[0_24px_70px_-45px_var(--card-shadow-heavy)]">
-              <p className="text-sm font-semibold text-text-heading">This week on BidZone</p>
-              <ul className="mt-4 space-y-3 text-sm text-text-body">
-                <li>94.7% completed transactions closed within 24 hours.</li>
-                <li>Average time from listing to first bid: 11 minutes.</li>
-                <li>Top categories: watches, cards, and studio gear.</li>
-              </ul>
-            </div>
-          </div>
         </section>
       </main>
 
