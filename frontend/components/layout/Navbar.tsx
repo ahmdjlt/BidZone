@@ -57,14 +57,14 @@ export default function Navbar() {
           </nav>
 
           {/* Auth buttons + theme toggle */}
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
             <ThemeToggle />
             <Link href="/login"
-              className="rounded-xl px-3 py-2 text-sm font-semibold text-text-label transition-colors hover:bg-accent-soft">
+              className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-text-label transition-colors hover:bg-accent-soft sm:inline-flex">
               Sign in
             </Link>
             <Link href="/register"
-              className="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_28px_-18px_rgba(8,72,184,0.95)] transition hover:brightness-110">
+              className="rounded-xl bg-accent px-3 py-2 text-sm font-semibold text-white shadow-[0_12px_28px_-18px_rgba(8,72,184,0.95)] transition hover:brightness-110 sm:px-4">
               Join now
             </Link>
           </div>
