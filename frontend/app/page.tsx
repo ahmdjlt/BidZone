@@ -80,20 +80,6 @@ const metrics = [
   { label: "Avg. sell uplift", value: "+24%" },
 ];
 
-const steps = [
-  {
-    title: "List in Minutes",
-    text: "Sellers publish listings with smart pricing guidance and instant category matching.",
-  },
-  {
-    title: "Live Bid Momentum",
-    text: "Real-time updates keep urgency high while anti-sniping extensions protect fairness.",
-  },
-  {
-    title: "Secure Checkout",
-    text: "Winners complete payment quickly and both sides receive shipment and status tracking.",
-  },
-];
 
 export default function HomePage() {
   return (
@@ -131,14 +117,14 @@ export default function HomePage() {
 
           <div className="animate-float relative rounded-[2.2rem] border border-border bg-card-bg p-6 card-shadow-heavy">
 <div className="space-y-5">
-              <div className="flex items-center justify-between rounded-2xl bg-accent px-4 py-3 text-white">
+              <div className="flex items-center justify-between rounded-2xl bg-foreground px-4 py-3 text-white dark:bg-white dark:text-black">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.12em] text-blue-100 dark:text-blue-200">
+                  <p className="text-xs uppercase tracking-[0.12em] text-white/60 dark:text-black/50">
                     Ending now
                   </p>
                   <p className="text-base font-semibold">Vintage Lens Bundle</p>
                 </div>
-                <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">
+                <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold dark:bg-black/10">
                   01:49
                 </span>
               </div>
@@ -200,22 +186,6 @@ export default function HomePage() {
           <AuctionGrid auctions={featuredAuctions} />
         </section>
 
-        <section className="mt-20 grid gap-5 lg:grid-cols-3">
-          {steps.map((step, index) => (
-            <article
-              key={step.title}
-              className="rounded-[1.7rem] border border-border bg-card-bg p-6 card-shadow-heavy"
-            >
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
-                Step 0{index + 1}
-              </p>
-              <h3 className="mt-2 text-xl font-semibold tracking-tight text-text-heading">
-                {step.title}
-              </h3>
-              <p className="mt-3 text-sm leading-relaxed text-text-body">{step.text}</p>
-            </article>
-          ))}
-        </section>
       </main>
 
       <Footer />
