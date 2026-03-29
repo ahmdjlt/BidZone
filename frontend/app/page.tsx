@@ -99,6 +99,20 @@ export default function HomePage() {
               BidZone pairs intense live bidding with a clean seller workflow so
               every listing can reach its best possible value.
             </p>
+            <form action="/auctions" method="get" className="flex w-full max-w-xl overflow-hidden rounded-2xl border border-border-strong bg-card-bg shadow-sm">
+              <input
+                type="text"
+                name="q"
+                placeholder="Search auctions..."
+                className="flex-1 bg-transparent px-4 py-3 text-sm text-text-heading placeholder:text-text-muted focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="rounded-r-2xl bg-accent px-5 py-3 text-sm font-semibold text-white transition hover:brightness-110"
+              >
+                Search
+              </button>
+            </form>
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/auctions"
