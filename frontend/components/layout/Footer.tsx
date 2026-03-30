@@ -6,7 +6,7 @@ export default function Footer() {
 
   return (
     <footer className="mt-20 border-t border-border bg-card-bg/95">
-      <div className="mx-auto grid w-full max-w-7xl gap-10 px-6 py-12 sm:grid-cols-2 sm:px-8 lg:grid-cols-4">
+      <div className="mx-auto grid w-full max-w-7xl gap-10 px-6 py-12 sm:grid-cols-2 sm:px-8 lg:grid-cols-3">
 
         {/* Brand blurb */}
         <div className="space-y-3">
@@ -32,14 +32,6 @@ export default function Footer() {
           <Link href="/dashboard" className="block text-sm text-text-body hover:text-text-label">Seller dashboard</Link>
         </div>
 
-        {/* Live pulse callout */}
-        <div className="space-y-3 rounded-2xl border border-border bg-accent-soft/65 p-4">
-          <p className="text-sm font-semibold uppercase tracking-[0.12em] text-text-label">Live pulse</p>
-          <p className="text-sm text-text-body">New bids arrive every few seconds on active premium listings.</p>
-          <span className="inline-flex items-center rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white">
-            Real-time updates
-          </span>
-        </div>
 
       </div>
       <div className="border-t border-border/80 px-6 py-4 sm:px-8">

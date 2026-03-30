@@ -9,10 +9,12 @@ const featuredAuctions: AuctionPreview[] = [
   {
     id: "rare-seiko-chrono",
     title: "Rare Seiko Chronograph",
+    description: "Automatic Movement, 42mm Case, Stainless Steel Bracelet, Sapphire Crystal",
+    location: "Tokyo, Japan",
     category: "Collectibles",
     currentBid: "$1,240",
     bids: 37,
-    endsIn: "Ends in 2h 11m",
+    endsIn: "2h 11m",
     watchers: 91,
     imageUrl: "/auction-images/ceas.jpg",
     imageAccent: "linear-gradient(135deg,#2f80ff,#8ec5ff)",
@@ -20,10 +22,12 @@ const featuredAuctions: AuctionPreview[] = [
   {
     id: "psa10-jordan-rookie",
     title: "PSA 10 Jordan Rookie Card",
+    description: "1986 Fleer #57, Gem Mint Condition, Authenticated & Graded",
+    location: "Chicago, IL 60601",
     category: "Sports Cards",
     currentBid: "$6,850",
     bids: 52,
-    endsIn: "Ends in 5h 44m",
+    endsIn: "5h 44m",
     watchers: 138,
     imageUrl: "/auction-images/card.jpg",
     imageAccent: "linear-gradient(135deg,#3d9bff,#d5ebff)",
@@ -31,10 +35,12 @@ const featuredAuctions: AuctionPreview[] = [
   {
     id: "mid-century-lounge-chair",
     title: "Mid-Century Lounge Chair",
+    description: "Walnut Frame, Italian Leather Cushions, Original 1960s Design",
+    location: "Portland, OR 97201",
     category: "Home Design",
     currentBid: "$2,100",
     bids: 19,
-    endsIn: "Ends in 1d 03h",
+    endsIn: "1d 03h",
     watchers: 64,
     imageUrl: "/auction-images/scaun.jpg",
     imageAccent: "linear-gradient(135deg,#2c6ce8,#5fc7ff)",
@@ -42,10 +48,12 @@ const featuredAuctions: AuctionPreview[] = [
   {
     id: "signed-first-edition",
     title: "Signed First Edition Novel",
+    description: "Hardcover, Dust Jacket Intact, Author-Signed, Near Fine Condition",
+    location: "New York, NY 10001",
     category: "Books",
     currentBid: "$740",
     bids: 26,
-    endsIn: "Ends in 8h 14m",
+    endsIn: "8h 14m",
     watchers: 58,
     imageUrl: "/auction-images/premiu.jpg",
     imageAccent: "linear-gradient(135deg,#105ed6,#8cbcff)",
@@ -53,21 +61,25 @@ const featuredAuctions: AuctionPreview[] = [
   {
     id: "lens-master-kit",
     title: "Cinema Lens Master Kit",
+    description: "3-Lens Set, PL Mount, T1.5 Aperture, Hard Carrying Case Included",
+    location: "Los Angeles, CA 90028",
     category: "Gear",
     currentBid: "$4,920",
     bids: 14,
-    endsIn: "Ends in 3d 06h",
+    endsIn: "3d 06h",
     watchers: 72,
     imageUrl: "/auction-images/obiectiv_foto.jpg",
     imageAccent: "linear-gradient(135deg,#1a7cf4,#88d6ff)",
   },
   {
     id: "kit_auto",
-    title: "Cinema Lens Master Kit",
-    category: "Gear",
+    title: "OEM Front Bumper Kit",
+    description: "Complete Assembly, Primer Finish, Fog Light Brackets, Hardware Included",
+    location: "Detroit, MI 48201",
+    category: "Auto Parts",
     currentBid: "$4,920",
     bids: 14,
-    endsIn: "Ends in 3d 06h",
+    endsIn: "3d 06h",
     watchers: 72,
     imageUrl: "/auction-images/bumper.png",
     imageAccent: "linear-gradient(135deg,#1a7cf4,#88d6ff)",
@@ -87,19 +99,16 @@ export default function HomePage() {
       <Navbar />
 
       <main className="mx-auto w-full max-w-7xl px-6 pb-10 pt-10 sm:px-8">
-        <section className="relative grid gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-center">
-          <div className="animate-rise space-y-6">
-            <span className="inline-flex items-center rounded-full border border-border-strong bg-card-bg px-4 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
-              Live auctions. Real urgency.
-            </span>
-            <h1 className="max-w-xl text-4xl font-semibold leading-tight tracking-tight text-text-heading sm:text-5xl">
+        <section className="relative">
+          <div className="animate-rise space-y-6 max-w-2xl mx-auto text-center">
+            <h1 className="text-4xl font-semibold leading-tight tracking-tight text-text-heading sm:text-5xl">
               The auction marketplace built for speed, trust, and smarter bids.
             </h1>
-            <p className="max-w-xl text-lg leading-relaxed text-text-body">
+            <p className="text-lg leading-relaxed text-text-body">
               BidZone pairs intense live bidding with a clean seller workflow so
               every listing can reach its best possible value.
             </p>
-            <form action="/auctions" method="get" className="flex w-full max-w-xl overflow-hidden rounded-2xl border border-border-strong bg-card-bg shadow-sm">
+            <form action="/auctions" method="get" className="flex w-full max-w-xl mx-auto overflow-hidden rounded-2xl border border-border-strong bg-card-bg shadow-sm">
               <input
                 type="text"
                 name="q"
@@ -113,7 +122,7 @@ export default function HomePage() {
                 Search
               </button>
             </form>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap justify-center gap-3">
               <Link
                 href="/auctions"
                 className="rounded-2xl bg-accent px-5 py-3 text-sm font-semibold text-white shadow-[0_20px_40px_-24px_rgba(16,84,209,0.85)] transition hover:brightness-110"
@@ -126,43 +135,6 @@ export default function HomePage() {
               >
                 Start selling
               </Link>
-            </div>
-          </div>
-
-          <div className="animate-float relative rounded-[2.2rem] border border-border bg-card-bg p-6 card-shadow-heavy">
-<div className="space-y-5">
-              <div className="flex items-center justify-between rounded-2xl bg-foreground px-4 py-3 text-white dark:bg-white dark:text-black">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.12em] text-white/60 dark:text-black/50">
-                    Ending now
-                  </p>
-                  <p className="text-base font-semibold">Vintage Lens Bundle</p>
-                </div>
-                <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold dark:bg-black/10">
-                  01:49
-                </span>
-              </div>
-              <div className="grid gap-3 rounded-2xl border border-border p-4">
-                <p className="text-sm font-semibold text-text-heading">Current battle</p>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm text-text-body">
-                    <span>Highest bid</span>
-                    <strong className="text-text-heading">$2,840</strong>
-                  </div>
-                  <div className="flex items-center justify-between text-sm text-text-body">
-                    <span>Bidders in room</span>
-                    <strong className="text-text-heading">48 live</strong>
-                  </div>
-                  <div className="flex items-center justify-between text-sm text-text-body">
-                    <span>Bid increments</span>
-                    <strong className="text-text-heading">$50 minimum</strong>
-                  </div>
-                </div>
-              </div>
-              <p className="text-sm leading-relaxed text-text-body">
-                When bids arrive in the final minute, the timer automatically
-                extends to keep every bidder in play.
-              </p>
             </div>
           </div>
         </section>

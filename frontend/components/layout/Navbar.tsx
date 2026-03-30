@@ -13,6 +13,7 @@ const navLinks = [
 
 export default function Navbar() {
   const [visible, setVisible] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
@@ -43,26 +44,45 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop nav links */}
-          <nav className="hidden items-center gap-8 text-sm font-medium text-text-heading md:flex">
-            {navLinks.map((link) => (
-              <Link key={link.href} href={link.href}
-                className="transition-colors hover:text-accent">
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Auth buttons + theme toggle */}
+          {/* Right side: theme toggle, sign up, hamburger */}
           <div className="flex shrink-0 items-center gap-2">
             <ThemeToggle />
             <Link href="/register"
               className="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_28px_-18px_rgba(8,72,184,0.95)] transition hover:brightness-110">
               Sign Up
             </Link>
+            <button
+              onClick={() => setMenuOpen((prev) => !prev)}
+              aria-label="Toggle menu"
+              className="ml-1 flex h-9 w-9 flex-col items-center justify-center gap-[5px] rounded-lg transition hover:bg-accent-soft"
+            >
+              <span className={`block h-[2px] w-5 rounded-full bg-text-heading transition-transform duration-300 ${menuOpen ? "translate-y-[7px] rotate-45" : ""}`} />
+              <span className={`block h-[2px] w-5 rounded-full bg-text-heading transition-opacity duration-300 ${menuOpen ? "opacity-0" : ""}`} />
+              <span className={`block h-[2px] w-5 rounded-full bg-text-heading transition-transform duration-300 ${menuOpen ? "-translate-y-[7px] -rotate-45" : ""}`} />
+            </button>
           </div>
 
           </div>
+        </div>
+
+        {/* Dropdown nav menu */}
+        <div
+          className={`overflow-hidden border-b border-border bg-card-bg/95 backdrop-blur-xl transition-all duration-300 ${
+            menuOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          <nav className="mx-auto flex w-full max-w-7xl flex-col gap-1 px-5 py-3 sm:px-10">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className="rounded-xl px-4 py-2.5 text-sm font-medium text-text-heading transition-colors hover:bg-accent-soft hover:text-accent"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
         </div>
       </header>
       {/* Spacer to prevent content from hiding behind the fixed header */}
