@@ -36,7 +36,6 @@ export default function HeroHeading() {
       Bid on{" "}
       <span className="italic text-accent">
         {displayed}
-        <span className="inline-block w-[2px] h-[1em] align-middle ml-0.5 bg-accent animate-pulse" />
       </span>
     </h1>
   );

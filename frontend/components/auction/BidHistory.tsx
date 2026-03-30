@@ -16,76 +16,54 @@ interface BidHistoryProps {
 
 export default function BidHistory({ bids }: BidHistoryProps) {
   const [showAll, setShowAll] = useState(false);
-  const visibleBids = showAll ? bids : bids.slice(0, 5);
+  const visibleBids = showAll ? bids : bids.slice(0, 4);
 
   if (bids.length === 0) {
     return (
-      <div className="rounded-2xl border border-border bg-card-bg p-6 text-center">
+      <div className="py-4 text-center">
         <p className="text-sm text-text-muted">No bids yet. Be the first!</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card-bg">
-      <div className="flex items-center justify-between border-b border-border px-5 py-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
-          Bid history
-        </p>
-        <span className="rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-semibold text-text-label">
-          {bids.length} bids
-        </span>
-      </div>
-
-      <ul className="divide-y divide-divider">
+    <div>
+      <ul>
         {visibleBids.map((bid, index) => (
           <li
             key={bid.id}
-            className={`flex items-center justify-between px-5 py-3 transition-colors ${index === 0
-                ? "bg-accent-soft/50"
-                : "hover:bg-accent-soft/30"
-              }`}
+            className="flex items-center justify-between py-2.5"
           >
-            <div className="flex items-center gap-3">
-              <div
-                className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${index === 0
-                    ? "bg-accent text-white"
-                    : "bg-accent-soft text-text-label"
-                  }`}
-              >
-                {bid.bidder.slice(0, 2).toUpperCase()}
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-text-heading">
-                  {bid.bidder}
-                  {index === 0 && (
-                    <span className="ml-2 inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-700 dark:bg-green-900/40 dark:text-green-400">
-                      Highest
-                    </span>
-                  )}
-                </p>
-                <p className="text-xs text-text-muted">{bid.time}</p>
-              </div>
+            <div className="flex items-baseline gap-2">
+              <p className={`text-sm font-medium ${index === 0 ? "text-text-heading" : "text-text-body"}`}>
+                {bid.bidder}
+              </p>
             </div>
-            <p
-              className={`text-sm font-semibold tabular-nums ${index === 0 ? "text-text-label" : "text-text-heading"
-                }`}
-            >
-              {bid.amount}
-            </p>
+            <div className="flex items-baseline gap-4">
+              <p className="text-xs text-text-muted">{bid.time}</p>
+              <p className={`text-sm font-semibold tabular-nums ${index === 0 ? "text-accent" : "text-text-heading"}`}>
+                {bid.amount}
+              </p>
+            </div>
           </li>
         ))}
       </ul>
 
-      {bids.length > 5 && (
-        <div className="border-t border-border px-5 py-3 text-center">
-          <button
-            onClick={() => setShowAll(!showAll)}
-            className="text-sm font-semibold text-accent transition-colors hover:brightness-110"
+      {bids.length > 4 && (
+        <button
+          onClick={() => setShowAll(!showAll)}
+          className="mt-1 flex items-center gap-1 text-sm font-semibold text-accent transition-colors hover:brightness-110"
+        >
+          {showAll ? "Show less" : `See all bids (${bids.length})`}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className={`size-4 transition-transform ${showAll ? "rotate-180" : ""}`}
           >
-            {showAll ? "Show less" : `Show all ${bids.length} bids`}
-          </button>
-        </div>
+            <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
+          </svg>
+        </button>
       )}
     </div>
   );

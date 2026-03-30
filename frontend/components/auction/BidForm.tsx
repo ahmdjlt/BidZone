@@ -1,131 +1,175 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface BidFormProps {
   currentBid: number;
   minIncrement?: number;
+  totalBids?: number;
+  estimatedValue?: number;
+  endTime?: string;
   onPlaceBid?: (amount: number) => void;
+}
+
+function useCountdown(endTime?: string) {
+  const [timeLeft, setTimeLeft] = useState("");
+
+  useEffect(() => {
+    if (!endTime) return;
+    function update() {
+      const diff = new Date(endTime!).getTime() - Date.now();
+      if (diff <= 0) {
+        setTimeLeft("Ended");
+        return;
+      }
+      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const m = Math.floor((diff / (1000 * 60)) % 60);
+      const s = Math.floor((diff / 1000) % 60);
+      setTimeLeft(
+        `${d}D ${h.toString().padStart(2, "0")}H ${m.toString().padStart(2, "0")}min ${s.toString().padStart(2, "0")}s`
+      );
+    }
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, [endTime]);
+
+  return timeLeft;
 }
 
 export default function BidForm({
   currentBid,
   minIncrement = 50,
+  totalBids = 0,
+  estimatedValue,
+  endTime,
   onPlaceBid,
 }: BidFormProps) {
   const minimumBid = currentBid + minIncrement;
-  const [amount, setAmount] = useState(minimumBid.toString());
+  const [amount, setAmount] = useState(minimumBid);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const countdown = useCountdown(endTime);
 
-  const quickAmounts = [
-    minimumBid,
-    minimumBid + minIncrement,
-    minimumBid + minIncrement * 3,
-    minimumBid + minIncrement * 5,
-  ];
+  function increment() {
+    setAmount((prev) => prev + minIncrement);
+    setError("");
+  }
+
+  function decrement() {
+    setAmount((prev) => {
+      const next = prev - minIncrement;
+      return next >= minimumBid ? next : prev;
+    });
+    setError("");
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const numAmount = parseFloat(amount);
-
-    if (isNaN(numAmount)) {
-      setError("Please enter a valid amount");
-      return;
-    }
-    if (numAmount < minimumBid) {
+    if (amount < minimumBid) {
       setError(`Minimum bid is $${minimumBid.toLocaleString()}`);
       return;
     }
-
     setError("");
     setIsSubmitting(true);
-
-    // Simulate API call
     setTimeout(() => {
       setIsSubmitting(false);
       setSuccess(true);
-      onPlaceBid?.(numAmount);
+      onPlaceBid?.(amount);
       setTimeout(() => setSuccess(false), 2000);
     }, 800);
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card-bg p-5">
-      <div className="mb-4 flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
-          Place your bid
-        </p>
-        <p className="text-xs text-text-muted">
-          Min: <span className="font-semibold text-text-label">${minimumBid.toLocaleString()}</span>
-        </p>
-      </div>
-
-      <div className="mb-4 rounded-xl border border-border bg-accent-soft/50 px-4 py-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-label">
-          Current highest bid
-        </p>
-        <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight text-text-heading">
+    <div className="space-y-3">
+      {/* Current bid */}
+      <div>
+        <p className="text-xs font-medium text-text-muted">Current bid</p>
+        <p className="text-2xl font-bold tabular-nums tracking-tight text-text-heading">
           ${currentBid.toLocaleString()}
         </p>
+        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
+          {countdown && (
+            <p className="font-semibold text-accent">
+              {countdown}
+            </p>
+          )}
+          <p className="text-text-muted">
+            {totalBids} bid{totalBids !== 1 ? "s" : ""} · Min: ${minimumBid.toLocaleString()}
+          </p>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div>
-          <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-text-muted">
+      {/* Amount input with +/- */}
+      <form onSubmit={handleSubmit} className="space-y-2">
+        <div className="flex items-center gap-1.5">
+          <div className="relative flex-1">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-text-muted">
               $
             </span>
             <input
               type="number"
               value={amount}
               onChange={(e) => {
-                setAmount(e.target.value);
+                setAmount(Number(e.target.value));
                 setError("");
               }}
               min={minimumBid}
               step={minIncrement}
-              className="w-full rounded-xl border border-border-strong bg-input-bg py-3 pl-8 pr-4 text-lg font-semibold tabular-nums text-text-heading outline-none transition-colors placeholder:text-text-muted focus:border-accent focus:ring-2 focus:ring-accent/20"
+              className="w-full rounded-lg bg-accent-soft/50 py-2.5 pl-7 pr-3 text-sm font-semibold tabular-nums text-text-heading outline-none transition-colors placeholder:text-text-muted focus:ring-2 focus:ring-accent/20"
               placeholder={minimumBid.toString()}
             />
           </div>
-          {error && (
-            <p className="mt-1.5 text-xs font-medium text-red-500">{error}</p>
-          )}
+          <button
+            type="button"
+            onClick={decrement}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-soft/50 text-base font-bold text-text-heading transition hover:bg-accent-soft"
+          >
+            −
+          </button>
+          <button
+            type="button"
+            onClick={increment}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-soft/50 text-base font-bold text-text-heading transition hover:bg-accent-soft"
+          >
+            +
+          </button>
         </div>
 
-        {/* Quick bid buttons */}
-        <div className="flex flex-wrap gap-2">
-          {quickAmounts.map((q) => (
-            <button
-              key={q}
-              type="button"
-              onClick={() => {
-                setAmount(q.toString());
-                setError("");
-              }}
-              className={`rounded-lg border px-3 py-1.5 text-xs font-semibold tabular-nums transition-colors ${parseFloat(amount) === q
-                  ? "border-accent/50 bg-accent-soft text-text-label"
-                  : "border-border bg-card-bg text-text-body hover:border-border-strong hover:bg-accent-soft/50"
-                }`}
-            >
-              ${q.toLocaleString()}
-            </button>
-          ))}
-        </div>
+        {error && (
+          <p className="text-xs font-medium text-red-500">{error}</p>
+        )}
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`w-full rounded-xl py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_-20px_rgba(16,84,209,0.85)] transition-all ${success
+          className={`w-full rounded-lg py-2.5 text-sm font-semibold text-white shadow-[0_12px_28px_-16px_rgba(16,84,209,0.85)] transition-all ${
+            success
               ? "bg-green-500"
               : isSubmitting
                 ? "cursor-wait bg-accent/70"
                 : "bg-accent hover:brightness-110 active:scale-[0.98]"
-            }`}
+          }`}
         >
-          {success ? "Bid placed!" : isSubmitting ? "Placing bid..." : `Place bid — $${parseFloat(amount || "0").toLocaleString()}`}
+          {success ? "Bid placed!" : isSubmitting ? "Placing bid..." : "Bid now"}
+        </button>
+
+        {estimatedValue && (
+          <button
+            type="button"
+            className="w-full rounded-lg bg-accent-soft/50 py-2.5 text-sm font-semibold text-accent transition hover:bg-accent-soft"
+          >
+            Buy it now (${estimatedValue.toLocaleString()})
+          </button>
+        )}
+
+        <button
+          type="button"
+          className="w-full rounded-lg bg-accent-soft/50 py-2.5 text-sm font-semibold text-accent transition hover:bg-accent-soft"
+        >
+          Make an offer
         </button>
       </form>
     </div>

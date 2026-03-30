@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import CountdownTimer from "./CountdownTimer";
 import BidForm from "./BidForm";
 import BidHistory, { type Bid } from "./BidHistory";
 
@@ -18,12 +17,25 @@ export interface AuctionDetailPageProps {
     totalBids: number;
     endsAt: string;
     estimatedValue: number;
+    shipping: {
+      cost: string;
+      location: string;
+      pickup?: string;
+      returnPolicy: string;
+    };
     seller: {
       name: string;
-      avatar?: string;
+      username: string;
       rating: number;
+      totalSold: number;
+      reviews: number;
       memberSince: string;
+      verified: boolean;
     };
+    details: {
+      label: string;
+      value: string;
+    }[];
     rules: {
       title: string;
       items: string[];
@@ -51,12 +63,32 @@ function generateDemoData(): AuctionDetailPageProps["auction"] {
     totalBids: 23,
     endsAt: endTime,
     estimatedValue: 35000,
+    shipping: {
+      cost: "$15",
+      location: "New York, United States",
+      pickup: "You can pick up this item from the seller in: New York, NY",
+      returnPolicy: "We recommend inspecting your item upon arrival. If it does not meet your expectations, please inform us within 3 calendar days of delivery and we'll help find a solution.",
+    },
     seller: {
       name: "Luxury Timepieces",
-      avatar: "https://picsum.photos/seed/seller/100/100",
-      rating: 4.8,
+      username: "@luxurytimepieces",
+      rating: 96.8,
+      totalSold: 488,
+      reviews: 163,
       memberSince: "2021",
+      verified: true,
     },
+    details: [
+      { label: "Brand", value: "Rolex" },
+      { label: "Model", value: "Submariner" },
+      { label: "Year", value: "1968" },
+      { label: "Case Size", value: "40mm" },
+      { label: "Movement", value: "Automatic" },
+      { label: "Case Material", value: "Stainless Steel" },
+      { label: "Dial Color", value: "Black" },
+      { label: "Condition", value: "Excellent" },
+      { label: "Box & Papers", value: "Yes" },
+    ],
     rules: [
       {
         title: "Bidding Rules",
@@ -93,32 +125,15 @@ const defaultProps: AuctionDetailPageProps = {
 
 // Demo bid history
 const demoBids: Bid[] = [
-  { id: "b1", bidder: "Alex M.", amount: "$28,400", time: "2 min ago" },
-  { id: "b2", bidder: "Sarah K.", amount: "$27,900", time: "5 min ago" },
-  { id: "b3", bidder: "Dan P.", amount: "$27,000", time: "12 min ago" },
-  { id: "b4", bidder: "Ioana R.", amount: "$26,500", time: "18 min ago" },
-  { id: "b5", bidder: "Mihai T.", amount: "$25,800", time: "25 min ago" },
-  { id: "b6", bidder: "Elena V.", amount: "$24,500", time: "32 min ago" },
-  { id: "b7", bidder: "Andrei S.", amount: "$23,000", time: "45 min ago" },
-  { id: "b8", bidder: "Clara D.", amount: "$21,500", time: "1h ago" },
+  { id: "b1", bidder: "Bidder 4821", amount: "$28,400", time: "2 min ago" },
+  { id: "b2", bidder: "Bidder 1093", amount: "$27,900", time: "5 min ago" },
+  { id: "b3", bidder: "Bidder 7742", amount: "$27,000", time: "12 min ago" },
+  { id: "b4", bidder: "Bidder 3306", amount: "$26,500", time: "18 min ago" },
+  { id: "b5", bidder: "Bidder 5519", amount: "$25,800", time: "25 min ago" },
+  { id: "b6", bidder: "Bidder 1093", amount: "$24,500", time: "32 min ago" },
+  { id: "b7", bidder: "Bidder 8874", amount: "$23,000", time: "45 min ago" },
+  { id: "b8", bidder: "Bidder 4821", amount: "$21,500", time: "1h ago" },
 ];
-
-function StarRating({ rating }: { rating: number }) {
-  return (
-    <div className="flex items-center gap-0.5">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <svg
-          key={star}
-          className={`h-3.5 w-3.5 ${star <= rating ? "text-yellow-400" : "text-text-muted/30"}`}
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-        </svg>
-      ))}
-    </div>
-  );
-}
 
 
 export default function AuctionDetailPage(
@@ -131,11 +146,11 @@ export default function AuctionDetailPage(
     <div className="min-h-screen page-gradient">
       <main className="mx-auto w-full max-w-7xl px-6 py-8 sm:px-8">
         {/* Main Content Grid */}
-        <div className="grid gap-8 lg:grid-cols-5 lg:gap-12">
+        <div className="grid gap-6 lg:grid-cols-5 lg:gap-8">
           {/* Left Column - Images */}
           <div className="lg:col-span-3">
             {/* Main Image */}
-            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-card-bg card-shadow">
+            <div className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-card-bg card-shadow">
               <Image
                 src={auction.images[selectedImage]}
                 alt={auction.title}
@@ -143,6 +158,31 @@ export default function AuctionDetailPage(
                 className="object-cover"
                 priority
               />
+              {auction.images.length > 1 && (
+                <>
+                  <button
+                    onClick={() => setSelectedImage((prev) => (prev - 1 + auction.images.length) % auction.images.length)}
+                    aria-label="Previous image"
+                    className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white opacity-0 backdrop-blur-sm transition hover:bg-black/60 group-hover:opacity-100"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="size-4">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => setSelectedImage((prev) => (prev + 1) % auction.images.length)}
+                    aria-label="Next image"
+                    className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white opacity-0 backdrop-blur-sm transition hover:bg-black/60 group-hover:opacity-100"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="size-4">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                    </svg>
+                  </button>
+                  <div className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-full bg-black/40 px-2.5 py-1 text-xs text-white backdrop-blur-sm">
+                    {selectedImage + 1} / {auction.images.length}
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Thumbnails */}
@@ -152,10 +192,10 @@ export default function AuctionDetailPage(
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
-                    className={`relative aspect-square w-20 shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
+                    className={`relative aspect-square w-20 shrink-0 overflow-hidden rounded-xl transition-all ${
                       selectedImage === index
-                        ? "border-accent shadow-[0_4px_12px_-4px_rgba(16,84,209,0.5)]"
-                        : "border-border hover:border-border-strong"
+                        ? "ring-2 ring-accent shadow-[0_4px_12px_-4px_rgba(16,84,209,0.5)]"
+                        : "opacity-60 hover:opacity-100"
                     }`}
                   >
                     <Image
@@ -170,111 +210,102 @@ export default function AuctionDetailPage(
             )}
 
             {/* Description */}
-            <div className="mt-8 rounded-2xl border border-border bg-card-bg p-5">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
+            <div className="mt-6 border-t border-border/40 pt-5">
+              <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.12em] text-text-muted">
                 Description
               </p>
-              <p className="leading-relaxed text-text-body">{auction.description}</p>
+              <p className="text-sm leading-relaxed text-text-body">{auction.description}</p>
             </div>
 
-            {/* Seller Info */}
-            <div className="mt-8 rounded-2xl border border-border bg-card-bg p-5">
-              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-text-muted">
-                Seller Information
+            {/* Details */}
+            <div className="mt-5 border-t border-border/40 pt-5">
+              <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.12em] text-text-muted">
+                Details
               </p>
-              <div className="flex items-center gap-4">
-                {auction.seller.avatar ? (
-                  <Image
-                    src={auction.seller.avatar}
-                    alt={auction.seller.name}
-                    width={56}
-                    height={56}
-                    className="h-14 w-14 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent-soft text-lg font-bold text-text-label">
-                    {auction.seller.name.slice(0, 2).toUpperCase()}
+              <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+                {auction.details.map((detail) => (
+                  <div key={detail.label}>
+                    <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-text-muted">
+                      {detail.label}
+                    </p>
+                    <p className="mt-0.5 text-sm text-text-heading">
+                      {detail.value}
+                    </p>
                   </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Shipping */}
+            <div className="mt-5 border-t border-border/40 pt-5">
+              <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.12em] text-text-muted">
+                Shipping
+              </p>
+              <div className="space-y-2.5 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-text-body">Shipping cost</span>
+                  <span className="font-medium text-text-heading">{auction.shipping.cost}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-text-body">Location</span>
+                  <span className="font-medium text-text-heading">{auction.shipping.location}</span>
+                </div>
+                {auction.shipping.pickup && (
+                  <p className="text-xs leading-relaxed text-text-muted">{auction.shipping.pickup}</p>
                 )}
-                <div>
-                  <p className="text-base font-semibold text-text-heading">
-                    {auction.seller.name}
-                  </p>
-                  <div className="mt-1 flex items-center gap-2">
-                    <StarRating rating={Math.round(auction.seller.rating)} />
-                    <span className="text-sm font-medium text-text-label">
-                      {auction.seller.rating.toFixed(1)}
-                    </span>
-                  </div>
-                  <p className="mt-0.5 text-xs text-text-muted">
-                    Member since {auction.seller.memberSince}
-                  </p>
+                <div className="pt-1">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-text-muted">Return policy</p>
+                  <p className="mt-1 text-xs leading-relaxed text-text-body">{auction.shipping.returnPolicy}</p>
                 </div>
               </div>
+            </div>
+
+            {/* Seller */}
+            <div className="mt-5 border-t border-border/40 pt-5">
+              <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.12em] text-text-muted">
+                Sold by
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent-soft text-sm font-bold text-text-label">
+                  {auction.seller.name.slice(0, 2).toUpperCase()}
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-sm font-medium text-text-heading">{auction.seller.name}</p>
+                    {auction.seller.verified && (
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-4 text-accent">
+                        <path fillRule="evenodd" d="M16.403 12.652a3 3 0 0 0 0-5.304 3 3 0 0 0-3.75-3.751 3 3 0 0 0-5.305 0 3 3 0 0 0-3.751 3.75 3 3 0 0 0 0 5.305 3 3 0 0 0 3.75 3.751 3 3 0 0 0 5.305 0 3 3 0 0 0 3.751-3.75Zm-2.546-4.46a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </div>
+                  <p className="text-xs text-text-muted">{auction.seller.username}</p>
+                </div>
+              </div>
+              <div className="mt-3 flex items-center gap-4 text-xs text-text-muted">
+                <span><span className="font-medium text-text-heading">{auction.seller.totalSold}</span> sold</span>
+                <span><span className="font-medium text-text-heading">{auction.seller.rating}%</span> positive</span>
+                <span><span className="font-medium text-text-heading">{auction.seller.reviews}</span> reviews</span>
+              </div>
+              <p className="mt-1 text-xs text-text-muted">Member since {auction.seller.memberSince}</p>
             </div>
 
           </div>
 
           {/* Right Column - Details & Bid */}
           <div className="lg:col-span-2">
-            {/* Category Badge */}
-            <div className="mb-4">
-              <span className="inline-flex rounded-full border border-border-strong bg-accent-soft px-3 py-1 text-xs font-semibold text-text-label">
-                {auction.category}
-              </span>
-            </div>
-
             {/* Title */}
-            <h1 className="text-2xl font-semibold tracking-tight text-text-heading sm:text-3xl lg:text-[1.75rem]">
+            <h1 className="text-xl font-semibold tracking-tight text-text-heading sm:text-2xl">
               {auction.title}
             </h1>
 
-            {/* Estimated Value */}
-            <div className="mt-4 flex items-center gap-2">
-              <p className="text-sm text-text-muted">Estimated Value:</p>
-              <p className="text-lg font-semibold text-text-label">
-                ${auction.estimatedValue.toLocaleString()}
-              </p>
-            </div>
-
-            {/* Stats Badges */}
-            <div className="mt-5 flex flex-wrap gap-3">
-              <div className="rounded-xl border border-border-strong bg-accent-soft px-4 py-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-label">
-                  Current Bid
-                </p>
-                <p className="mt-0.5 text-lg font-semibold text-text-heading">
-                  ${auction.currentBid.toLocaleString()}
-                </p>
-              </div>
-              <div className="rounded-xl border border-border bg-card-bg px-4 py-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">
-                  Total Bids
-                </p>
-                <p className="mt-0.5 text-lg font-semibold text-text-heading">
-                  {auction.totalBids}
-                </p>
-              </div>
-              <div className="rounded-xl border border-border bg-card-bg px-4 py-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">
-                  Starting Price
-                </p>
-                <p className="mt-0.5 text-lg font-semibold text-text-heading">
-                  ${auction.startingPrice.toLocaleString()}
-                </p>
-              </div>
-            </div>
-
-            {/* Countdown Timer */}
-            <div className="mt-6">
-              <CountdownTimer endTime={auction.endsAt} />
-            </div>
-
-            {/* Bid Form */}
-            <div className="mt-6">
+            {/* Bid Section */}
+            <div className="mt-4">
               <BidForm
                 currentBid={auction.currentBid}
                 minIncrement={100}
+                totalBids={auction.totalBids}
+                estimatedValue={auction.estimatedValue}
+                endTime={auction.endsAt}
                 onPlaceBid={(amount) => console.log("Bid placed:", amount)}
               />
             </div>
