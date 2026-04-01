@@ -62,10 +62,7 @@ export default function Sidebar() {
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 border-r border-border bg-card-bg md:flex md:flex-col">
         <div className="flex h-full flex-col px-4 py-6">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 px-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#0f5ddd,#4ea2ff)] text-xs font-black tracking-[0.12em] text-white">
-              BZ
-            </span>
+          <Link href="/" className="flex items-center px-2">
             <span className="text-lg font-semibold tracking-tight text-text-heading">
               BidZone
             </span>
@@ -107,10 +104,7 @@ export default function Sidebar() {
 
       {/* Mobile top bar */}
       <div className="flex items-center justify-between border-b border-border bg-card-bg px-4 py-3 md:hidden">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#0f5ddd,#4ea2ff)] text-[10px] font-black tracking-[0.12em] text-white">
-            BZ
-          </span>
+        <Link href="/" className="flex items-center">
           <span className="text-base font-semibold tracking-tight text-text-heading">
             BidZone
           </span>

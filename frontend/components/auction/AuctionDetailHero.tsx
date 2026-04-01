@@ -45,7 +45,7 @@ export default function AuctionDetailHero({
   return (
     <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
       {/* Image Section */}
-      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-card-bg card-shadow">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-sm border border-border bg-card-bg card-shadow">
         <Image
           src={image}
           alt={title}

@@ -39,7 +39,7 @@ export default function CategoryBar({ categories }: { categories: Category[] }) 
   };
 
   return (
-    <section className="relative mt-14">
+    <section className="relative mt-5">
       {canScrollLeft && (
         <>
           <div className="pointer-events-none absolute left-0 top-0 bottom-3 z-10 w-12 bg-gradient-to-r from-[var(--page-gradient)] to-transparent" />
@@ -55,20 +55,20 @@ export default function CategoryBar({ categories }: { categories: Category[] }) 
         </>
       )}
 
-      <div ref={scrollRef} className="flex gap-6 overflow-x-auto px-2 pb-3 scrollbar-hide">
+      <div ref={scrollRef} className="flex gap-5 overflow-x-auto px-2 pb-2 scrollbar-hide">
         {categories.map((cat, i) => (
           <Link
             key={cat.label}
             href={`/auctions?category=${encodeURIComponent(cat.label)}`}
-            className={`group flex shrink-0 flex-col items-center gap-2 ${
+            className={`group flex shrink-0 flex-col items-center gap-1.5 ${
               i === 0 ? "text-accent" : "text-text-muted hover:text-text-heading"
             } transition-colors`}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-9">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
               <path strokeLinecap="round" strokeLinejoin="round" d={cat.icon} />
             </svg>
-            <span className="whitespace-nowrap text-xs font-semibold">{cat.label}</span>
-            {i === 0 && <span className="h-[2.5px] w-full rounded-full bg-accent" />}
+            <span className="whitespace-nowrap text-[11px] font-semibold">{cat.label}</span>
+            {i === 0 && <span className="h-[2px] w-full rounded-full bg-accent" />}
           </Link>
         ))}
       </div>

@@ -150,7 +150,7 @@ export default function AuctionDetailPage(
           {/* Left Column - Images */}
           <div className="lg:col-span-3">
             {/* Main Image */}
-            <div className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-card-bg card-shadow">
+            <div className="group relative aspect-[4/3] overflow-hidden rounded-sm bg-card-bg card-shadow">
               <Image
                 src={auction.images[selectedImage]}
                 alt={auction.title}
@@ -192,7 +192,7 @@ export default function AuctionDetailPage(
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
-                    className={`relative aspect-square w-20 shrink-0 overflow-hidden rounded-xl transition-all ${
+                    className={`relative aspect-square w-20 shrink-0 overflow-hidden rounded-sm transition-all ${
                       selectedImage === index
                         ? "ring-2 ring-accent shadow-[0_4px_12px_-4px_rgba(16,84,209,0.5)]"
                         : "opacity-60 hover:opacity-100"

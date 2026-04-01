@@ -115,23 +115,23 @@ export default function HomePage() {
     <div className="page-gradient relative overflow-x-clip">
       <Navbar />
 
-      <main className="mx-auto w-full max-w-7xl px-6 pb-10 pt-10 sm:px-8">
+      <main className="w-full px-6 pb-4 pt-5 sm:px-10 lg:px-14">
         <section className="relative">
-          <div className="animate-rise max-w-2xl mx-auto text-center">
+          <div className="animate-rise max-w-xl mx-auto text-center">
             <HeroHeading />
-            <form action="/auctions" method="get" className="mt-7 flex w-full max-w-2xl mx-auto overflow-hidden rounded-full border border-border-strong bg-card-bg shadow-md">
-              <svg className="ml-4 shrink-0 self-center size-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <form action="/auctions" method="get" className="mt-4 flex w-full max-w-xl mx-auto overflow-hidden rounded-full border border-border-strong bg-card-bg shadow-md">
+              <svg className="ml-4 shrink-0 self-center size-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <input
                 type="text"
                 name="q"
                 placeholder="Search for brands, models, or keywords..."
-                className="flex-1 bg-transparent px-3 py-3.5 text-sm text-text-heading placeholder:text-text-muted focus:outline-none"
+                className="flex-1 bg-transparent px-3 py-2.5 text-sm text-text-heading placeholder:text-text-muted focus:outline-none"
               />
               <button
                 type="submit"
-                className="my-1.5 mr-1.5 rounded-full bg-accent px-6 py-2 text-sm font-semibold text-white transition hover:brightness-110"
+                className="my-1 mr-1 rounded-full bg-accent px-5 py-1.5 text-sm font-semibold text-white transition hover:brightness-110"
               >
                 Search
               </button>
@@ -141,12 +141,12 @@ export default function HomePage() {
 
         <CategoryBar categories={categories} />
 
-        <section className="mt-16">
+        <section className="mt-6">
           <AuctionGrid auctions={featuredAuctions} />
-          <div className="mt-8 flex justify-center">
+          <div className="mt-6 flex justify-center">
             <Link
               href="/auctions"
-              className="rounded-2xl border border-border-strong bg-card-bg px-8 py-3.5 text-base font-semibold text-text-label transition hover:border-accent/50 hover:bg-accent-soft"
+              className="rounded-md border border-border-strong bg-card-bg px-6 py-2.5 text-sm font-semibold text-text-label transition hover:border-accent/50 hover:bg-accent-soft"
             >
               View all auctions
             </Link>

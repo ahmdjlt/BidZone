@@ -80,7 +80,7 @@ export default function AuctionsPage() {
     <div className="page-gradient relative min-h-screen">
       <Navbar />
 
-      <main className="mx-auto w-full max-w-7xl px-6 pb-10 pt-10 sm:px-8">
+      <main className="w-full px-2 pb-10 pt-10 sm:px-3">
         {/* Header */}
         <div className="mb-8">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-label">

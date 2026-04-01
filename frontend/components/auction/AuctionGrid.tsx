@@ -3,14 +3,16 @@ import AuctionCard, { type AuctionPreview } from "./AuctionCard";
 
 interface AuctionGridProps {
   auctions: AuctionPreview[];
-  columns?: 2 | 3;
+  columns?: 2 | 3 | 4;
 }
 
-export default function AuctionGrid({ auctions, columns = 3 }: AuctionGridProps) {
+export default function AuctionGrid({ auctions, columns = 4 }: AuctionGridProps) {
   const gridCols =
     columns === 2
-      ? "grid gap-5 sm:grid-cols-2"
-      : "grid gap-5 sm:grid-cols-2 lg:grid-cols-3";
+      ? "grid gap-3 sm:grid-cols-2"
+      : columns === 3
+      ? "grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
+      : "grid gap-3 sm:grid-cols-2 lg:grid-cols-4";
 
   return (
     <div className={gridCols}>
@@ -18,7 +20,7 @@ export default function AuctionGrid({ auctions, columns = 3 }: AuctionGridProps)
         <AuctionCard
           key={auction.id}
           auction={auction}
-          priority={columns === 3 && index === 0}
+          priority={index < 4}
         />
       ))}
     </div>
