@@ -10,13 +10,20 @@ public class BidLogic : IBidLogic
 {
     private readonly IBidRepository _bidRepo;
     private readonly IAuctionRepository _auctionRepo;
+    private readonly IAuctionFinalizationService _auctionFinalizationService;
     private readonly IWatchlistRepository _watchlistRepo;
     private readonly IMapper _mapper;
 
-    public BidLogic(IBidRepository bidRepo, IAuctionRepository auctionRepo, IWatchlistRepository watchlistRepo, IMapper mapper)
+    public BidLogic(
+        IBidRepository bidRepo,
+        IAuctionRepository auctionRepo,
+        IAuctionFinalizationService auctionFinalizationService,
+        IWatchlistRepository watchlistRepo,
+        IMapper mapper)
     {
         _bidRepo = bidRepo;
         _auctionRepo = auctionRepo;
+        _auctionFinalizationService = auctionFinalizationService;
         _watchlistRepo = watchlistRepo;
         _mapper = mapper;
     }
@@ -27,8 +34,14 @@ public class BidLogic : IBidLogic
         if (auction == null)
             return null;
 
+        if (auction.Status == "Active" && auction.EndTime <= DateTime.UtcNow)
+        {
+            await _auctionFinalizationService.FinalizeAuctionIfExpiredAsync(dto.AuctionId);
+            return null;
+        }
+
         // Cannot bid on closed auction
-        if (auction.Status != "Active" || auction.EndTime <= DateTime.UtcNow)
+        if (auction.Status != "Active")
             return null;
 
         // Cannot bid on own auction
@@ -81,18 +94,21 @@ public class BidLogic : IBidLogic
 
     public async Task<List<BidDto>> GetByAuctionAsync(int auctionId)
     {
+        await _auctionFinalizationService.FinalizeAuctionIfExpiredAsync(auctionId);
         var bids = await _bidRepo.GetByAuctionAsync(auctionId);
         return _mapper.Map<List<BidDto>>(bids);
     }
 
     public async Task<List<BidDto>> GetByUserAsync(int userId)
     {
+        await _auctionFinalizationService.FinalizeExpiredAuctionsAsync();
         var bids = await _bidRepo.GetByUserAsync(userId);
         return _mapper.Map<List<BidDto>>(bids);
     }
 
     public async Task<BidDto?> GetHighestBidAsync(int auctionId)
     {
+        await _auctionFinalizationService.FinalizeAuctionIfExpiredAsync(auctionId);
         var bid = await _bidRepo.GetHighestBidAsync(auctionId);
         return bid == null ? null : _mapper.Map<BidDto>(bid);
     }

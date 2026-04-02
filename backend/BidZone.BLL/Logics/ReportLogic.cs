@@ -8,10 +8,17 @@ namespace BidZone.BLL.Logics;
 
 public class ReportLogic : BaseLogic, IReportLogic
 {
-    public ReportLogic(AppDbContext context) : base(context) { }
+    private readonly IAuctionFinalizationService _auctionFinalizationService;
+
+    public ReportLogic(AppDbContext context, IAuctionFinalizationService auctionFinalizationService) : base(context)
+    {
+        _auctionFinalizationService = auctionFinalizationService;
+    }
 
     public async Task<DashboardStatsDto> GetDashboardStatsAsync()
     {
+        await _auctionFinalizationService.FinalizeExpiredAuctionsAsync();
+
         var stats = new DashboardStatsDto
         {
             TotalUsers = await _context.Users.CountAsync(),
@@ -19,8 +26,8 @@ public class ReportLogic : BaseLogic, IReportLogic
             ActiveAuctions = await _context.Auctions.CountAsync(a => a.Status == "Active"),
             TotalBids = await _context.Bids.CountAsync(),
             TotalRevenue = await _context.Auctions
-                .Where(a => a.Status == "Closed")
-                .SumAsync(a => a.CurrentPrice),
+                .Where(a => a.Status == "Closed" && a.Bids.Any(b => b.Status == "Won"))
+                .SumAsync(a => (decimal?)a.CurrentPrice) ?? 0m,
             RecentBidActivity = await GetBidActivityAsync(7)
         };
 
