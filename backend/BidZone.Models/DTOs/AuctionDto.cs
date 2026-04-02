@@ -16,5 +16,6 @@ public class AuctionDto
     public string SellerUsername { get; set; } = string.Empty;
     public int CategoryId { get; set; }
     public string CategoryName { get; set; } = string.Empty;
+    public string CategorySlug { get; set; } = string.Empty;
     public int BidCount { get; set; }
 }

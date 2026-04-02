@@ -62,6 +62,7 @@ public class AuthLogic : IAuthLogic
         var user = new User
         {
             Username = request.Username,
+            FullName = request.FullName,
             Email = request.Email,
             PasswordHash = ComputeMd5(request.Password),
             Role = request.Role == "Seller" ? "Seller" : "Buyer",

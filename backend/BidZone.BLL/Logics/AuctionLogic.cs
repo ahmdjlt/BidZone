@@ -25,7 +25,7 @@ public class AuctionLogic : IAuctionLogic
         _mapper = mapper;
     }
 
-    public async Task<List<AuctionDto>> GetAllAsync(string? search, string? category, string? sort, string? status)
+    public async Task<List<AuctionDto>> GetAllAsync(string? search, string? category, string? sort, string? status, decimal? minPrice, decimal? maxPrice)
     {
         await _auctionFinalizationService.FinalizeExpiredAuctionsAsync();
         var auctions = await _auctionRepo.GetAllAsync();
@@ -42,6 +42,12 @@ public class AuctionLogic : IAuctionLogic
 
         if (!string.IsNullOrEmpty(status))
             auctions = auctions.Where(a => a.Status.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        if (minPrice.HasValue)
+            auctions = auctions.Where(a => a.CurrentPrice >= minPrice.Value).ToList();
+
+        if (maxPrice.HasValue)
+            auctions = auctions.Where(a => a.CurrentPrice <= maxPrice.Value).ToList();
 
         auctions = sort switch
         {

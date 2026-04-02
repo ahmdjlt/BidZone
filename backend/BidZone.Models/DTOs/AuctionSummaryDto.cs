@@ -9,5 +9,6 @@ public class AuctionSummaryDto
     public DateTime EndTime { get; set; }
     public string Status { get; set; } = string.Empty;
     public string CategoryName { get; set; } = string.Empty;
+    public string CategorySlug { get; set; } = string.Empty;
     public int BidCount { get; set; }
 }

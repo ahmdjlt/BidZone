@@ -85,6 +85,7 @@ public class AppDbContext : DbContext
             {
                 Id = 1,
                 Username = "admin",
+                FullName = "Admin",
                 Email = "admin@bidzone.com",
                 PasswordHash = "0192023a7bbd73250516f069df18b500", // MD5 of "admin123"
                 Role = "Admin",
@@ -95,6 +96,7 @@ public class AppDbContext : DbContext
             {
                 Id = 2,
                 Username = "seller1",
+                FullName = "Demo Seller",
                 Email = "seller1@bidzone.com",
                 PasswordHash = "e10adc3949ba59abbe56e057f20f883e", // MD5 of "123456"
                 Role = "Seller",
@@ -105,6 +107,7 @@ public class AppDbContext : DbContext
             {
                 Id = 3,
                 Username = "buyer1",
+                FullName = "Demo Buyer",
                 Email = "buyer1@bidzone.com",
                 PasswordHash = "e10adc3949ba59abbe56e057f20f883e", // MD5 of "123456"
                 Role = "Buyer",
@@ -119,40 +122,40 @@ public class AppDbContext : DbContext
             {
                 Id = 1, Title = "iPhone 15 Pro Max", Description = "Brand new iPhone 15 Pro Max 256GB",
                 ImageUrl = "/images/iphone15.jpg", StartingPrice = 999.99m, CurrentPrice = 999.99m,
-                StartTime = new DateTime(2024, 6, 1, 0, 0, 0, DateTimeKind.Utc),
-                EndTime = new DateTime(2025, 12, 31, 0, 0, 0, DateTimeKind.Utc),
+                StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
+                EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
                 Status = "Active", SellerId = 2, CategoryId = 10 // Electronics
             },
             new Auction
             {
                 Id = 2, Title = "Vintage Rolex Submariner", Description = "1960s Rolex Submariner in excellent condition",
                 ImageUrl = "/images/rolex.jpg", StartingPrice = 15000m, CurrentPrice = 15000m,
-                StartTime = new DateTime(2024, 6, 1, 0, 0, 0, DateTimeKind.Utc),
-                EndTime = new DateTime(2025, 12, 31, 0, 0, 0, DateTimeKind.Utc),
+                StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
+                EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
                 Status = "Active", SellerId = 2, CategoryId = 4 // Watches
             },
             new Auction
             {
                 Id = 3, Title = "Mountain Bike Trek", Description = "Trek X-Caliber 8, barely used",
                 ImageUrl = "/images/trek.jpg", StartingPrice = 800m, CurrentPrice = 800m,
-                StartTime = new DateTime(2024, 6, 1, 0, 0, 0, DateTimeKind.Utc),
-                EndTime = new DateTime(2025, 12, 31, 0, 0, 0, DateTimeKind.Utc),
+                StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
+                EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
                 Status = "Active", SellerId = 2, CategoryId = 12 // Sports
             },
             new Auction
             {
                 Id = 4, Title = "Oil Painting - Sunset", Description = "Original oil painting, 24x36 inches",
                 ImageUrl = "/images/painting.jpg", StartingPrice = 250m, CurrentPrice = 250m,
-                StartTime = new DateTime(2024, 6, 1, 0, 0, 0, DateTimeKind.Utc),
-                EndTime = new DateTime(2025, 12, 31, 0, 0, 0, DateTimeKind.Utc),
+                StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
+                EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
                 Status = "Active", SellerId = 2, CategoryId = 1 // Art
             },
             new Auction
             {
                 Id = 5, Title = "Tesla Model 3 2023", Description = "Tesla Model 3 Long Range, white, 10k miles",
                 ImageUrl = "/images/tesla.jpg", StartingPrice = 35000m, CurrentPrice = 35000m,
-                StartTime = new DateTime(2024, 6, 1, 0, 0, 0, DateTimeKind.Utc),
-                EndTime = new DateTime(2025, 12, 31, 0, 0, 0, DateTimeKind.Utc),
+                StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
+                EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
                 Status = "Active", SellerId = 2, CategoryId = 8 // Cars & Bikes
             }
         );

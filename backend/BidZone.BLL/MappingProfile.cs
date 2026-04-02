@@ -13,10 +13,12 @@ public class MappingProfile : Profile
         CreateMap<Auction, AuctionDto>()
             .ForMember(d => d.SellerUsername, o => o.MapFrom(s => s.Seller != null ? s.Seller.Username : string.Empty))
             .ForMember(d => d.CategoryName, o => o.MapFrom(s => s.Category != null ? s.Category.Name : string.Empty))
+            .ForMember(d => d.CategorySlug, o => o.MapFrom(s => s.Category != null ? s.Category.Slug : string.Empty))
             .ForMember(d => d.BidCount, o => o.MapFrom(s => s.Bids != null ? s.Bids.Count : 0));
 
         CreateMap<Auction, AuctionSummaryDto>()
             .ForMember(d => d.CategoryName, o => o.MapFrom(s => s.Category != null ? s.Category.Name : string.Empty))
+            .ForMember(d => d.CategorySlug, o => o.MapFrom(s => s.Category != null ? s.Category.Slug : string.Empty))
             .ForMember(d => d.BidCount, o => o.MapFrom(s => s.Bids != null ? s.Bids.Count : 0));
 
         CreateMap<Bid, BidDto>()

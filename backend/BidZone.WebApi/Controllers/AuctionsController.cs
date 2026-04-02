@@ -21,9 +21,11 @@ public class AuctionsController : ControllerBase
         [FromQuery] string? search,
         [FromQuery] string? category,
         [FromQuery] string? sort,
-        [FromQuery] string? status)
+        [FromQuery] string? status,
+        [FromQuery] decimal? minPrice,
+        [FromQuery] decimal? maxPrice)
     {
-        var auctions = await _businessLogic.Auctions.GetAllAsync(search, category, sort, status);
+        var auctions = await _businessLogic.Auctions.GetAllAsync(search, category, sort, status, minPrice, maxPrice);
         return Ok(auctions);
     }
 
