@@ -2,13 +2,22 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import AuctionGrid from "@/components/auction/AuctionGrid";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import type { AuctionPreview } from "@/components/auction/AuctionCard";
 
-const categories = ["All", "Collectibles", "Electronics", "Art", "Sports Cards", "Gear", "Books", "Home Design"] as const;
-type Category = (typeof categories)[number];
+const categories = [
+  { label: "All", slug: null },
+  { label: "Collectibles", slug: "collectibles" },
+  { label: "Electronics", slug: "electronics" },
+  { label: "Art", slug: "art" },
+  { label: "Sports Cards", slug: "sports-cards" },
+  { label: "Gear", slug: "gear" },
+  { label: "Books", slug: "books" },
+  { label: "Home Design", slug: "home-design" },
+] as const;
 
 const sortOptions = ["Ending Soon", "Most Bids", "Price: Low → High", "Price: High → Low"] as const;
 type SortOption = (typeof sortOptions)[number];
@@ -25,10 +34,13 @@ const allAuctions: AuctionPreview[] = [
 ];
 
 export default function AuctionsPage() {
-  const [activeCategory, setActiveCategory] = useState<Category>("All");
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [activeSort, setActiveSort] = useState<SortOption>("Ending Soon");
   const [isSortOpen, setIsSortOpen] = useState(false);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
+  const activeCategorySlug = searchParams.get("category");
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -45,9 +57,25 @@ export default function AuctionsPage() {
   }, []);
 
   const filtered =
-    activeCategory === "All"
+    activeCategorySlug === null
       ? allAuctions
-      : allAuctions.filter((a) => a.category === activeCategory);
+      : allAuctions.filter((auction) => {
+          const category = categories.find((option) => option.label === auction.category);
+          return category?.slug === activeCategorySlug;
+        });
+
+  const handleCategoryChange = (slug: string | null) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (slug) {
+      params.set("category", slug);
+    } else {
+      params.delete("category");
+    }
+
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
 
   const sortedAuctions = useMemo(() => {
     const toNumber = (value: string) => Number(value.replace(/[^\d.]/g, ""));
@@ -112,15 +140,15 @@ export default function AuctionsPage() {
         <div className="mb-8 flex flex-wrap gap-2">
           {categories.map((cat) => (
             <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
+              key={cat.label}
+              onClick={() => handleCategoryChange(cat.slug)}
               className={`rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
-                activeCategory === cat
+                activeCategorySlug === cat.slug
                   ? "bg-accent text-white shadow-[0_12px_28px_-18px_rgba(8,72,184,0.95)]"
                   : "border border-border-strong bg-card-bg text-text-label hover:bg-accent-soft"
               }`}
             >
-              {cat}
+              {cat.label}
             </button>
           ))}
         </div>
