@@ -5,6 +5,7 @@ import type { AuctionPreview } from "@/components/auction/AuctionCard";
 import Footer from "@/components/layout/Footer";
 import CategoryBar from "@/components/ui/CategoryBar";
 import HeroHeading from "@/components/ui/HeroHeading";
+import LiveBidTicker from "@/components/ui/LiveBidTicker";
 import Navbar from "@/components/layout/Navbar";
 
 const featuredAuctions: AuctionPreview[] = [
@@ -119,25 +120,10 @@ export default function HomePage() {
         <section className="relative">
           <div className="animate-rise max-w-2xl mx-auto text-center">
             <HeroHeading />
-            <form action="/auctions" method="get" className="mt-5 flex w-full max-w-2xl mx-auto overflow-hidden rounded-full border border-border-strong bg-card-bg shadow-md">
-              <svg className="ml-5 shrink-0 self-center size-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                name="q"
-                placeholder="Search for brands, models, or keywords..."
-                className="flex-1 bg-transparent px-4 py-3.5 text-base text-text-heading placeholder:text-text-muted focus:outline-none"
-              />
-              <button
-                type="submit"
-                className="my-1.5 mr-1.5 rounded-full bg-accent px-6 py-2 text-sm font-semibold text-white transition hover:brightness-110"
-              >
-                Search
-              </button>
-            </form>
           </div>
         </section>
+
+        <LiveBidTicker />
 
         <CategoryBar categories={categories} />
 

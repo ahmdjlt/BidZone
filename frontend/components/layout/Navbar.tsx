@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import AuthModal from "@/components/auth/AuthModal";
 
 // Simulated auth state — swap with real auth hook when ready
 const MOCK_USER = { name: "User", initials: "U", email: "user@bidzone.com" };
@@ -76,6 +77,7 @@ export default function Navbar() {
   const [visible, setVisible]       = useState(true);
   const [menuOpen, setMenuOpen]     = useState(false);
   const [userOpen, setUserOpen]     = useState(false);
+  const [authModal, setAuthModal]   = useState<"login" | "register" | null>(null);
   const lastScrollY                 = useRef(0);
   const userDropdownRef             = useRef<HTMLDivElement>(null);
 
@@ -115,7 +117,7 @@ export default function Navbar() {
         }`}
       >
         <div className="navbar-glass border-b border-border bg-card-bg/95 backdrop-blur-xl">
-          <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between px-6 py-1.5 sm:px-10">
+          <div className="mx-auto flex w-full max-w-[1440px] items-center gap-4 px-6 py-2.5 sm:px-10">
 
             {/* Logo */}
             <Link href="/" className="flex shrink-0 items-center">
@@ -124,8 +126,21 @@ export default function Navbar() {
               </span>
             </Link>
 
+            {/* Search bar */}
+            <form action="/auctions" method="get" className="hidden sm:flex flex-1 max-w-md items-center rounded-xl border border-border-strong bg-surface-alt transition-colors focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20">
+              <svg className="ml-3 shrink-0 h-4 w-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                name="q"
+                placeholder="Search auctions..."
+                className="flex-1 bg-transparent px-3 py-2 text-sm text-text-heading placeholder:text-text-muted focus:outline-none"
+              />
+            </form>
+
             {/* Right side */}
-            <div className="flex shrink-0 items-center gap-1.5">
+            <div className="flex shrink-0 items-center gap-1.5 ml-auto">
 
               {isLoggedIn ? (
                 <>
@@ -219,10 +234,18 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <Link href="/register"
-                    className="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_28px_-18px_rgba(8,72,184,0.95)] transition hover:brightness-110">
+                  <button
+                    onClick={() => setAuthModal("login")}
+                    className="rounded-xl border border-border-strong bg-card-bg px-4 py-2 text-sm font-semibold text-text-heading transition hover:bg-accent-soft"
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => setAuthModal("register")}
+                    className="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_28px_-18px_rgba(8,72,184,0.95)] transition hover:brightness-110"
+                  >
                     Sign Up
-                  </Link>
+                  </button>
                   {/* Hamburger */}
                   <button
                     onClick={() => setMenuOpen((prev) => !prev)}
@@ -261,7 +284,15 @@ export default function Navbar() {
       </header>
 
       {/* Spacer */}
-      <div className="h-[60px]" />
+      <div className="h-[64px]" />
+
+      {/* Auth modal */}
+      {authModal && (
+        <AuthModal
+          initialView={authModal}
+          onClose={() => setAuthModal(null)}
+        />
+      )}
     </>
   );
 }
