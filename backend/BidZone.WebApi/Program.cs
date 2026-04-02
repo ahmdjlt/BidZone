@@ -1,5 +1,6 @@
 using BidZone.BLL;
 using BidZone.Models;
+using BidZone.WebApi.Services;
 using BidZone.WebApi.Middleware;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // DAL + BLL + AutoMapper (toate înregistrate prin BLL)
 builder.Services.AddBidZoneServices();
+builder.Services.AddHostedService<AuctionFinalizationHostedService>();
 
 // Controllers
 builder.Services.AddControllers();

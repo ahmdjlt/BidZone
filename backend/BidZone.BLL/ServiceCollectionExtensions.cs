@@ -25,6 +25,7 @@ public static class ServiceCollectionExtensions
         // BLL – Logics
         services.AddScoped<IAuthLogic, AuthLogic>();
         services.AddScoped<IAuctionLogic, AuctionLogic>();
+        services.AddScoped<IAuctionFinalizationService, AuctionFinalizationService>();
         services.AddScoped<IBidLogic, BidLogic>();
         services.AddScoped<ICategoryLogic, CategoryLogic>();
         services.AddScoped<IWatchlistLogic, WatchlistLogic>();
