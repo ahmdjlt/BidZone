@@ -52,3 +52,21 @@ C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.BLL\obj\De
 C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.BLL\obj\Debug\net10.0\refint\BidZone.BLL.dll
 C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.BLL\obj\Debug\net10.0\BidZone.BLL.pdb
 C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.BLL\obj\Debug\net10.0\ref\BidZone.BLL.dll
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.BLL\bin\Debug\net10.0\BidZone.BLL.deps.json
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.BLL\bin\Debug\net10.0\BidZone.BLL.dll
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.BLL\bin\Debug\net10.0\BidZone.BLL.pdb
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.BLL\bin\Debug\net10.0\BidZone.DAL.dll
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.BLL\bin\Debug\net10.0\BidZone.Models.dll
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.BLL\bin\Debug\net10.0\BidZone.DAL.pdb
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.BLL\bin\Debug\net10.0\BidZone.Models.pdb
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.BLL\obj\Debug\net10.0\BidZone.BLL.csproj.AssemblyReference.cache
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.BLL\obj\Debug\net10.0\BidZone.BLL.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.BLL\obj\Debug\net10.0\BidZone.BLL.AssemblyInfoInputs.cache
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.BLL\obj\Debug\net10.0\BidZone.BLL.AssemblyInfo.cs
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.BLL\obj\Debug\net10.0\BidZone.BLL.csproj.CoreCompileInputs.cache
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.BLL\obj\Debug\net10.0\BidZone.BLL.sourcelink.json
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.BLL\obj\Debug\net10.0\BidZone..C5EA3470.Up2Date
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.BLL\obj\Debug\net10.0\BidZone.BLL.dll
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.BLL\obj\Debug\net10.0\refint\BidZone.BLL.dll
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.BLL\obj\Debug\net10.0\BidZone.BLL.pdb
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.BLL\obj\Debug\net10.0\ref\BidZone.BLL.dll

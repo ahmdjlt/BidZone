@@ -6,13 +6,12 @@ import Link from "next/link";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 
 // Simulated auth state — swap with real auth hook when ready
-const MOCK_USER = { name: "Ahmed", initials: "AH", email: "ahmed@bidzone.com", notifications: 3 };
+const MOCK_USER = { name: "User", initials: "U", email: "user@bidzone.com" };
 const isLoggedIn = true;
 
 const navLinks = [
   { href: "/auctions",       label: "Browse"       },
   { href: "/how-it-works",   label: "How It Works" },
-  { href: "/create-listing", label: "Sell"         },
 ];
 
 const exploreLinks = [
@@ -28,29 +27,12 @@ const exploreLinks = [
     icon: <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /> },
 ];
 
-const sellLinks = [
-  { href: "/dashboard",            label: "Sales overview",
-    icon: <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /> },
-  { href: "/create-listing",       label: "In auction",
-    icon: <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /> },
-  { href: "/dashboard/submissions",label: "Submissions",
-    icon: <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /> },
-  { href: "/dashboard/sold",       label: "Sold",
-    icon: <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /> },
-  { href: "/dashboard/not-sold",   label: "Not sold",
-    icon: <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /> },
-  { href: "/dashboard/payments",   label: "Payments",
-    icon: <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /> },
-  { href: "/dashboard/analytics",  label: "Analytics",
-    icon: <><path strokeLinecap="round" strokeLinejoin="round" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></> },
-];
-
 const accountLinks = [
   { href: "/profile",              label: "Profile",       badge: null,
     icon: <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /> },
   { href: "/dashboard/settings",   label: "Settings",      badge: 1,
     icon: <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" /> },
-  { href: "/dashboard/notifications", label: "Notifications", badge: MOCK_USER.notifications,
+  { href: "/dashboard/notifications", label: "Notifications", badge: null,
     icon: <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /> },
   { href: "/dashboard/messages",   label: "Messages",      badge: null,
     icon: <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /> },
@@ -147,19 +129,6 @@ export default function Navbar() {
 
               {isLoggedIn ? (
                 <>
-                  {/* Notifications bell */}
-                  <button
-                    aria-label="Notifications"
-                    className="relative flex h-9 w-9 items-center justify-center rounded-xl text-text-muted transition-colors hover:bg-accent-soft hover:text-text-heading"
-                  >
-                    <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                    </svg>
-                    {MOCK_USER.notifications > 0 && (
-                      <span className="absolute right-1.5 top-1.5 flex h-[7px] w-[7px] items-center justify-center rounded-full bg-red-500 ring-2 ring-card-bg" />
-                    )}
-                  </button>
-
                   {/* Language */}
                   <button
                     aria-label="Language"
@@ -200,12 +169,6 @@ export default function Navbar() {
                       <span className="hidden text-sm font-semibold text-text-heading sm:block">
                         {MOCK_USER.name}
                       </span>
-                      {/* Total badge */}
-                      {MOCK_USER.notifications > 0 && (
-                        <span className="flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white">
-                          {MOCK_USER.notifications}
-                        </span>
-                      )}
                       {/* Chevron */}
                       <svg
                         className={`h-3.5 w-3.5 text-text-muted transition-transform duration-200 ${userOpen ? "rotate-180" : ""}`}

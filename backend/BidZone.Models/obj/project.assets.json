@@ -2785,19 +2785,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Irina Ghidenco\\.nuget\\packages\\": {}
+    "C:\\Users\\jalil\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Irina Ghidenco\\Documents\\Development\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj",
+      "projectUniqueName": "C:\\Users\\jalil\\Documents\\Development\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj",
       "projectName": "BidZone.Models",
-      "projectPath": "C:\\Users\\Irina Ghidenco\\Documents\\Development\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj",
-      "packagesPath": "C:\\Users\\Irina Ghidenco\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Irina Ghidenco\\Documents\\Development\\BidZone\\backend\\BidZone.Models\\obj\\",
+      "projectPath": "C:\\Users\\jalil\\Documents\\Development\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj",
+      "packagesPath": "C:\\Users\\jalil\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\jalil\\Documents\\Development\\BidZone\\backend\\BidZone.Models\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Irina Ghidenco\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\jalil\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
@@ -2821,7 +2821,7 @@
         "auditLevel": "low",
         "auditMode": "all"
       },
-      "SdkAnalysisLevel": "10.0.200"
+      "SdkAnalysisLevel": "10.0.100"
     },
     "frameworks": {
       "net10.0": {
@@ -2862,7 +2862,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.CSharp": "(,4.7.32767]",
           "Microsoft.VisualBasic": "(,10.4.32767]",

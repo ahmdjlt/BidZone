@@ -1,14 +1,11 @@
-// Dashboard layout - wraps dashboard pages with sidebar navigation and auth guard
-import Sidebar from "@/components/layout/Sidebar";
-
+// Dashboard layout - wraps remaining dashboard pages (browse, create-listing, my-bids)
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-surface-alt">
-      <Sidebar />
+    <div className="min-h-screen bg-surface-alt">
       <main className="flex-1 overflow-y-auto">
         <div className="w-full px-4 py-8 sm:px-6 lg:px-8">
           {children}

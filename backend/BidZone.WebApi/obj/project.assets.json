@@ -2950,19 +2950,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Irina Ghidenco\\.nuget\\packages\\": {}
+    "C:\\Users\\jalil\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Irina Ghidenco\\Documents\\Development\\BidZone\\backend\\BidZone.WebApi\\BidZone.WebApi.csproj",
+      "projectUniqueName": "C:\\Users\\jalil\\Documents\\Development\\BidZone\\backend\\BidZone.WebApi\\BidZone.WebApi.csproj",
       "projectName": "BidZone.WebApi",
-      "projectPath": "C:\\Users\\Irina Ghidenco\\Documents\\Development\\BidZone\\backend\\BidZone.WebApi\\BidZone.WebApi.csproj",
-      "packagesPath": "C:\\Users\\Irina Ghidenco\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Irina Ghidenco\\Documents\\Development\\BidZone\\backend\\BidZone.WebApi\\obj\\",
+      "projectPath": "C:\\Users\\jalil\\Documents\\Development\\BidZone\\backend\\BidZone.WebApi\\BidZone.WebApi.csproj",
+      "packagesPath": "C:\\Users\\jalil\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\jalil\\Documents\\Development\\BidZone\\backend\\BidZone.WebApi\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Irina Ghidenco\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\jalil\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
@@ -2974,11 +2974,11 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "projectReferences": {
-            "C:\\Users\\Irina Ghidenco\\Documents\\Development\\BidZone\\backend\\BidZone.BLL\\BidZone.BLL.csproj": {
-              "projectPath": "C:\\Users\\Irina Ghidenco\\Documents\\Development\\BidZone\\backend\\BidZone.BLL\\BidZone.BLL.csproj"
+            "C:\\Users\\jalil\\Documents\\Development\\BidZone\\backend\\BidZone.BLL\\BidZone.BLL.csproj": {
+              "projectPath": "C:\\Users\\jalil\\Documents\\Development\\BidZone\\backend\\BidZone.BLL\\BidZone.BLL.csproj"
             },
-            "C:\\Users\\Irina Ghidenco\\Documents\\Development\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj": {
-              "projectPath": "C:\\Users\\Irina Ghidenco\\Documents\\Development\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj"
+            "C:\\Users\\jalil\\Documents\\Development\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj": {
+              "projectPath": "C:\\Users\\jalil\\Documents\\Development\\BidZone\\backend\\BidZone.Models\\BidZone.Models.csproj"
             }
           }
         }
@@ -2993,7 +2993,7 @@
         "auditLevel": "low",
         "auditMode": "all"
       },
-      "SdkAnalysisLevel": "10.0.200"
+      "SdkAnalysisLevel": "10.0.100"
     },
     "frameworks": {
       "net10.0": {
@@ -3041,7 +3041,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.AspNetCore": "(,10.0.32767]",
           "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

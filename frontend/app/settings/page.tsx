@@ -12,7 +12,7 @@ const tabs: { id: Tab; label: string; badge?: boolean }[] = [
   { id: "account",        label: "Account" },
   { id: "addresses",      label: "Addresses" },
   { id: "payment",        label: "Payment" },
-  { id: "seller-profile", label: "Seller Profile", badge: true },
+  { id: "seller-profile", label: "Seller Profile" },
   { id: "emails",         label: "Emails & Notifications" },
   { id: "verification",   label: "Verification" },
   { id: "appearance",     label: "Appearance" },
@@ -74,9 +74,9 @@ function AccountTab() {
     <div>
       <SectionTitle>Account</SectionTitle>
       <div className="mt-2">
-        <InfoRow label="Name" value="Ahmed Jalilati" action="Change" />
+        <InfoRow label="Name" value="User" action="Change" />
         <InfoRow label="Username" value="ahmedjlt" />
-        <InfoRow label="Email" value="ahmed@bidzone.com" action="Change" />
+        <InfoRow label="Email" value="user@bidzone.com" action="Change" />
         <InfoRow label="Phone" value="+213 555 000 000" action="Change" />
         <InfoRow label="Password" value="••••••••••" action="Change" />
         <InfoRow label="Location" value="Algiers, Algeria" action="Change" />
@@ -104,8 +104,8 @@ function AddressesTab() {
       </div>
       <div className="mt-4 space-y-4">
         {[
-          { name: "Ahmed Jalilati", line: "123 Main Street, Apt 4B", city: "Algiers, Algeria 16000", isDefault: true },
-          { name: "Ahmed Jalilati", line: "456 Business Ave, Suite 200", city: "Oran, Algeria 31000", isDefault: false },
+          { name: "User", line: "123 Main Street, Apt 4B", city: "Algiers, Algeria 16000", isDefault: true },
+          { name: "User", line: "456 Business Ave, Suite 200", city: "Oran, Algeria 31000", isDefault: false },
         ].map((addr, i) => (
           <div key={i} className="border-b border-border py-5">
             <div className="flex items-start justify-between">
@@ -138,26 +138,33 @@ function PaymentTab() {
           Add card
         </button>
       </div>
-      <div className="mt-4">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
         {[
-          { brand: "Visa", last4: "4242", exp: "12/27", isDefault: true },
-          { brand: "Mastercard", last4: "8888", exp: "03/26", isDefault: false },
+          { brand: "Visa", last4: "4242", exp: "12/27", isDefault: true, gradient: "from-[#1a1f71] to-[#2e5fd3]" },
+          { brand: "Mastercard", last4: "8888", exp: "03/26", isDefault: false, gradient: "from-[#eb001b] to-[#f79e1b]" },
         ].map((card, i) => (
-          <div key={i} className="flex items-center justify-between border-b border-border py-5">
-            <div className="flex items-center gap-3">
-              <span className="flex h-9 w-14 items-center justify-center rounded-md bg-accent-soft text-xs font-bold text-text-heading">
-                {card.brand}
+          <div key={i} className="group relative overflow-hidden rounded-xl border border-border-strong bg-card-bg p-4 transition-all hover:border-accent/30 hover:shadow-md">
+            {card.isDefault && (
+              <span className="absolute right-3 top-3 rounded-full bg-accent/10 px-2.5 py-0.5 text-[10px] font-semibold text-accent">
+                Default
               </span>
-              <div>
-                <p className="text-sm font-medium text-text-heading">•••• •••• •••• {card.last4}</p>
-                <p className="text-xs text-text-muted">Expires {card.exp}</p>
-              </div>
+            )}
+            <div className={`mb-4 flex h-8 w-12 items-center justify-center rounded-md bg-gradient-to-r ${card.gradient} text-[10px] font-bold tracking-wide text-white shadow-sm`}>
+              {card.brand}
             </div>
-            <div className="flex items-center gap-3">
-              {card.isDefault && (
-                <span className="rounded-md bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-accent">Default</span>
+            <p className="font-mono text-sm tracking-widest text-text-heading">
+              •••• {card.last4}
+            </p>
+            <p className="mt-1 text-xs text-text-muted">Expires {card.exp}</p>
+            <div className="mt-4 flex items-center gap-2 border-t border-border pt-3">
+              {!card.isDefault && (
+                <button className="rounded-lg px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-accent-soft hover:text-accent">
+                  Set as default
+                </button>
               )}
-              <button className="text-sm font-medium text-red-500 hover:underline">Remove</button>
+              <button className="rounded-lg px-3 py-1.5 text-xs font-medium text-red-500 transition-colors hover:bg-red-500/10">
+                Remove
+              </button>
             </div>
           </div>
         ))}
@@ -196,8 +203,8 @@ function SellerProfileTab() {
         </span>
       </div>
       <div className="mt-2">
-        <InfoRow label="Store name" value="Ahmed's Collectibles" action="Change" />
-        <InfoRow label="Display name" value="AhmedCollects" action="Change" />
+        <InfoRow label="Store name" value="User's Collectibles" action="Change" />
+        <InfoRow label="Display name" value="UserCollects" action="Change" />
         <InfoRow label="Store description" value="Rare watches, cameras, and memorabilia" action="Change" />
         <InfoRow label="Return policy" value="30-day returns accepted" action="Change" />
       </div>

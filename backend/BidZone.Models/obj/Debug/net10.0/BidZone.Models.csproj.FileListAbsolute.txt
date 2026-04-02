@@ -43,3 +43,18 @@ C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.Models\obj
 C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.Models\obj\Debug\net10.0\BidZone.Models.pdb
 C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.Models\obj\Debug\net10.0\BidZone.Models.genruntimeconfig.cache
 C:\Users\Irina Ghidenco\Documents\Development\BidZone\backend\BidZone.Models\obj\Debug\net10.0\ref\BidZone.Models.dll
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.Models\bin\Debug\net10.0\BidZone.Models.deps.json
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.Models\bin\Debug\net10.0\BidZone.Models.runtimeconfig.json
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.Models\bin\Debug\net10.0\BidZone.Models.dll
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.Models\bin\Debug\net10.0\BidZone.Models.pdb
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.Models\obj\Debug\net10.0\BidZone.Models.csproj.AssemblyReference.cache
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.Models\obj\Debug\net10.0\BidZone.Models.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.Models\obj\Debug\net10.0\BidZone.Models.AssemblyInfoInputs.cache
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.Models\obj\Debug\net10.0\BidZone.Models.AssemblyInfo.cs
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.Models\obj\Debug\net10.0\BidZone.Models.csproj.CoreCompileInputs.cache
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.Models\obj\Debug\net10.0\BidZone.Models.sourcelink.json
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.Models\obj\Debug\net10.0\BidZone.Models.dll
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.Models\obj\Debug\net10.0\refint\BidZone.Models.dll
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.Models\obj\Debug\net10.0\BidZone.Models.pdb
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.Models\obj\Debug\net10.0\BidZone.Models.genruntimeconfig.cache
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.Models\obj\Debug\net10.0\ref\BidZone.Models.dll
