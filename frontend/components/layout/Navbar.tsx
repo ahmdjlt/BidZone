@@ -132,7 +132,7 @@ export default function Navbar() {
           visible ? "translate-y-0" : "-translate-y-full"
         }`}
       >
-        <div className="navbar-glass border-b border-border bg-card-bg/85 backdrop-blur-xl">
+        <div className="navbar-glass border-b border-border bg-card-bg/95 backdrop-blur-xl">
           <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between px-6 py-1.5 sm:px-10">
 
             {/* Logo */}

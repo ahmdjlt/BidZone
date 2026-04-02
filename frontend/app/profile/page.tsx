@@ -6,10 +6,22 @@ import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
-type Tab = "overview" | "auction-history" | "reviews";
+type Tab = "overview" | "auction-history" | "reviews" | "favourites" | "bids" | "offers" | "orders" | "watchlist" | "sales" | "in-auction" | "submissions" | "sold" | "not-sold" | "payments" | "analytics";
 
 const tabs: { id: Tab; label: string }[] = [
   { id: "overview",        label: "Overview" },
+  { id: "favourites",      label: "Favourite objects" },
+  { id: "bids",            label: "Bids" },
+  { id: "offers",          label: "Offers" },
+  { id: "orders",          label: "Orders" },
+  { id: "watchlist",       label: "Watchlist" },
+  { id: "sales",           label: "Sales overview" },
+  { id: "in-auction",      label: "In auction" },
+  { id: "submissions",     label: "Submissions" },
+  { id: "sold",            label: "Sold" },
+  { id: "not-sold",        label: "Not sold" },
+  { id: "payments",        label: "Payments" },
+  { id: "analytics",       label: "Analytics" },
   { id: "auction-history", label: "Auction History" },
   { id: "reviews",         label: "Reviews" },
 ];
@@ -162,6 +174,21 @@ function ReviewsTab() {
   );
 }
 
+function PlaceholderTab({ title }: { title: string }) {
+  return (
+    <div>
+      <h2 className="text-xl font-semibold tracking-tight text-text-heading">{title}</h2>
+      <div className="mt-6 flex flex-col items-center justify-center py-16 text-center">
+        <svg className="h-12 w-12 text-text-muted/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+        </svg>
+        <p className="mt-3 text-sm text-text-muted">No items yet</p>
+        <p className="mt-1 text-xs text-text-muted">Your {title.toLowerCase()} will appear here.</p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ProfilePage() {
@@ -169,6 +196,18 @@ export default function ProfilePage() {
 
   const panel = {
     "overview":        <OverviewTab />,
+    "favourites":      <PlaceholderTab title="Favourite objects" />,
+    "bids":            <PlaceholderTab title="Bids" />,
+    "offers":          <PlaceholderTab title="Offers" />,
+    "orders":          <PlaceholderTab title="Orders" />,
+    "watchlist":       <PlaceholderTab title="Watchlist" />,
+    "sales":           <PlaceholderTab title="Sales overview" />,
+    "in-auction":      <PlaceholderTab title="In auction" />,
+    "submissions":     <PlaceholderTab title="Submissions" />,
+    "sold":            <PlaceholderTab title="Sold" />,
+    "not-sold":        <PlaceholderTab title="Not sold" />,
+    "payments":        <PlaceholderTab title="Payments" />,
+    "analytics":       <PlaceholderTab title="Analytics" />,
     "auction-history": <AuctionHistoryTab />,
     "reviews":         <ReviewsTab />,
   }[activeTab];
