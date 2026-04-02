@@ -133,7 +133,7 @@ export default function Navbar() {
         }`}
       >
         <div className="navbar-glass border-b border-border bg-card-bg/85 backdrop-blur-xl">
-          <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-3 sm:px-10">
+          <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between px-6 py-1.5 sm:px-10">
 
             {/* Logo */}
             <Link href="/" className="flex shrink-0 items-center">
@@ -194,7 +194,7 @@ export default function Navbar() {
                       }`}
                     >
                       {/* Avatar */}
-                      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#0f5ddd,#4ea2ff)] text-[11px] font-black tracking-wide text-white shadow-[0_4px_10px_-4px_rgba(15,93,221,0.6)]">
+                      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#1a4fa0,#3b7dd8)] text-[11px] font-black tracking-wide text-white shadow-[0_4px_10px_-4px_rgba(15,93,221,0.3)]">
                         {MOCK_USER.initials}
                       </span>
                       {/* Name */}
@@ -218,10 +218,10 @@ export default function Navbar() {
 
                     {/* Dropdown panel */}
                     {userOpen && (
-                      <div className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-border-strong bg-card-bg shadow-[0_20px_60px_-20px_var(--card-shadow)]">
+                      <div className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-lg border border-border-strong bg-card-bg shadow-[0_20px_60px_-20px_var(--card-shadow)]">
                         {/* User header */}
                         <div className="flex items-center gap-3 border-b border-border px-4 py-3.5">
-                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#0f5ddd,#4ea2ff)] text-sm font-black tracking-wide text-white shadow-[0_4px_12px_-4px_rgba(15,93,221,0.5)]">
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#1a4fa0,#3b7dd8)] text-sm font-black tracking-wide text-white shadow-[0_4px_12px_-4px_rgba(15,93,221,0.3)]">
                             {MOCK_USER.initials}
                           </span>
                           <div className="min-w-0">
@@ -246,6 +246,12 @@ export default function Navbar() {
                           {accountLinks.map((l) => (
                             <MenuLink key={l.href} href={l.href} label={l.label} badge={l.badge} icon={l.icon} onClick={closeAll} />
                           ))}
+
+                          {/* Theme toggle */}
+                          <div className="mt-2 border-t border-border pt-2 px-3 flex items-center justify-between">
+                            <span className="text-sm text-text-body">Theme</span>
+                            <ThemeToggle />
+                          </div>
 
                           {/* Sign out */}
                           <div className="mt-2 border-t border-border pt-2">
@@ -295,7 +301,7 @@ export default function Navbar() {
             menuOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          <nav className="mx-auto flex w-full max-w-7xl flex-col gap-1 px-5 py-3 sm:px-10">
+          <nav className="mx-auto flex w-full max-w-[1440px] flex-col gap-1 px-6 py-3 sm:px-10">
             {navLinks.map((link) => (
               <Link
                 key={link.href}

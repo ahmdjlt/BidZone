@@ -55,19 +55,19 @@ export default function CategoryBar({ categories }: { categories: Category[] }) 
         </>
       )}
 
-      <div ref={scrollRef} className="flex gap-5 overflow-x-auto px-2 pb-2 scrollbar-hide">
+      <div ref={scrollRef} className="flex gap-6 overflow-x-auto px-2 pb-2 scrollbar-hide">
         {categories.map((cat, i) => (
           <Link
             key={cat.label}
             href={`/auctions?category=${encodeURIComponent(cat.label)}`}
-            className={`group flex shrink-0 flex-col items-center gap-1.5 ${
+            className={`group flex shrink-0 flex-col items-center gap-2 ${
               i === 0 ? "text-accent" : "text-text-muted hover:text-text-heading"
             } transition-colors`}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-7">
               <path strokeLinecap="round" strokeLinejoin="round" d={cat.icon} />
             </svg>
-            <span className="whitespace-nowrap text-[11px] font-semibold">{cat.label}</span>
+            <span className="whitespace-nowrap text-xs font-semibold">{cat.label}</span>
             {i === 0 && <span className="h-[2px] w-full rounded-full bg-accent" />}
           </Link>
         ))}

@@ -78,7 +78,7 @@ export default function HowItWorksPage() {
     <div className="page-gradient relative overflow-x-clip">
       <Navbar />
 
-      <main className="mx-auto w-full max-w-7xl px-6 pb-10 pt-10 sm:px-8">
+      <main className="mx-auto w-full max-w-[1440px] px-6 pb-10 pt-10 sm:px-8">
         {/* Header */}
         <section className="animate-rise text-center">
           <span className="inline-flex items-center rounded-full border border-border-strong bg-card-bg px-4 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-text-label">

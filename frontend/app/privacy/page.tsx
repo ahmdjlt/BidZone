@@ -59,7 +59,7 @@ export default function PrivacyPage() {
     <div className="page-gradient relative min-h-screen">
       <Navbar />
 
-      <main className="mx-auto w-full max-w-7xl px-6 pb-16 pt-10 sm:px-8">
+      <main className="mx-auto w-full max-w-[1440px] px-6 pb-16 pt-10 sm:px-8">
         {/* Header */}
         <div className="mb-10 max-w-2xl">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
