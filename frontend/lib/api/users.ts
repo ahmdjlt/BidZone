@@ -1,17 +1,76 @@
-// User API calls - authentication, profile management
+import type { User, AuthResponse, LoginRequest, RegisterRequest } from "@/types/user";
+import type { WatchlistItem, DashboardStats, BidActivity } from "@/types/auction";
 
-export async function login(email: string, password: string) {
-  // Authenticate user and return token
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5171";
+
+async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(`${API_BASE}${url}`, {
+    credentials: "include",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    ...options,
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(body || `Request failed: ${res.status}`);
+  }
+  if (res.status === 204) return undefined as T;
+  return res.json();
 }
 
-export async function register(data: unknown) {
-  // Register a new user account
+// Auth
+export async function login(data: LoginRequest): Promise<AuthResponse> {
+  return apiFetch<AuthResponse>("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 }
 
-export async function getUserProfile(userId: string) {
-  // Fetch user profile by ID
+export async function register(data: RegisterRequest): Promise<AuthResponse> {
+  return apiFetch<AuthResponse>("/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 }
 
-export async function updateUserProfile(userId: string, data: unknown) {
-  // Update user profile information
+export async function logout(): Promise<void> {
+  return apiFetch<void>("/api/auth/logout", { method: "POST" });
+}
+
+export async function getCurrentUser(): Promise<User> {
+  return apiFetch<User>("/api/auth/me");
+}
+
+// Users
+export async function getUserProfile(userId: number | string): Promise<User> {
+  return apiFetch<User>(`/api/users/${userId}`);
+}
+
+export async function updateUserProfile(userId: number | string, data: Partial<User>): Promise<User> {
+  return apiFetch<User>(`/api/users/${userId}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+// Watchlist
+export async function getWatchlist(): Promise<WatchlistItem[]> {
+  return apiFetch<WatchlistItem[]>("/api/watchlist");
+}
+
+export async function addToWatchlist(auctionId: number): Promise<WatchlistItem> {
+  return apiFetch<WatchlistItem>(`/api/watchlist/${auctionId}`, { method: "POST" });
+}
+
+export async function removeFromWatchlist(auctionId: number): Promise<void> {
+  return apiFetch<void>(`/api/watchlist/${auctionId}`, { method: "DELETE" });
+}
+
+// Reports (Admin)
+export async function getDashboardStats(): Promise<DashboardStats> {
+  return apiFetch<DashboardStats>("/api/reports/dashboard");
+}
+
+export async function getBidActivity(days?: number): Promise<BidActivity[]> {
+  const qs = days ? `?days=${days}` : "";
+  return apiFetch<BidActivity[]>(`/api/reports/bid-activity${qs}`);
 }

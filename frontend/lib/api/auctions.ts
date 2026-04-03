@@ -1,21 +1,72 @@
-// Auction API calls - fetch auctions, get auction by id, create auction, update auction, delete auction
+import type { Auction, AuctionSummary, CreateAuctionData, UpdateAuctionData, Category } from "@/types/auction";
 
-export async function getAuctions() {
-  // Fetch all auctions with optional filters (category, status, search)
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5171";
+
+async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(`${API_BASE}${url}`, {
+    credentials: "include",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    ...options,
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(body || `Request failed: ${res.status}`);
+  }
+  if (res.status === 204) return undefined as T;
+  return res.json();
 }
 
-export async function getAuctionById(id: string) {
-  // Fetch a single auction by its ID
+export interface AuctionFilters {
+  search?: string;
+  category?: string;
+  sort?: string;
+  status?: string;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
-export async function createAuction(data: unknown) {
-  // Create a new auction listing
+export async function getAuctions(filters?: AuctionFilters): Promise<AuctionSummary[]> {
+  const params = new URLSearchParams();
+  if (filters?.search) params.set("search", filters.search);
+  if (filters?.category) params.set("category", filters.category);
+  if (filters?.sort) params.set("sort", filters.sort);
+  if (filters?.status) params.set("status", filters.status);
+  if (filters?.minPrice != null) params.set("minPrice", String(filters.minPrice));
+  if (filters?.maxPrice != null) params.set("maxPrice", String(filters.maxPrice));
+  const qs = params.toString();
+  return apiFetch<AuctionSummary[]>(`/api/auctions${qs ? `?${qs}` : ""}`);
 }
 
-export async function updateAuction(id: string, data: unknown) {
-  // Update an existing auction
+export async function getAuctionById(id: string | number): Promise<Auction> {
+  return apiFetch<Auction>(`/api/auctions/${id}`);
 }
 
-export async function deleteAuction(id: string) {
-  // Delete an auction by ID
+export async function createAuction(data: CreateAuctionData): Promise<Auction> {
+  return apiFetch<Auction>("/api/auctions", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateAuction(id: string | number, data: UpdateAuctionData): Promise<Auction> {
+  return apiFetch<Auction>(`/api/auctions/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteAuction(id: string | number): Promise<void> {
+  return apiFetch<void>(`/api/auctions/${id}`, { method: "DELETE" });
+}
+
+export async function getMyAuctions(): Promise<Auction[]> {
+  return apiFetch<Auction[]>("/api/auctions/my");
+}
+
+export async function getCategories(): Promise<Category[]> {
+  return apiFetch<Category[]>("/api/categories");
+}
+
+export async function getAuctionsByCategory(categoryId: number): Promise<AuctionSummary[]> {
+  return apiFetch<AuctionSummary[]>(`/api/categories/${categoryId}/auctions`);
 }

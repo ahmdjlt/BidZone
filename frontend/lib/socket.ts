@@ -1,17 +1,37 @@
-// WebSocket client - Socket.io connection for real-time bid updates
+import { io, type Socket } from "socket.io-client";
 
-export function connectSocket() {
-  // Initialize and return a Socket.io client connection
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5171";
+
+let socket: Socket | null = null;
+
+export function connectSocket(): Socket {
+  if (socket?.connected) return socket;
+
+  socket = io(SOCKET_URL, {
+    transports: ["websocket", "polling"],
+    withCredentials: true,
+    autoConnect: true,
+  });
+
+  return socket;
 }
 
-export function disconnectSocket() {
-  // Disconnect the active socket connection
+export function disconnectSocket(): void {
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
 }
 
-export function subscribeToAuction(auctionId: string) {
-  // Join an auction room to receive live bid updates
+export function getSocket(): Socket | null {
+  return socket;
 }
 
-export function unsubscribeFromAuction(auctionId: string) {
-  // Leave an auction room
+export function subscribeToAuction(auctionId: string | number): void {
+  const s = socket ?? connectSocket();
+  s.emit("join-auction", auctionId);
+}
+
+export function unsubscribeFromAuction(auctionId: string | number): void {
+  socket?.emit("leave-auction", auctionId);
 }
