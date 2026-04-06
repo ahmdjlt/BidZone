@@ -4,8 +4,8 @@ namespace BidZone.BLL.Interfaces;
 
 public interface IAuthLogic
 {
-    Task<AuthResponseDto?> LoginAsync(LoginRequestDto request);
-    Task<AuthResponseDto?> RegisterAsync(RegisterRequestDto request);
-    Task<UserDto?> ValidateTokenAsync(string token);
-    Task LogoutAsync(string token);
+    Task<AuthResultDto> LoginAsync(LoginRequestDto request);
+    Task<AuthResultDto> RegisterAsync(RegisterRequestDto request);
+    Task<UserDto?> GetCurrentUserAsync(int userId);
+    Task LogoutAsync(int userId);
 }

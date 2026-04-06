@@ -21,10 +21,10 @@ public class UserRepository : IUserRepository
         => await _context.Users.FindAsync(id);
 
     public async Task<User?> GetByEmailAsync(string email)
-        => await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        => await _context.Users.FirstOrDefaultAsync(u => u.NormalizedEmail == Normalize(email));
 
     public async Task<User?> GetByUsernameAsync(string username)
-        => await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+        => await _context.Users.FirstOrDefaultAsync(u => u.NormalizedUserName == Normalize(username));
 
     public async Task<User> InsertAsync(User user)
     {
@@ -49,4 +49,6 @@ public class UserRepository : IUserRepository
             await _context.SaveChangesAsync();
         }
     }
+
+    private static string Normalize(string value) => value.Trim().ToUpperInvariant();
 }

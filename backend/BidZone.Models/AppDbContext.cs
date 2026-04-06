@@ -1,18 +1,17 @@
 using BidZone.Models.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace BidZone.Models;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityUserContext<User, int>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-    public DbSet<User> Users => Set<User>();
     public DbSet<Auction> Auctions => Set<Auction>();
     public DbSet<Bid> Bids => Set<Bid>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<WatchlistItem> WatchlistItems => Set<WatchlistItem>();
-    public DbSet<Session> Sessions => Set<Session>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -21,15 +20,15 @@ public class AppDbContext : DbContext
         // User
         modelBuilder.Entity<User>(e =>
         {
-            e.HasIndex(u => u.Email).IsUnique();
-            e.HasIndex(u => u.Username).IsUnique();
-        });
-
-        // Session
-        modelBuilder.Entity<Session>(e =>
-        {
-            e.HasIndex(s => s.Token).IsUnique();
-            e.HasOne(s => s.User).WithMany(u => u.Sessions).HasForeignKey(s => s.UserId);
+            e.ToTable("Users");
+            e.Property(u => u.UserName).HasColumnName("Username").HasMaxLength(50);
+            e.Property(u => u.NormalizedUserName).HasMaxLength(50);
+            e.Property(u => u.Email).HasMaxLength(100);
+            e.Property(u => u.NormalizedEmail).HasMaxLength(100);
+            e.Property(u => u.FullName).HasMaxLength(100);
+            e.Property(u => u.Role).HasMaxLength(20);
+            e.HasIndex(u => u.NormalizedEmail).IsUnique();
+            e.HasIndex(u => u.NormalizedUserName).IsUnique();
         });
 
         // Auction
@@ -59,6 +58,10 @@ public class AppDbContext : DbContext
 
     private static void SeedData(ModelBuilder modelBuilder)
     {
+        var adminSecurityStamp = "d44e0d8f-0f86-4a4e-a1d9-a6bf29f50a41";
+        var sellerSecurityStamp = "d15f4865-12ec-4880-9a8e-efec8d61cb08";
+        var buyerSecurityStamp = "9db95bff-3eeb-4a2d-afd1-af80e0c31db2";
+
         // Categories (synced with frontend CategoryBar)
         modelBuilder.Entity<Category>().HasData(
             new Category { Id = 1, Name = "Art", Slug = "art" },
@@ -79,40 +82,58 @@ public class AppDbContext : DbContext
             new Category { Id = 16, Name = "Musical", Slug = "musical" }
         );
 
-        // Admin user (password: admin123, MD5 hashed)
+        // Demo users with Identity password hashes
         modelBuilder.Entity<User>().HasData(
             new User
             {
                 Id = 1,
-                Username = "admin",
+                UserName = "admin",
+                NormalizedUserName = Normalize("admin"),
                 FullName = "Admin",
                 Email = "admin@bidzone.com",
-                PasswordHash = "0192023a7bbd73250516f069df18b500", // MD5 of "admin123"
+                NormalizedEmail = Normalize("admin@bidzone.com"),
+                PasswordHash = "AQAAAAIAAYagAAAAEIZHtCrpw/j1RV8ISXtKMS02S7jhq1dOzqyCRABr07G8TUzI4aIMYWuS7gRMeHSPnQ==", // Admin123A
+                SecurityStamp = adminSecurityStamp,
+                ConcurrencyStamp = "9a6560ca-cd10-4f76-b0e7-bf8ce5caa5db",
+                EmailConfirmed = true,
                 Role = "Admin",
                 CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                IsActive = true
+                IsActive = true,
+                LockoutEnabled = false
             },
             new User
             {
                 Id = 2,
-                Username = "seller1",
+                UserName = "seller1",
+                NormalizedUserName = Normalize("seller1"),
                 FullName = "Demo Seller",
                 Email = "seller1@bidzone.com",
-                PasswordHash = "e10adc3949ba59abbe56e057f20f883e", // MD5 of "123456"
+                NormalizedEmail = Normalize("seller1@bidzone.com"),
+                PasswordHash = "AQAAAAIAAYagAAAAEOKn3iS6zRXJxbYnH6fG8R8bds/7coXisLNnePfdl5rCa0DW6Ot8z1NGUFbv4oCzUg==", // Seller123A
+                SecurityStamp = sellerSecurityStamp,
+                ConcurrencyStamp = "ec1d3f44-1730-4bd3-836d-a7da7318afdb",
+                EmailConfirmed = true,
                 Role = "Seller",
                 CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                IsActive = true
+                IsActive = true,
+                LockoutEnabled = false
             },
             new User
             {
                 Id = 3,
-                Username = "buyer1",
+                UserName = "buyer1",
+                NormalizedUserName = Normalize("buyer1"),
                 FullName = "Demo Buyer",
                 Email = "buyer1@bidzone.com",
-                PasswordHash = "e10adc3949ba59abbe56e057f20f883e", // MD5 of "123456"
+                NormalizedEmail = Normalize("buyer1@bidzone.com"),
+                PasswordHash = "AQAAAAIAAYagAAAAEOxt2/uhhLlq+OgQNwz+4tkYkTas/HpQkGc/LtTIqctryoEiRDsrvJEqQ6AChKzgCQ==", // Buyer123A
+                SecurityStamp = buyerSecurityStamp,
+                ConcurrencyStamp = "87fda966-f7ca-4f43-a6f2-dcb92c1a24cf",
+                EmailConfirmed = true,
                 Role = "Buyer",
                 CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                IsActive = true
+                IsActive = true,
+                LockoutEnabled = false
             }
         );
 
@@ -160,4 +181,6 @@ public class AppDbContext : DbContext
             }
         );
     }
+
+    private static string Normalize(string value) => value.ToUpperInvariant();
 }

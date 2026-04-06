@@ -8,10 +8,11 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        CreateMap<User, UserDto>();
+        CreateMap<User, UserDto>()
+            .ForMember(d => d.Username, o => o.MapFrom(s => s.UserName ?? string.Empty));
 
         CreateMap<Auction, AuctionDto>()
-            .ForMember(d => d.SellerUsername, o => o.MapFrom(s => s.Seller != null ? s.Seller.Username : string.Empty))
+            .ForMember(d => d.SellerUsername, o => o.MapFrom(s => s.Seller != null ? s.Seller.UserName : string.Empty))
             .ForMember(d => d.CategoryName, o => o.MapFrom(s => s.Category != null ? s.Category.Name : string.Empty))
             .ForMember(d => d.CategorySlug, o => o.MapFrom(s => s.Category != null ? s.Category.Slug : string.Empty))
             .ForMember(d => d.BidCount, o => o.MapFrom(s => s.Bids != null ? s.Bids.Count : 0));
@@ -22,7 +23,7 @@ public class MappingProfile : Profile
             .ForMember(d => d.BidCount, o => o.MapFrom(s => s.Bids != null ? s.Bids.Count : 0));
 
         CreateMap<Bid, BidDto>()
-            .ForMember(d => d.BidderUsername, o => o.MapFrom(s => s.Bidder != null ? s.Bidder.Username : string.Empty))
+            .ForMember(d => d.BidderUsername, o => o.MapFrom(s => s.Bidder != null ? s.Bidder.UserName : string.Empty))
             .ForMember(d => d.AuctionTitle, o => o.MapFrom(s => s.Auction != null ? s.Auction.Title : string.Empty));
 
         CreateMap<Category, CategoryDto>()

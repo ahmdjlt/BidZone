@@ -1,22 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace BidZone.Models.Entities;
 
-public class User
+public class User : IdentityUser<int>
 {
-    public int Id { get; set; }
-
-    [Required, MaxLength(50)]
-    public string Username { get; set; } = string.Empty;
-
     [MaxLength(100)]
     public string FullName { get; set; } = string.Empty;
-
-    [Required, MaxLength(100)]
-    public string Email { get; set; } = string.Empty;
-
-    [Required]
-    public string PasswordHash { get; set; } = string.Empty;
 
     [Required, MaxLength(20)]
     public string Role { get; set; } = "Buyer"; // Buyer, Seller, Admin
@@ -28,5 +18,4 @@ public class User
     public ICollection<Auction> Auctions { get; set; } = new List<Auction>();
     public ICollection<Bid> Bids { get; set; } = new List<Bid>();
     public ICollection<WatchlistItem> WatchlistItems { get; set; } = new List<WatchlistItem>();
-    public ICollection<Session> Sessions { get; set; } = new List<Session>();
 }

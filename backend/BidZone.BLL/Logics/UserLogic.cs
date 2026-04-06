@@ -2,6 +2,8 @@ using AutoMapper;
 using BidZone.BLL.Interfaces;
 using BidZone.DAL.Interfaces;
 using BidZone.Models.DTOs;
+using BidZone.Models.Entities;
+using Microsoft.AspNetCore.Identity;
 
 namespace BidZone.BLL.Logics;
 
@@ -9,11 +11,13 @@ public class UserLogic : IUserLogic
 {
     private readonly IUserRepository _userRepo;
     private readonly IMapper _mapper;
+    private readonly UserManager<User> _userManager;
 
-    public UserLogic(IUserRepository userRepo, IMapper mapper)
+    public UserLogic(IUserRepository userRepo, IMapper mapper, UserManager<User> userManager)
     {
         _userRepo = userRepo;
         _mapper = mapper;
+        _userManager = userManager;
     }
 
     public async Task<List<UserDto>> GetAllAsync()
@@ -35,23 +39,33 @@ public class UserLogic : IUserLogic
 
     public async Task<UserDto?> UpdateAsync(int id, UserDto dto)
     {
-        var user = await _userRepo.GetByIdAsync(id);
-        if (user == null) return null;
+        var user = await _userManager.FindByIdAsync(id.ToString());
+        if (user == null || !user.IsActive)
+            return null;
 
-        user.Username = dto.Username;
-        user.Email = dto.Email;
+        user.UserName = dto.Username.Trim();
+        user.Email = dto.Email.Trim();
+        user.FullName = dto.FullName.Trim();
 
-        await _userRepo.UpdateAsync(user);
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+            return null;
+
         return _mapper.Map<UserDto>(user);
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var user = await _userRepo.GetByIdAsync(id);
-        if (user == null) return false;
+        var user = await _userManager.FindByIdAsync(id.ToString());
+        if (user == null)
+            return false;
 
         user.IsActive = false;
-        await _userRepo.UpdateAsync(user);
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+            return false;
+
+        await _userManager.UpdateSecurityStampAsync(user);
         return true;
     }
 }

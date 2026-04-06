@@ -1,5 +1,6 @@
 using BidZone.BLL.Interfaces;
 using BidZone.BLL.Logics;
+using BidZone.BLL.Security;
 using BidZone.DAL.Interfaces;
 using BidZone.DAL.Repositories;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,9 +21,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IBidRepository, BidRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IWatchlistRepository, WatchlistRepository>();
-        services.AddScoped<ISessionRepository, SessionRepository>();
 
         // BLL – Logics
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IAuthLogic, AuthLogic>();
         services.AddScoped<IAuctionLogic, AuctionLogic>();
         services.AddScoped<IAuctionFinalizationService, AuctionFinalizationService>();

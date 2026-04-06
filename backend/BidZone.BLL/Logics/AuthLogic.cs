@@ -1,112 +1,112 @@
-using System.Security.Cryptography;
-using System.Text;
 using AutoMapper;
 using BidZone.BLL.Interfaces;
+using BidZone.BLL.Security;
 using BidZone.DAL.Interfaces;
 using BidZone.Models.DTOs;
 using BidZone.Models.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace BidZone.BLL.Logics;
 
 public class AuthLogic : IAuthLogic
 {
+    private readonly UserManager<User> _userManager;
     private readonly IUserRepository _userRepo;
-    private readonly ISessionRepository _sessionRepo;
     private readonly IMapper _mapper;
+    private readonly IJwtTokenService _jwtTokenService;
 
-    public AuthLogic(IUserRepository userRepo, ISessionRepository sessionRepo, IMapper mapper)
+    public AuthLogic(
+        UserManager<User> userManager,
+        IUserRepository userRepo,
+        IMapper mapper,
+        IJwtTokenService jwtTokenService)
     {
+        _userManager = userManager;
         _userRepo = userRepo;
-        _sessionRepo = sessionRepo;
         _mapper = mapper;
+        _jwtTokenService = jwtTokenService;
     }
 
-    public async Task<AuthResponseDto?> LoginAsync(LoginRequestDto request)
+    public async Task<AuthResultDto> LoginAsync(LoginRequestDto request)
     {
-        var user = await _userRepo.GetByEmailAsync(request.Email);
+        var normalizedEmail = _userManager.NormalizeEmail(request.Email.Trim());
+        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail);
         if (user == null || !user.IsActive)
-            return null;
+            return AuthResultDto.Failure("Invalid email or password.");
 
-        var hash = ComputeMd5(request.Password);
-        if (user.PasswordHash != hash)
-            return null;
+        if (await _userManager.IsLockedOutAsync(user))
+            return AuthResultDto.Failure("Your account is locked.");
 
-        var session = new Session
-        {
-            Token = Guid.NewGuid().ToString("N"),
-            UserId = user.Id,
-            CreatedAt = DateTime.UtcNow,
-            ExpiresAt = DateTime.UtcNow.AddHours(24),
-            IsValid = true
-        };
+        if (!await _userManager.CheckPasswordAsync(user, request.Password))
+            return AuthResultDto.Failure("Invalid email or password.");
 
-        await _sessionRepo.InsertAsync(session);
-
-        return new AuthResponseDto
-        {
-            Token = session.Token,
-            User = _mapper.Map<UserDto>(user)
-        };
+        return AuthResultDto.Success(CreateAuthResponse(user));
     }
 
-    public async Task<AuthResponseDto?> RegisterAsync(RegisterRequestDto request)
+    public async Task<AuthResultDto> RegisterAsync(RegisterRequestDto request)
     {
-        var existingEmail = await _userRepo.GetByEmailAsync(request.Email);
-        if (existingEmail != null)
-            return null;
-
-        var existingUsername = await _userRepo.GetByUsernameAsync(request.Username);
-        if (existingUsername != null)
-            return null;
+        var role = NormalizeRole(request.Role);
+        if (role == null)
+            return AuthResultDto.Failure("Role must be Buyer or Seller.");
 
         var user = new User
         {
-            Username = request.Username,
-            FullName = request.FullName,
-            Email = request.Email,
-            PasswordHash = ComputeMd5(request.Password),
-            Role = request.Role == "Seller" ? "Seller" : "Buyer",
+            UserName = request.Username.Trim(),
+            FullName = request.FullName.Trim(),
+            Email = request.Email.Trim(),
+            EmailConfirmed = true,
+            Role = role,
             CreatedAt = DateTime.UtcNow,
             IsActive = true
         };
 
-        await _userRepo.InsertAsync(user);
-
-        var session = new Session
+        var result = await _userManager.CreateAsync(user, request.Password);
+        if (!result.Succeeded)
         {
-            Token = Guid.NewGuid().ToString("N"),
-            UserId = user.Id,
-            CreatedAt = DateTime.UtcNow,
-            ExpiresAt = DateTime.UtcNow.AddHours(24),
-            IsValid = true
-        };
+            return AuthResultDto.Failure(result.Errors.Select(error => error.Description).ToArray());
+        }
 
-        await _sessionRepo.InsertAsync(session);
+        return AuthResultDto.Success(CreateAuthResponse(user));
+    }
 
+    public async Task<UserDto?> GetCurrentUserAsync(int userId)
+    {
+        var user = await _userRepo.GetByIdAsync(userId);
+        if (user == null || !user.IsActive)
+            return null;
+
+        return _mapper.Map<UserDto>(user);
+    }
+
+    public async Task LogoutAsync(int userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+            return;
+
+        await _userManager.UpdateSecurityStampAsync(user);
+    }
+
+    private AuthResponseDto CreateAuthResponse(User user)
+    {
+        var token = _jwtTokenService.GenerateToken(user);
         return new AuthResponseDto
         {
-            Token = session.Token,
+            Token = token.Token,
+            ExpiresAtUtc = token.ExpiresAtUtc,
             User = _mapper.Map<UserDto>(user)
         };
     }
 
-    public async Task<UserDto?> ValidateTokenAsync(string token)
+    private static string? NormalizeRole(string role)
     {
-        var session = await _sessionRepo.GetByTokenAsync(token);
-        if (session == null)
-            return null;
+        if (string.Equals(role, "Buyer", StringComparison.OrdinalIgnoreCase))
+            return "Buyer";
 
-        return _mapper.Map<UserDto>(session.User);
-    }
+        if (string.Equals(role, "Seller", StringComparison.OrdinalIgnoreCase))
+            return "Seller";
 
-    public async Task LogoutAsync(string token)
-    {
-        await _sessionRepo.InvalidateAsync(token);
-    }
-
-    private static string ComputeMd5(string input)
-    {
-        var bytes = MD5.HashData(Encoding.UTF8.GetBytes(input));
-        return Convert.ToHexString(bytes).ToLowerInvariant();
+        return null;
     }
 }
