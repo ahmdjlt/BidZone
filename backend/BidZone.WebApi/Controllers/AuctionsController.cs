@@ -1,6 +1,7 @@
 using BidZone.BLL.Interfaces;
 using BidZone.Models.DTOs;
-using BidZone.WebApi.Filters;
+using BidZone.WebApi.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BidZone.WebApi.Controllers;
@@ -39,19 +40,19 @@ public class AuctionsController : ControllerBase
     }
 
     [HttpPost]
-    [AuthorizeRoles("Seller", "Admin")]
+    [Authorize(Roles = "Seller,Admin")]
     public async Task<IActionResult> Create([FromBody] CreateAuctionDto dto)
     {
-        var sellerId = (int)HttpContext.Items["UserId"]!;
+        var sellerId = User.GetRequiredUserId();
         var auction = await _businessLogic.Auctions.CreateAsync(dto, sellerId);
         return CreatedAtAction(nameof(GetById), new { id = auction.Id }, auction);
     }
 
     [HttpPut("{id}")]
-    [AuthorizeRoles("Seller", "Admin")]
+    [Authorize(Roles = "Seller,Admin")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateAuctionDto dto)
     {
-        var sellerId = (int)HttpContext.Items["UserId"]!;
+        var sellerId = User.GetRequiredUserId();
         var auction = await _businessLogic.Auctions.UpdateAsync(id, dto, sellerId);
         if (auction == null)
             return NotFound();
@@ -59,10 +60,10 @@ public class AuctionsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [AuthorizeRoles("Seller", "Admin")]
+    [Authorize(Roles = "Seller,Admin")]
     public async Task<IActionResult> Delete(int id)
     {
-        var sellerId = (int)HttpContext.Items["UserId"]!;
+        var sellerId = User.GetRequiredUserId();
         var result = await _businessLogic.Auctions.DeleteAsync(id, sellerId);
         if (!result)
             return BadRequest(new { message = "Cannot delete auction with existing bids" });
@@ -70,10 +71,10 @@ public class AuctionsController : ControllerBase
     }
 
     [HttpGet("my")]
-    [AuthorizeRoles("Seller", "Admin")]
+    [Authorize(Roles = "Seller,Admin")]
     public async Task<IActionResult> GetMyAuctions()
     {
-        var sellerId = (int)HttpContext.Items["UserId"]!;
+        var sellerId = User.GetRequiredUserId();
         var auctions = await _businessLogic.Auctions.GetBySellerAsync(sellerId);
         return Ok(auctions);
     }

@@ -1,6 +1,7 @@
 using BidZone.BLL.Interfaces;
 using BidZone.Models.DTOs;
-using BidZone.WebApi.Filters;
+using BidZone.WebApi.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BidZone.WebApi.Controllers;
@@ -26,23 +27,30 @@ public class UsersController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [AuthorizeRoles]
+    [Authorize]
     public async Task<IActionResult> Update(int id, [FromBody] UserDto dto)
     {
-        var userId = (int)HttpContext.Items["UserId"]!;
-        var role = HttpContext.Items["UserRole"]?.ToString();
+        var userId = User.GetRequiredUserId();
+        var isAdmin = User.IsInRole("Admin");
 
-        if (userId != id && role != "Admin")
+        if (userId != id && !isAdmin)
             return Forbid();
+
+        var existing = await _businessLogic.Users.GetByIdAsync(id);
+        if (existing == null)
+            return NotFound();
 
         var user = await _businessLogic.Users.UpdateAsync(id, dto);
         if (user == null)
-            return NotFound();
+        {
+            return BadRequest(new { message = "Unable to update the profile. Email or username may already be in use." });
+        }
+
         return Ok(user);
     }
 
     [HttpGet]
-    [AuthorizeRoles("Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAll()
     {
         var users = await _businessLogic.Users.GetAllAsync();
@@ -50,7 +58,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [AuthorizeRoles("Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         var result = await _businessLogic.Users.DeleteAsync(id);

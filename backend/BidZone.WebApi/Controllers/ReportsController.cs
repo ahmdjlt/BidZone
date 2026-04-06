@@ -1,12 +1,12 @@
 using BidZone.BLL.Interfaces;
-using BidZone.WebApi.Filters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BidZone.WebApi.Controllers;
 
 [ApiController]
 [Route("api/reports")]
-[AuthorizeRoles("Admin")]
+[Authorize(Roles = "Admin")]
 public class ReportsController : ControllerBase
 {
     private readonly IBusinessLogic _businessLogic;

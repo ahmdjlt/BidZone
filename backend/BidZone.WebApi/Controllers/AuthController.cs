@@ -1,6 +1,7 @@
 using BidZone.BLL.Interfaces;
 using BidZone.Models.DTOs;
-using BidZone.WebApi.Filters;
+using BidZone.WebApi.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BidZone.WebApi.Controllers;
@@ -17,63 +18,51 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
+    [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
         var result = await _businessLogic.Auth.LoginAsync(request);
-        if (result == null)
+        if (!result.Succeeded || result.Response == null)
             return Unauthorized(new { message = "Invalid email or password" });
 
-        SetSessionCookie(result.Token);
-        return Ok(result);
+        return Ok(result.Response);
     }
 
     [HttpPost("register")]
+    [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
     {
         var result = await _businessLogic.Auth.RegisterAsync(request);
-        if (result == null)
-            return BadRequest(new { message = "Email or username already exists" });
+        if (!result.Succeeded || result.Response == null)
+        {
+            return BadRequest(new
+            {
+                message = "Registration failed",
+                errors = result.Errors
+            });
+        }
 
-        SetSessionCookie(result.Token);
-        return Ok(result);
+        return Ok(result.Response);
     }
 
     [HttpPost("logout")]
-    [AuthorizeRoles]
+    [Authorize]
     public async Task<IActionResult> Logout()
     {
-        var token = HttpContext.Items["Token"]?.ToString();
-        if (token != null)
-        {
-            await _businessLogic.Auth.LogoutAsync(token);
-            Response.Cookies.Delete("bidzone_session");
-        }
+        var userId = User.GetRequiredUserId();
+        await _businessLogic.Auth.LogoutAsync(userId);
         return Ok(new { message = "Logged out successfully" });
     }
 
     [HttpGet("me")]
-    [AuthorizeRoles]
+    [Authorize]
     public async Task<IActionResult> GetCurrentUser()
     {
-        var token = HttpContext.Items["Token"]?.ToString();
-        if (token == null)
-            return Unauthorized();
-
-        var user = await _businessLogic.Auth.ValidateTokenAsync(token);
+        var userId = User.GetRequiredUserId();
+        var user = await _businessLogic.Auth.GetCurrentUserAsync(userId);
         if (user == null)
             return Unauthorized();
 
         return Ok(user);
-    }
-
-    private void SetSessionCookie(string token)
-    {
-        Response.Cookies.Append("bidzone_session", token, new CookieOptions
-        {
-            HttpOnly = true,
-            SameSite = SameSiteMode.Lax,
-            Expires = DateTimeOffset.UtcNow.AddHours(24),
-            Path = "/"
-        });
     }
 }

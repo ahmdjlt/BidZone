@@ -1,6 +1,7 @@
 using BidZone.BLL.Interfaces;
 using BidZone.Models.DTOs;
-using BidZone.WebApi.Filters;
+using BidZone.WebApi.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BidZone.WebApi.Controllers;
@@ -17,10 +18,10 @@ public class BidsController : ControllerBase
     }
 
     [HttpPost]
-    [AuthorizeRoles("Buyer", "Admin")]
+    [Authorize(Roles = "Buyer,Admin")]
     public async Task<IActionResult> PlaceBid([FromBody] PlaceBidDto dto)
     {
-        var bidderId = (int)HttpContext.Items["UserId"]!;
+        var bidderId = User.GetRequiredUserId();
         var bid = await _businessLogic.Bids.PlaceBidAsync(dto, bidderId);
         if (bid == null)
             return BadRequest(new { message = "Cannot place bid. Check auction status and bid amount." });
@@ -35,10 +36,10 @@ public class BidsController : ControllerBase
     }
 
     [HttpGet("my")]
-    [AuthorizeRoles]
+    [Authorize]
     public async Task<IActionResult> GetMyBids()
     {
-        var userId = (int)HttpContext.Items["UserId"]!;
+        var userId = User.GetRequiredUserId();
         var bids = await _businessLogic.Bids.GetByUserAsync(userId);
         return Ok(bids);
     }
