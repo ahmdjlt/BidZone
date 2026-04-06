@@ -32,7 +32,7 @@ export default function HeroHeading() {
   }, [displayed, deleting, index]);
 
   return (
-    <h1 className="text-4xl font-semibold leading-tight tracking-tight text-text-heading sm:text-5xl">
+    <h1 className="font-[family-name:var(--font-dm-serif)] text-4xl font-normal leading-tight tracking-tight text-text-heading sm:text-5xl">
       Bid on{" "}
       <span className="italic text-accent">
         {displayed}

@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import AuthModal from "@/components/auth/AuthModal";
+import LiveBidTicker from "@/components/ui/LiveBidTicker";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -11,6 +12,7 @@ export default function Footer() {
 
   return (
     <>
+      <LiveBidTicker />
       <footer className="mt-8 border-t border-border bg-card-bg/95">
         <div className="mx-auto grid w-full max-w-[1440px] gap-10 px-6 py-6 sm:grid-cols-2 sm:px-10 lg:grid-cols-3">
 
