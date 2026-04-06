@@ -1,6 +1,6 @@
 # BidZone Backend
 
-.NET 8 Web API for the BidZone real-time auction marketplace.
+.NET 10 Web API for the BidZone real-time auction marketplace.
 
 ## Architecture
 
@@ -13,15 +13,15 @@ BidZone.WebApi  →  BidZone.BLL  →  BidZone.DAL  →  BidZone.Models
 
 ## Tech Stack
 
-- **Framework**: ASP.NET Core Web API (.NET 8)
+- **Framework**: ASP.NET Core Web API (.NET 10)
 - **Database**: PostgreSQL (via Npgsql + EF Core)
-- **Auth**: Session-based (cookie + bearer token), MD5 password hashing
+- **Auth**: ASP.NET Core Identity + JWT bearer tokens
 - **Mapping**: AutoMapper
 - **Docs**: Swagger / OpenAPI
 
 ## Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [PostgreSQL](https://www.postgresql.org/download/) (running on localhost:5432)
 
 ## Setup
@@ -48,14 +48,14 @@ BidZone.WebApi  →  BidZone.BLL  →  BidZone.DAL  →  BidZone.Models
    dotnet run --project BidZone.WebApi
    ```
 
-4. **Open Swagger UI** at `http://localhost:5000/swagger`
+4. **Open Swagger UI** at `http://localhost:5171/swagger`
 
 ## Seed Data
 
 The database is seeded with:
 
-- **3 users**: admin (`admin@bidzone.com` / `admin123`), seller1 (`seller1@bidzone.com` / `123456`), buyer1 (`buyer1@bidzone.com` / `123456`)
-- **8 categories**: Electronics, Vehicles, Fashion, Home & Garden, Sports, Art & Collectibles, Books & Media, Jewelry & Watches
+- **3 users**: admin (`admin@bidzone.com` / `Admin123A`), seller1 (`seller1@bidzone.com` / `Seller123A`), buyer1 (`buyer1@bidzone.com` / `Buyer123A`)
+- **16 categories** synced with the frontend category bar
 - **5 sample auctions**
 
 ## API Endpoints
@@ -67,6 +67,12 @@ The database is seeded with:
 | POST | `/register` | Register new user |
 | POST | `/logout` | Logout (auth required) |
 | GET | `/me` | Get current user (auth required) |
+
+Use the returned bearer token in the `Authorization` header:
+
+```http
+Authorization: Bearer <jwt>
+```
 
 ### Auctions (`/api/auctions`)
 | Method | Route | Description |
@@ -119,7 +125,7 @@ The database is seeded with:
 backend/
 ├── BidZone.sln
 ├── BidZone.Models/
-│   ├── Entities/          # User, Auction, Bid, Category, WatchlistItem, Session
+│   ├── Entities/          # User, Auction, Bid, Category, WatchlistItem
 │   ├── DTOs/              # Request/response data transfer objects
 │   └── AppDbContext.cs    # EF Core context with seed data
 ├── BidZone.DAL/
@@ -132,8 +138,7 @@ backend/
 │   └── MappingProfile.cs  # AutoMapper configuration
 └── BidZone.WebApi/
     ├── Controllers/       # 7 API controllers
-    ├── Middleware/         # Auth middleware (cookie + bearer token)
-    ├── Filters/           # AuthorizeRoles attribute
-    ├── Program.cs         # DI, CORS, Swagger, pipeline
+    ├── Extensions/        # ClaimsPrincipal helpers
+    ├── Program.cs         # DI, Identity, JWT, CORS, Swagger, pipeline
     └── appsettings.json   # Configuration
 ```
