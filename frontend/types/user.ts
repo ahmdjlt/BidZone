@@ -23,5 +23,7 @@ export interface RegisterRequest {
 
 export interface AuthResponse {
   token: string;
+  tokenType: "Bearer";
+  expiresAtUtc: string;
   user: User;
 }

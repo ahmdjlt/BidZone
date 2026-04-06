@@ -5,10 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import AuthModal from "@/components/auth/AuthModal";
-
-// Simulated auth state — swap with real auth hook when ready
-const MOCK_USER = { name: "User", initials: "U", email: "user@bidzone.com" };
-const isLoggedIn = true;
+import { useAuthStore } from "@/store/authStore";
 
 const navLinks = [
   { href: "/auctions",       label: "Browse"       },
@@ -80,6 +77,16 @@ export default function Navbar() {
   const [authModal, setAuthModal]   = useState<"login" | "register" | null>(null);
   const lastScrollY                 = useRef(0);
   const userDropdownRef             = useRef<HTMLDivElement>(null);
+  const { user, isAuthenticated, checkAuth, logout } = useAuthStore();
+
+  const displayName = user?.fullName || user?.username || "User";
+  const initials = displayName
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || "U";
+  const email = user?.email || "user@bidzone.com";
 
   useEffect(() => {
     const onScroll = () => {
@@ -100,6 +107,10 @@ export default function Navbar() {
     document.addEventListener("mousedown", onClickOutside);
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
+
+  useEffect(() => {
+    void checkAuth();
+  }, [checkAuth]);
 
   const closeAll = () => { setUserOpen(false); setMenuOpen(false); };
 
@@ -142,7 +153,7 @@ export default function Navbar() {
             {/* Right side */}
             <div className="flex shrink-0 items-center gap-1.5 ml-auto">
 
-              {isLoggedIn ? (
+              {isAuthenticated ? (
                 <>
                   {/* Language */}
                   <button
@@ -178,11 +189,11 @@ export default function Navbar() {
                     >
                       {/* Avatar */}
                       <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#1a4fa0,#3b7dd8)] text-[11px] font-black tracking-wide text-white shadow-[0_4px_10px_-4px_rgba(15,93,221,0.3)]">
-                        {MOCK_USER.initials}
+                        {initials}
                       </span>
                       {/* Name */}
                       <span className="hidden text-sm font-semibold text-text-heading sm:block">
-                        {MOCK_USER.name}
+                        {displayName}
                       </span>
                       {/* Chevron */}
                       <svg
@@ -199,11 +210,11 @@ export default function Navbar() {
                         {/* User header */}
                         <div className="flex items-center gap-3 border-b border-border px-4 py-3.5">
                           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#1a4fa0,#3b7dd8)] text-sm font-black tracking-wide text-white shadow-[0_4px_12px_-4px_rgba(15,93,221,0.3)]">
-                            {MOCK_USER.initials}
+                            {initials}
                           </span>
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-text-heading">{MOCK_USER.name}</p>
-                            <p className="truncate text-xs text-text-muted">{MOCK_USER.email}</p>
+                            <p className="truncate text-sm font-semibold text-text-heading">{displayName}</p>
+                            <p className="truncate text-xs text-text-muted">{email}</p>
                           </div>
                         </div>
 
@@ -214,9 +225,12 @@ export default function Navbar() {
 
                           {/* Sign out */}
                           <div className="mt-2 border-t border-border pt-2">
-                            <Link
-                              href="/login"
-                              onClick={closeAll}
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                closeAll();
+                                await logout();
+                              }}
                               className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-red-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
                             >
                               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-red-50 dark:bg-red-950/30">
@@ -225,7 +239,7 @@ export default function Navbar() {
                                 </svg>
                               </span>
                               Sign out
-                            </Link>
+                            </button>
                           </div>
                         </div>
                       </div>

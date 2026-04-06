@@ -2,17 +2,60 @@ import type { User, AuthResponse, LoginRequest, RegisterRequest } from "@/types/
 import type { WatchlistItem, DashboardStats, BidActivity } from "@/types/auction";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5171";
+const TOKEN_STORAGE_KEY = "bidzone.auth.token";
+
+export function getAuthToken(): string | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    return window.localStorage.getItem(TOKEN_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setAuthToken(token: string): void {
+  if (typeof window === "undefined") return;
+
+  window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
+}
+
+export function clearAuthToken(): void {
+  if (typeof window === "undefined") return;
+
+  window.localStorage.removeItem(TOKEN_STORAGE_KEY);
+}
 
 async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
+  const token = getAuthToken();
+  const headers = new Headers(options?.headers);
+  if (!headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
   const res = await fetch(`${API_BASE}${url}`, {
-    credentials: "include",
-    headers: { "Content-Type": "application/json", ...options?.headers },
+    headers,
     ...options,
   });
+
   if (!res.ok) {
+    const contentType = res.headers.get("content-type") ?? "";
+    if (contentType.includes("application/json")) {
+      const body = await res.json().catch(() => null);
+      const message =
+        body?.message
+        ?? (Array.isArray(body?.errors) ? body.errors.join(" ") : null)
+        ?? `Request failed: ${res.status}`;
+      throw new Error(message);
+    }
+
     const body = await res.text().catch(() => "");
     throw new Error(body || `Request failed: ${res.status}`);
   }
+
   if (res.status === 204) return undefined as T;
   return res.json();
 }

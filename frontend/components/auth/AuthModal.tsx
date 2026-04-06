@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/authStore";
 
 interface AuthModalProps {
   onClose: () => void;
@@ -12,7 +13,44 @@ interface AuthModalProps {
 export default function AuthModal({ onClose, initialView = "login" }: AuthModalProps) {
   const [view, setView] = useState<"login" | "register">(initialView);
   const [rememberMe, setRememberMe] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState<"Buyer" | "Seller">("Buyer");
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { login, register, isLoading } = useAuthStore();
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+
+    try {
+      if (view === "login") {
+        await login(email, password);
+      } else {
+        if (password !== confirmPassword) {
+          setError("Passwords do not match.");
+          return;
+        }
+
+        await register({
+          username,
+          fullName,
+          email,
+          password,
+          role,
+        });
+      }
+
+      onClose();
+      router.push("/profile");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Authentication failed.");
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
@@ -93,38 +131,84 @@ export default function AuthModal({ onClose, initialView = "login" }: AuthModalP
         {/* Form */}
         <form
           className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onClose();
-            router.push(view === "login" ? "/profile" : "/dashboard");
-          }}
+          onSubmit={handleSubmit}
         >
           {view === "register" && (
-            <input
-              type="text"
-              placeholder="Full name"
-              className="w-full rounded-lg border border-border-strong bg-surface-alt px-4 py-3 text-sm text-text-heading placeholder:text-text-muted transition focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-            />
+            <>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Full name"
+                className="w-full rounded-lg border border-border-strong bg-surface-alt px-4 py-3 text-sm text-text-heading placeholder:text-text-muted transition focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                required
+              />
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Username"
+                className="w-full rounded-lg border border-border-strong bg-surface-alt px-4 py-3 text-sm text-text-heading placeholder:text-text-muted transition focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                required
+              />
+            </>
           )}
 
           <input
             type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="Email address"
             className="w-full rounded-lg border border-border-strong bg-surface-alt px-4 py-3 text-sm text-text-heading placeholder:text-text-muted transition focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+            required
           />
 
           <input
             type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             className="w-full rounded-lg border border-border-strong bg-surface-alt px-4 py-3 text-sm text-text-heading placeholder:text-text-muted transition focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+            required
           />
 
           {view === "register" && (
-            <input
-              type="password"
-              placeholder="Confirm password"
-              className="w-full rounded-lg border border-border-strong bg-surface-alt px-4 py-3 text-sm text-text-heading placeholder:text-text-muted transition focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-            />
+            <>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm password"
+                className="w-full rounded-lg border border-border-strong bg-surface-alt px-4 py-3 text-sm text-text-heading placeholder:text-text-muted transition focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                required
+              />
+
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-text-muted">Account type</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {(["Buyer", "Seller"] as const).map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setRole(option)}
+                      className={`rounded-lg border px-4 py-3 text-sm font-semibold transition ${
+                        role === option
+                          ? "border-accent bg-accent-soft text-accent"
+                          : "border-border-strong bg-surface-alt text-text-heading hover:border-accent/40"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {error && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-300">
+              {error}
+            </div>
           )}
 
           {view === "login" && (
@@ -166,9 +250,10 @@ export default function AuthModal({ onClose, initialView = "login" }: AuthModalP
 
           <button
             type="submit"
+            disabled={isLoading}
             className="!mt-5 w-full rounded-lg bg-accent px-4 py-3.5 text-sm font-semibold text-white transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-accent/40 focus:ring-offset-2 focus:ring-offset-card-bg"
           >
-            {view === "login" ? "Sign in" : "Create account"}
+            {isLoading ? "Please wait..." : view === "login" ? "Sign in" : "Create account"}
           </button>
         </form>
       </div>

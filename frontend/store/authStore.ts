@@ -15,9 +15,11 @@ interface AuthState {
   checkAuth: () => Promise<void>;
 }
 
+const initialToken = api.getAuthToken();
+
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  token: null,
+  token: initialToken,
   isAuthenticated: false,
   isLoading: false,
 
@@ -25,6 +27,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true });
     try {
       const res = await api.login({ email, password });
+      api.setAuthToken(res.token);
       set({ user: res.user, token: res.token, isAuthenticated: true });
     } finally {
       set({ isLoading: false });
@@ -35,6 +38,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true });
     try {
       const res = await api.register(data);
+      api.setAuthToken(res.token);
       set({ user: res.user, token: res.token, isAuthenticated: true });
     } finally {
       set({ isLoading: false });
@@ -45,6 +49,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       await api.logout();
     } finally {
+      api.clearAuthToken();
       set({ user: null, token: null, isAuthenticated: false });
     }
   },
@@ -54,11 +59,18 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   checkAuth: async () => {
+    const token = api.getAuthToken();
+    if (!token) {
+      set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+      return;
+    }
+
     set({ isLoading: true });
     try {
       const user = await api.getCurrentUser();
-      set({ user, isAuthenticated: true });
+      set({ user, token, isAuthenticated: true });
     } catch {
+      api.clearAuthToken();
       set({ user: null, token: null, isAuthenticated: false });
     } finally {
       set({ isLoading: false });
