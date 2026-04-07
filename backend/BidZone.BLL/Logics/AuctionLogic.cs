@@ -23,36 +23,23 @@ public class AuctionLogic : IAuctionLogic
 
     public async Task<List<AuctionDto>> GetAllAsync(string? search, string? category, string? sort, string? status, decimal? minPrice, decimal? maxPrice)
     {
-        var auctions = await _auctionRepo.GetAllAsync();
-
-        if (!string.IsNullOrEmpty(search))
-            auctions = auctions.Where(a => a.Title.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
-
+        int? categoryId = null;
         if (!string.IsNullOrEmpty(category))
         {
             var cat = await _categoryRepo.GetBySlugAsync(category);
-            if (cat != null)
-                auctions = auctions.Where(a => a.CategoryId == cat.Id).ToList();
+            categoryId = cat?.Id;
         }
 
-        if (!string.IsNullOrEmpty(status))
-            auctions = auctions.Where(a => a.Status.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
-
-        if (minPrice.HasValue)
-            auctions = auctions.Where(a => a.CurrentPrice >= minPrice.Value).ToList();
-
-        if (maxPrice.HasValue)
-            auctions = auctions.Where(a => a.CurrentPrice <= maxPrice.Value).ToList();
-
-        auctions = sort switch
+        var filters = new AuctionFilterParams
         {
-            "price_asc" => auctions.OrderBy(a => a.CurrentPrice).ToList(),
-            "price_desc" => auctions.OrderByDescending(a => a.CurrentPrice).ToList(),
-            "ending_soon" => auctions.OrderBy(a => a.EndTime).ToList(),
-            "newest" => auctions.OrderByDescending(a => a.StartTime).ToList(),
-            _ => auctions.OrderByDescending(a => a.StartTime).ToList()
+            Search = search,
+            Sort = sort,
+            Status = status,
+            MinPrice = minPrice,
+            MaxPrice = maxPrice
         };
 
+        var auctions = await _auctionRepo.GetFilteredAsync(filters, categoryId);
         return _mapper.Map<List<AuctionDto>>(auctions);
     }
 
