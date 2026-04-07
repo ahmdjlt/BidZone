@@ -57,7 +57,7 @@ public class BidLogic : IBidLogic
         if (previousHighest != null)
         {
             previousHighest.Status = "Outbid";
-            // Save via context since we need to update status
+            await _bidRepo.UpdateAsync(previousHighest);
         }
 
         var bid = new Bid
@@ -74,16 +74,23 @@ public class BidLogic : IBidLogic
         // Update auction current price
         await _auctionRepo.UpdatePriceAsync(dto.AuctionId, dto.Amount);
 
-        // Auto-add to watchlist
+        // Auto-add to watchlist (ignore if already watching due to race condition)
         var isWatching = await _watchlistRepo.IsWatchingAsync(bidderId, dto.AuctionId);
         if (!isWatching)
         {
-            await _watchlistRepo.AddAsync(new WatchlistItem
+            try
             {
-                UserId = bidderId,
-                AuctionId = dto.AuctionId,
-                AddedAt = DateTime.UtcNow
-            });
+                await _watchlistRepo.AddAsync(new WatchlistItem
+                {
+                    UserId = bidderId,
+                    AuctionId = dto.AuctionId,
+                    AddedAt = DateTime.UtcNow
+                });
+            }
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException)
+            {
+                // Duplicate watchlist entry from concurrent bid, safe to ignore
+            }
         }
 
         // Re-fetch with includes
