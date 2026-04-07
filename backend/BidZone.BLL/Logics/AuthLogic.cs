@@ -6,6 +6,7 @@ using BidZone.Models.DTOs;
 using BidZone.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using BidZone.Models.Constants;
 using Microsoft.Extensions.Logging;
 
 namespace BidZone.BLL.Logics;
@@ -51,7 +52,7 @@ public class AuthLogic : IAuthLogic
 
     public async Task<AuthResultDto> RegisterAsync(RegisterRequestDto request)
     {
-        var role = NormalizeRole(request.Role);
+        var role = RoleConstants.Normalize(request.Role);
         if (role == null)
             return AuthResultDto.Failure("Role must be Buyer or Seller.");
 
@@ -105,14 +106,4 @@ public class AuthLogic : IAuthLogic
         };
     }
 
-    private static string? NormalizeRole(string role)
-    {
-        if (string.Equals(role, "Buyer", StringComparison.OrdinalIgnoreCase))
-            return "Buyer";
-
-        if (string.Equals(role, "Seller", StringComparison.OrdinalIgnoreCase))
-            return "Seller";
-
-        return null;
-    }
 }
