@@ -101,21 +101,18 @@ public class BidLogic : IBidLogic
 
     public async Task<List<BidDto>> GetByAuctionAsync(int auctionId)
     {
-        await _auctionFinalizationService.FinalizeAuctionIfExpiredAsync(auctionId);
         var bids = await _bidRepo.GetByAuctionAsync(auctionId);
         return _mapper.Map<List<BidDto>>(bids);
     }
 
     public async Task<List<BidDto>> GetByUserAsync(int userId)
     {
-        await _auctionFinalizationService.FinalizeExpiredAuctionsAsync();
         var bids = await _bidRepo.GetByUserAsync(userId);
         return _mapper.Map<List<BidDto>>(bids);
     }
 
     public async Task<BidDto?> GetHighestBidAsync(int auctionId)
     {
-        await _auctionFinalizationService.FinalizeAuctionIfExpiredAsync(auctionId);
         var bid = await _bidRepo.GetHighestBidAsync(auctionId);
         return bid == null ? null : _mapper.Map<BidDto>(bid);
     }
