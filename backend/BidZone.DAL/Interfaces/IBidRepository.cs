@@ -8,5 +8,6 @@ public interface IBidRepository
     Task<List<Bid>> GetByUserAsync(int userId);
     Task<Bid?> GetHighestBidAsync(int auctionId);
     Task<Bid> InsertAsync(Bid bid);
+    Task UpdateAsync(Bid bid);
     Task UpdateStatusesAsync(int auctionId, int winningBidId);
 }

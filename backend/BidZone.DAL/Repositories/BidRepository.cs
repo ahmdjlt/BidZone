@@ -44,6 +44,12 @@ public class BidRepository : IBidRepository
         return bid;
     }
 
+    public async Task UpdateAsync(Bid bid)
+    {
+        _context.Bids.Update(bid);
+        await _context.SaveChangesAsync();
+    }
+
     public async Task UpdateStatusesAsync(int auctionId, int winningBidId)
     {
         var bids = await _context.Bids.Where(b => b.AuctionId == auctionId).ToListAsync();
