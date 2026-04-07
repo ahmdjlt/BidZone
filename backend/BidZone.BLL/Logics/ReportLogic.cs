@@ -1,5 +1,4 @@
 using BidZone.BLL.Core;
-using BidZone.BLL.Interfaces;
 using BidZone.Models;
 using BidZone.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
@@ -8,17 +7,10 @@ namespace BidZone.BLL.Logics;
 
 public class ReportLogic : BaseLogic, IReportLogic
 {
-    private readonly IAuctionFinalizationService _auctionFinalizationService;
-
-    public ReportLogic(AppDbContext context, IAuctionFinalizationService auctionFinalizationService) : base(context)
-    {
-        _auctionFinalizationService = auctionFinalizationService;
-    }
+    public ReportLogic(AppDbContext context) : base(context) { }
 
     public async Task<DashboardStatsDto> GetDashboardStatsAsync()
     {
-        await _auctionFinalizationService.FinalizeExpiredAuctionsAsync();
-
         var stats = new DashboardStatsDto
         {
             TotalUsers = await _context.Users.CountAsync(),
