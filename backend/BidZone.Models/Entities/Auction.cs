@@ -38,6 +38,9 @@ public class Auction
     public int CategoryId { get; set; }
     public Category Category { get; set; } = null!;
 
+    [ConcurrencyCheck]
+    public Guid ConcurrencyStamp { get; set; } = Guid.NewGuid();
+
     public ICollection<Bid> Bids { get; set; } = new List<Bid>();
     public ICollection<WatchlistItem> WatchlistItems { get; set; } = new List<WatchlistItem>();
 }

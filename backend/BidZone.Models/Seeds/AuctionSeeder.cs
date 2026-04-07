@@ -14,7 +14,9 @@ public static class AuctionSeeder
                 ImageUrl = "/images/iphone15.jpg", StartingPrice = 999.99m, CurrentPrice = 999.99m,
                 StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
                 EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
-                Status = "Active", SellerId = 2, CategoryId = 10
+                Status = "Active", SellerId = 2, CategoryId = 1,
+                ConcurrencyStamp = Guid.Parse("a1b2c3d4-0004-0000-0000-000000000004")0,
+                ConcurrencyStamp = Guid.Parse("a1b2c3d4-0001-0000-0000-000000000001")
             },
             new Auction
             {
@@ -22,7 +24,8 @@ public static class AuctionSeeder
                 ImageUrl = "/images/rolex.jpg", StartingPrice = 15000m, CurrentPrice = 15000m,
                 StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
                 EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
-                Status = "Active", SellerId = 2, CategoryId = 4
+                Status = "Active", SellerId = 2, CategoryId = 4,
+                ConcurrencyStamp = Guid.Parse("a1b2c3d4-0002-0000-0000-000000000002")
             },
             new Auction
             {
@@ -30,7 +33,9 @@ public static class AuctionSeeder
                 ImageUrl = "/images/trek.jpg", StartingPrice = 800m, CurrentPrice = 800m,
                 StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
                 EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
-                Status = "Active", SellerId = 2, CategoryId = 12
+                Status = "Active", SellerId = 2, CategoryId = 1,
+                ConcurrencyStamp = Guid.Parse("a1b2c3d4-0004-0000-0000-000000000004")2,
+                ConcurrencyStamp = Guid.Parse("a1b2c3d4-0003-0000-0000-000000000003")
             },
             new Auction
             {
@@ -38,7 +43,8 @@ public static class AuctionSeeder
                 ImageUrl = "/images/painting.jpg", StartingPrice = 250m, CurrentPrice = 250m,
                 StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
                 EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
-                Status = "Active", SellerId = 2, CategoryId = 1
+                Status = "Active", SellerId = 2, CategoryId = 1,
+                ConcurrencyStamp = Guid.Parse("a1b2c3d4-0004-0000-0000-000000000004")
             },
             new Auction
             {
@@ -46,7 +52,8 @@ public static class AuctionSeeder
                 ImageUrl = "/images/tesla.jpg", StartingPrice = 35000m, CurrentPrice = 35000m,
                 StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
                 EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
-                Status = "Active", SellerId = 2, CategoryId = 8
+                Status = "Active", SellerId = 2, CategoryId = 8,
+                ConcurrencyStamp = Guid.Parse("a1b2c3d4-0005-0000-0000-000000000005")
             }
         );
     }
