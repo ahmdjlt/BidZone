@@ -3,6 +3,7 @@ using BidZone.BLL.Logics;
 using BidZone.BLL.Security;
 using BidZone.DAL.Interfaces;
 using BidZone.DAL.Repositories;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BidZone.BLL;
@@ -38,6 +39,9 @@ public static class ServiceCollectionExtensions
 
         // AutoMapper
         services.AddAutoMapper(typeof(MappingProfile));
+
+        // FluentValidation
+        services.AddValidatorsFromAssemblyContaining<MappingProfile>();
 
         return services;
     }
