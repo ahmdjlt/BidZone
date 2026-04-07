@@ -1,5 +1,4 @@
 using AutoMapper;
-using BidZone.BLL.Interfaces;
 using BidZone.DAL.Interfaces;
 using BidZone.Models.DTOs;
 using BidZone.Models.Entities;
@@ -10,24 +9,20 @@ public class AuctionLogic : IAuctionLogic
 {
     private readonly IAuctionRepository _auctionRepo;
     private readonly ICategoryRepository _categoryRepo;
-    private readonly IAuctionFinalizationService _auctionFinalizationService;
     private readonly IMapper _mapper;
 
     public AuctionLogic(
         IAuctionRepository auctionRepo,
         ICategoryRepository categoryRepo,
-        IAuctionFinalizationService auctionFinalizationService,
         IMapper mapper)
     {
         _auctionRepo = auctionRepo;
         _categoryRepo = categoryRepo;
-        _auctionFinalizationService = auctionFinalizationService;
         _mapper = mapper;
     }
 
     public async Task<List<AuctionDto>> GetAllAsync(string? search, string? category, string? sort, string? status, decimal? minPrice, decimal? maxPrice)
     {
-        await _auctionFinalizationService.FinalizeExpiredAuctionsAsync();
         var auctions = await _auctionRepo.GetAllAsync();
 
         if (!string.IsNullOrEmpty(search))
@@ -63,7 +58,6 @@ public class AuctionLogic : IAuctionLogic
 
     public async Task<AuctionDto?> GetByIdAsync(int id)
     {
-        await _auctionFinalizationService.FinalizeAuctionIfExpiredAsync(id);
         var auction = await _auctionRepo.GetByIdAsync(id);
         if (auction == null) return null;
 
@@ -72,21 +66,18 @@ public class AuctionLogic : IAuctionLogic
 
     public async Task<List<AuctionDto>> GetActiveAsync()
     {
-        await _auctionFinalizationService.FinalizeExpiredAuctionsAsync();
         var auctions = await _auctionRepo.GetActiveAsync();
         return _mapper.Map<List<AuctionDto>>(auctions);
     }
 
     public async Task<List<AuctionDto>> GetByCategoryAsync(int categoryId)
     {
-        await _auctionFinalizationService.FinalizeExpiredAuctionsAsync();
         var auctions = await _auctionRepo.GetByCategoryAsync(categoryId);
         return _mapper.Map<List<AuctionDto>>(auctions);
     }
 
     public async Task<List<AuctionDto>> GetBySellerAsync(int sellerId)
     {
-        await _auctionFinalizationService.FinalizeExpiredAuctionsAsync();
         var auctions = await _auctionRepo.GetBySellerAsync(sellerId);
         return _mapper.Map<List<AuctionDto>>(auctions);
     }
