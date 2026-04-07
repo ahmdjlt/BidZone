@@ -1,5 +1,6 @@
 using BidZone.DAL.Interfaces;
 using BidZone.Models;
+using BidZone.Models.DTOs;
 using BidZone.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,41 @@ public class AuctionRepository : IAuctionRepository
             .Include(a => a.Category)
             .Include(a => a.Bids)
             .ToListAsync();
+
+    public async Task<List<Auction>> GetFilteredAsync(AuctionFilterParams filters, int? categoryId = null)
+    {
+        var query = _context.Auctions
+            .Include(a => a.Seller)
+            .Include(a => a.Category)
+            .Include(a => a.Bids)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(filters.Search))
+            query = query.Where(a => a.Title.ToLower().Contains(filters.Search.ToLower()));
+
+        if (categoryId.HasValue)
+            query = query.Where(a => a.CategoryId == categoryId.Value);
+
+        if (!string.IsNullOrEmpty(filters.Status))
+            query = query.Where(a => a.Status.ToLower() == filters.Status.ToLower());
+
+        if (filters.MinPrice.HasValue)
+            query = query.Where(a => a.CurrentPrice >= filters.MinPrice.Value);
+
+        if (filters.MaxPrice.HasValue)
+            query = query.Where(a => a.CurrentPrice <= filters.MaxPrice.Value);
+
+        query = filters.Sort switch
+        {
+            "price_asc" => query.OrderBy(a => a.CurrentPrice),
+            "price_desc" => query.OrderByDescending(a => a.CurrentPrice),
+            "ending_soon" => query.OrderBy(a => a.EndTime),
+            "newest" => query.OrderByDescending(a => a.StartTime),
+            _ => query.OrderByDescending(a => a.StartTime)
+        };
+
+        return await query.ToListAsync();
+    }
 
     public async Task<Auction?> GetByIdAsync(int id)
         => await _context.Auctions
