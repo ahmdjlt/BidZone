@@ -43,6 +43,34 @@ public class AuctionLogic : IAuctionLogic
         return _mapper.Map<List<AuctionDto>>(auctions);
     }
 
+    public async Task<PaginatedResult<AuctionDto>> GetAllPagedAsync(string? search, string? category, string? sort, string? status, decimal? minPrice, decimal? maxPrice, PaginationParams pagination)
+    {
+        int? categoryId = null;
+        if (!string.IsNullOrEmpty(category))
+        {
+            var cat = await _categoryRepo.GetBySlugAsync(category);
+            categoryId = cat?.Id;
+        }
+
+        var filters = new AuctionFilterParams
+        {
+            Search = search,
+            Sort = sort,
+            Status = status,
+            MinPrice = minPrice,
+            MaxPrice = maxPrice
+        };
+
+        var (items, totalCount) = await _auctionRepo.GetFilteredPagedAsync(filters, pagination, categoryId);
+        return new PaginatedResult<AuctionDto>
+        {
+            Items = _mapper.Map<List<AuctionDto>>(items),
+            TotalCount = totalCount,
+            Page = pagination.Page,
+            PageSize = pagination.PageSize
+        };
+    }
+
     public async Task<AuctionDto?> GetByIdAsync(int id)
     {
         var auction = await _auctionRepo.GetByIdAsync(id);

@@ -7,6 +7,7 @@ public interface IAuctionRepository
 {
     Task<List<Auction>> GetAllAsync();
     Task<List<Auction>> GetFilteredAsync(AuctionFilterParams filters, int? categoryId = null);
+    Task<(List<Auction> Items, int TotalCount)> GetFilteredPagedAsync(AuctionFilterParams filters, PaginationParams pagination, int? categoryId = null);
     Task<Auction?> GetByIdAsync(int id);
     Task<List<Auction>> GetByCategoryAsync(int categoryId);
     Task<List<Auction>> GetBySellerAsync(int sellerId);
