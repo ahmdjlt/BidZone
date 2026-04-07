@@ -3,6 +3,7 @@ using BidZone.BLL.Interfaces;
 using BidZone.DAL.Interfaces;
 using BidZone.Models.DTOs;
 using BidZone.Models.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace BidZone.BLL.Logics;
 
@@ -11,12 +12,14 @@ public class WatchlistLogic : IWatchlistLogic
     private readonly IWatchlistRepository _watchlistRepo;
     private readonly IAuctionRepository _auctionRepo;
     private readonly IMapper _mapper;
+    private readonly ILogger<WatchlistLogic> _logger;
 
-    public WatchlistLogic(IWatchlistRepository watchlistRepo, IAuctionRepository auctionRepo, IMapper mapper)
+    public WatchlistLogic(IWatchlistRepository watchlistRepo, IAuctionRepository auctionRepo, IMapper mapper, ILogger<WatchlistLogic> logger)
     {
         _watchlistRepo = watchlistRepo;
         _auctionRepo = auctionRepo;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<List<WatchlistDto>> GetUserWatchlistAsync(int userId)
@@ -41,6 +44,7 @@ public class WatchlistLogic : IWatchlistLogic
         };
 
         await _watchlistRepo.AddAsync(item);
+        _logger.LogInformation("User {UserId} added auction {AuctionId} to watchlist", userId, auctionId);
 
         return new WatchlistDto
         {

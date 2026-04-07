@@ -6,6 +6,7 @@ using BidZone.Models.DTOs;
 using BidZone.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace BidZone.BLL.Logics;
 
@@ -15,17 +16,20 @@ public class AuthLogic : IAuthLogic
     private readonly IUserRepository _userRepo;
     private readonly IMapper _mapper;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly ILogger<AuthLogic> _logger;
 
     public AuthLogic(
         UserManager<User> userManager,
         IUserRepository userRepo,
         IMapper mapper,
-        IJwtTokenService jwtTokenService)
+        IJwtTokenService jwtTokenService,
+        ILogger<AuthLogic> logger)
     {
         _userManager = userManager;
         _userRepo = userRepo;
         _mapper = mapper;
         _jwtTokenService = jwtTokenService;
+        _logger = logger;
     }
 
     public async Task<AuthResultDto> LoginAsync(LoginRequestDto request)
@@ -41,6 +45,7 @@ public class AuthLogic : IAuthLogic
         if (!await _userManager.CheckPasswordAsync(user, request.Password))
             return AuthResultDto.Failure("Invalid email or password.");
 
+        _logger.LogInformation("User {Email} logged in", request.Email);
         return AuthResultDto.Success(CreateAuthResponse(user));
     }
 
@@ -67,6 +72,7 @@ public class AuthLogic : IAuthLogic
             return AuthResultDto.Failure(result.Errors.Select(error => error.Description).ToArray());
         }
 
+        _logger.LogInformation("User {Username} registered as {Role}", user.UserName, role);
         return AuthResultDto.Success(CreateAuthResponse(user));
     }
 
