@@ -22,6 +22,12 @@ public class AuctionRepository : IAuctionRepository
             .Include(a => a.Bids)
             .ToListAsync();
 
+    public async Task<List<Auction>> GetAllLiteAsync()
+        => await _context.Auctions
+            .Include(a => a.Category)
+            .AsNoTracking()
+            .ToListAsync();
+
     public async Task<List<Auction>> GetFilteredAsync(AuctionFilterParams filters, int? categoryId = null)
     {
         var query = _context.Auctions

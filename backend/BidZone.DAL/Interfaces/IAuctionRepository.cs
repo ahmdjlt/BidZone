@@ -6,6 +6,7 @@ namespace BidZone.DAL.Interfaces;
 public interface IAuctionRepository
 {
     Task<List<Auction>> GetAllAsync();
+    Task<List<Auction>> GetAllLiteAsync();
     Task<List<Auction>> GetFilteredAsync(AuctionFilterParams filters, int? categoryId = null);
     Task<(List<Auction> Items, int TotalCount)> GetFilteredPagedAsync(AuctionFilterParams filters, PaginationParams pagination, int? categoryId = null);
     Task<Auction?> GetByIdAsync(int id);
