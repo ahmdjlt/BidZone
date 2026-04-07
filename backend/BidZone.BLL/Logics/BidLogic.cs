@@ -3,6 +3,7 @@ using BidZone.BLL.Interfaces;
 using BidZone.DAL.Interfaces;
 using BidZone.Models.DTOs;
 using BidZone.Models.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace BidZone.BLL.Logics;
 
@@ -13,19 +14,22 @@ public class BidLogic : IBidLogic
     private readonly IAuctionFinalizationService _auctionFinalizationService;
     private readonly IWatchlistRepository _watchlistRepo;
     private readonly IMapper _mapper;
+    private readonly ILogger<BidLogic> _logger;
 
     public BidLogic(
         IBidRepository bidRepo,
         IAuctionRepository auctionRepo,
         IAuctionFinalizationService auctionFinalizationService,
         IWatchlistRepository watchlistRepo,
-        IMapper mapper)
+        IMapper mapper,
+        ILogger<BidLogic> logger)
     {
         _bidRepo = bidRepo;
         _auctionRepo = auctionRepo;
         _auctionFinalizationService = auctionFinalizationService;
         _watchlistRepo = watchlistRepo;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<BidDto?> PlaceBidAsync(PlaceBidDto dto, int bidderId)
@@ -70,6 +74,7 @@ public class BidLogic : IBidLogic
         };
 
         var created = await _bidRepo.InsertAsync(bid);
+        _logger.LogInformation("Bid {BidId} placed on auction {AuctionId} by user {BidderId} for {Amount}", created.Id, dto.AuctionId, bidderId, dto.Amount);
 
         // Update auction current price
         await _auctionRepo.UpdatePriceAsync(dto.AuctionId, dto.Amount);

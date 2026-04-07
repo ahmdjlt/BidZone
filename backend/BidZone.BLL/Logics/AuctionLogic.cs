@@ -2,6 +2,7 @@ using AutoMapper;
 using BidZone.DAL.Interfaces;
 using BidZone.Models.DTOs;
 using BidZone.Models.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace BidZone.BLL.Logics;
 
@@ -10,15 +11,18 @@ public class AuctionLogic : IAuctionLogic
     private readonly IAuctionRepository _auctionRepo;
     private readonly ICategoryRepository _categoryRepo;
     private readonly IMapper _mapper;
+    private readonly ILogger<AuctionLogic> _logger;
 
     public AuctionLogic(
         IAuctionRepository auctionRepo,
         ICategoryRepository categoryRepo,
-        IMapper mapper)
+        IMapper mapper,
+        ILogger<AuctionLogic> logger)
     {
         _auctionRepo = auctionRepo;
         _categoryRepo = categoryRepo;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<List<AuctionDto>> GetAllAsync(string? search, string? category, string? sort, string? status, decimal? minPrice, decimal? maxPrice)
@@ -115,6 +119,7 @@ public class AuctionLogic : IAuctionLogic
         };
 
         var created = await _auctionRepo.InsertAsync(auction);
+        _logger.LogInformation("Auction {AuctionId} created by seller {SellerId}", created.Id, sellerId);
         var full = await _auctionRepo.GetByIdAsync(created.Id);
         return _mapper.Map<AuctionDto>(full!);
     }
@@ -147,6 +152,7 @@ public class AuctionLogic : IAuctionLogic
             return false;
 
         await _auctionRepo.DeleteAsync(id);
+        _logger.LogInformation("Auction {AuctionId} deleted by seller {SellerId}", id, sellerId);
         return true;
     }
 }
