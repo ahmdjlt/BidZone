@@ -30,6 +30,22 @@ public class AuctionsController : ControllerBase
         return Ok(auctions);
     }
 
+    [HttpGet("paged")]
+    public async Task<IActionResult> GetAllPaged(
+        [FromQuery] string? search,
+        [FromQuery] string? category,
+        [FromQuery] string? sort,
+        [FromQuery] string? status,
+        [FromQuery] decimal? minPrice,
+        [FromQuery] decimal? maxPrice,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 12)
+    {
+        var pagination = new PaginationParams { Page = page, PageSize = pageSize };
+        var result = await _businessLogic.Auctions.GetAllPagedAsync(search, category, sort, status, minPrice, maxPrice, pagination);
+        return Ok(result);
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
