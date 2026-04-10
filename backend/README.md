@@ -7,7 +7,7 @@
 4-layer architecture:
 
 ```
-BidZone.WebApi  →  BidZone.BLL  →  BidZone.DAL  →  BidZone.Models
+BidZone.Api  →  BidZone.BusinessLogic  →  BidZone.DataAccess  →  BidZone.Domains
 (Controllers)      (Business)      (Repositories)   (Entities/DTOs/DbContext)
 ```
 
@@ -26,7 +26,7 @@ BidZone.WebApi  →  BidZone.BLL  →  BidZone.DAL  →  BidZone.Models
 
 ## Setup
 
-1. **Update the connection string** in `BidZone.WebApi/appsettings.json`:
+1. **Update the connection string** in `BidZone.Api/appsettings.json`:
 
    ```json
    "ConnectionStrings": {
@@ -37,7 +37,7 @@ BidZone.WebApi  →  BidZone.BLL  →  BidZone.DAL  →  BidZone.Models
 2. **Create the database and apply migrations**:
 
    ```bash
-   cd BidZone.WebApi
+   cd BidZone.Api
    dotnet ef migrations add InitialCreate
    dotnet ef database update
    ```
@@ -45,7 +45,7 @@ BidZone.WebApi  →  BidZone.BLL  →  BidZone.DAL  →  BidZone.Models
 3. **Run the API**:
 
    ```bash
-   dotnet run --project BidZone.WebApi
+   dotnet run --project BidZone.Api
    ```
 
 4. **Open Swagger UI** at `http://localhost:5171/swagger`
@@ -124,19 +124,19 @@ Authorization: Bearer <jwt>
 ```
 backend/
 ├── BidZone.sln
-├── BidZone.Models/
+├── BidZone.Domains/
 │   ├── Entities/          # User, Auction, Bid, Category, WatchlistItem
 │   ├── DTOs/              # Request/response data transfer objects
 │   └── AppDbContext.cs    # EF Core context with seed data
-├── BidZone.DAL/
+├── BidZone.DataAccess/
 │   ├── Interfaces/        # Repository contracts
 │   └── Repositories/      # EF Core implementations
-├── BidZone.BLL/
+├── BidZone.BusinessLogic/
 │   ├── Interfaces/        # Business logic contracts
 │   ├── Core/              # BaseLogic base class
 │   ├── Logics/            # Business logic implementations
 │   └── MappingProfile.cs  # AutoMapper configuration
-└── BidZone.WebApi/
+└── BidZone.Api/
     ├── Controllers/       # 7 API controllers
     ├── Extensions/        # ClaimsPrincipal helpers
     ├── Program.cs         # DI, Identity, JWT, CORS, Swagger, pipeline

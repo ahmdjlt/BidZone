@@ -1,0 +1,6 @@
+@BidZone.Api_HostAddress = http://localhost:5171
+
+GET {{BidZone.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

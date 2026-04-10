@@ -1,0 +1,16 @@
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.DataAccess\bin\Debug\net10.0\BidZone.DataAccess.deps.json
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.DataAccess\bin\Debug\net10.0\BidZone.DataAccess.dll
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.DataAccess\bin\Debug\net10.0\BidZone.DataAccess.pdb
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.DataAccess\bin\Debug\net10.0\BidZone.Domains.dll
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.DataAccess\bin\Debug\net10.0\BidZone.Domains.pdb
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.DataAccess\obj\Debug\net10.0\BidZone.DataAccess.csproj.AssemblyReference.cache
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.DataAccess\obj\Debug\net10.0\BidZone.DataAccess.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.DataAccess\obj\Debug\net10.0\BidZone.DataAccess.AssemblyInfoInputs.cache
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.DataAccess\obj\Debug\net10.0\BidZone.DataAccess.AssemblyInfo.cs
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.DataAccess\obj\Debug\net10.0\BidZone.DataAccess.csproj.CoreCompileInputs.cache
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.DataAccess\obj\Debug\net10.0\BidZone.DataAccess.sourcelink.json
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.DataAccess\obj\Debug\net10.0\BidZone..8DB615E8.Up2Date
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.DataAccess\obj\Debug\net10.0\BidZone.DataAccess.dll
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.DataAccess\obj\Debug\net10.0\refint\BidZone.DataAccess.dll
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.DataAccess\obj\Debug\net10.0\BidZone.DataAccess.pdb
+C:\Users\jalil\Documents\Development\BidZone\backend\BidZone.DataAccess\obj\Debug\net10.0\ref\BidZone.DataAccess.dll
