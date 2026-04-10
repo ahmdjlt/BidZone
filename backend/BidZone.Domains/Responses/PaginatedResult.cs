@@ -1,4 +1,4 @@
-namespace BidZone.Domains.DTOs;
+namespace BidZone.Domains.Responses;
 
 public class PaginatedResult<T>
 {

@@ -39,6 +39,7 @@ builder.Services.AddIdentityCore<BidZone.Domains.Entities.User>(options =>
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddSwaggerDocumentation();
 builder.Services.AddBidZoneCors(builder.Configuration);
+builder.Services.AddHttpContextAccessor();
 
 // DAL + BLL + AutoMapper
 builder.Services.AddBidZoneServices();
@@ -47,6 +48,8 @@ builder.Services.AddHostedService<AuctionFinalizationHostedService>();
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+BusinessLogic.Configure(app.Services.GetRequiredService<IHttpContextAccessor>());
 
 if (app.Environment.IsDevelopment())
 {

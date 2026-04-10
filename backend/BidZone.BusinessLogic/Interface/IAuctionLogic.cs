@@ -1,4 +1,5 @@
 using BidZone.Domains.DTOs;
+using BidZone.Domains.Responses;
 
 namespace BidZone.BusinessLogic.Interface;
 
@@ -12,5 +13,5 @@ public interface IAuctionLogic
     Task<List<AuctionDto>> GetBySellerAsync(int sellerId);
     Task<AuctionDto> CreateAsync(CreateAuctionDto dto, int sellerId);
     Task<AuctionDto?> UpdateAsync(int id, UpdateAuctionDto dto, int sellerId);
-    Task<bool> DeleteAsync(int id, int sellerId);
+    Task<ActionResponse> DeleteAsync(int id, int sellerId);
 }

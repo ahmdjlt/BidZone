@@ -1,8 +1,9 @@
 using BidZone.BusinessLogic.Interface;
-using BidZone.Domains.DTOs;
 using BidZone.Api.Extensions;
+using BidZone.Domains.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using BusinessLogicFactory = BidZone.BusinessLogic.BusinessLogic;
 
 namespace BidZone.Api.Controllers;
 
@@ -10,18 +11,19 @@ namespace BidZone.Api.Controllers;
 [Route("api/auth")]
 public class AuthController : ControllerBase
 {
-    private readonly IBusinessLogic _businessLogic;
+    internal IAuthLogic _auth;
 
-    public AuthController(IBusinessLogic businessLogic)
+    public AuthController()
     {
-        _businessLogic = businessLogic;
+        var bl = new BusinessLogicFactory();
+        _auth = bl.AuthAction();
     }
 
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
-        var result = await _businessLogic.Auth.LoginAsync(request);
+        var result = await _auth.LoginAsync(request);
         if (!result.Succeeded || result.Response == null)
             return Unauthorized(new { message = "Invalid email or password" });
 
@@ -32,7 +34,7 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
     {
-        var result = await _businessLogic.Auth.RegisterAsync(request);
+        var result = await _auth.RegisterAsync(request);
         if (!result.Succeeded || result.Response == null)
         {
             return BadRequest(new
@@ -50,8 +52,11 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Logout()
     {
         var userId = User.GetRequiredUserId();
-        await _businessLogic.Auth.LogoutAsync(userId);
-        return Ok(new { message = "Logged out successfully" });
+        var result = await _auth.LogoutAsync(userId);
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 
     [HttpGet("me")]
@@ -59,7 +64,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> GetCurrentUser()
     {
         var userId = User.GetRequiredUserId();
-        var user = await _businessLogic.Auth.GetCurrentUserAsync(userId);
+        var user = await _auth.GetCurrentUserAsync(userId);
         if (user == null)
             return Unauthorized();
 

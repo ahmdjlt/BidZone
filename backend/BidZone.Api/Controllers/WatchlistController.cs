@@ -2,6 +2,7 @@ using BidZone.BusinessLogic.Interface;
 using BidZone.Api.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using BusinessLogicFactory = BidZone.BusinessLogic.BusinessLogic;
 
 namespace BidZone.Api.Controllers;
 
@@ -10,18 +11,19 @@ namespace BidZone.Api.Controllers;
 [Authorize]
 public class WatchlistController : ControllerBase
 {
-    private readonly IBusinessLogic _businessLogic;
+    internal IWatchlistLogic _watchlist;
 
-    public WatchlistController(IBusinessLogic businessLogic)
+    public WatchlistController()
     {
-        _businessLogic = businessLogic;
+        var bl = new BusinessLogicFactory();
+        _watchlist = bl.WatchlistAction();
     }
 
     [HttpGet]
     public async Task<IActionResult> GetWatchlist()
     {
         var userId = User.GetRequiredUserId();
-        var items = await _businessLogic.Watchlist.GetUserWatchlistAsync(userId);
+        var items = await _watchlist.GetUserWatchlistAsync(userId);
         return Ok(items);
     }
 
@@ -29,7 +31,7 @@ public class WatchlistController : ControllerBase
     public async Task<IActionResult> Add(int auctionId)
     {
         var userId = User.GetRequiredUserId();
-        var item = await _businessLogic.Watchlist.AddAsync(userId, auctionId);
+        var item = await _watchlist.AddAsync(userId, auctionId);
         if (item == null)
             return BadRequest(new { message = "Already watching or auction not found" });
         return Ok(item);
@@ -39,7 +41,7 @@ public class WatchlistController : ControllerBase
     public async Task<IActionResult> Remove(int auctionId)
     {
         var userId = User.GetRequiredUserId();
-        await _businessLogic.Watchlist.RemoveAsync(userId, auctionId);
+        await _watchlist.RemoveAsync(userId, auctionId);
         return NoContent();
     }
 }

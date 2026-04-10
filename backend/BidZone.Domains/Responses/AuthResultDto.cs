@@ -1,4 +1,6 @@
-namespace BidZone.Domains.DTOs;
+using BidZone.Domains.DTOs;
+
+namespace BidZone.Domains.Responses;
 
 public class AuthResultDto
 {

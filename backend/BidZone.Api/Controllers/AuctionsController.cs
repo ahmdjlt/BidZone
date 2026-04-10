@@ -1,8 +1,9 @@
 using BidZone.BusinessLogic.Interface;
-using BidZone.Domains.DTOs;
 using BidZone.Api.Extensions;
+using BidZone.Domains.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using BusinessLogicFactory = BidZone.BusinessLogic.BusinessLogic;
 
 namespace BidZone.Api.Controllers;
 
@@ -10,11 +11,12 @@ namespace BidZone.Api.Controllers;
 [Route("api/auctions")]
 public class AuctionsController : ControllerBase
 {
-    private readonly IBusinessLogic _businessLogic;
+    internal IAuctionLogic _auction;
 
-    public AuctionsController(IBusinessLogic businessLogic)
+    public AuctionsController()
     {
-        _businessLogic = businessLogic;
+        var bl = new BusinessLogicFactory();
+        _auction = bl.AuctionAction();
     }
 
     [HttpGet]
@@ -26,7 +28,7 @@ public class AuctionsController : ControllerBase
         [FromQuery] decimal? minPrice,
         [FromQuery] decimal? maxPrice)
     {
-        var auctions = await _businessLogic.Auctions.GetAllAsync(search, category, sort, status, minPrice, maxPrice);
+        var auctions = await _auction.GetAllAsync(search, category, sort, status, minPrice, maxPrice);
         return Ok(auctions);
     }
 
@@ -42,14 +44,14 @@ public class AuctionsController : ControllerBase
         [FromQuery] int pageSize = 12)
     {
         var pagination = new PaginationParams { Page = page, PageSize = pageSize };
-        var result = await _businessLogic.Auctions.GetAllPagedAsync(search, category, sort, status, minPrice, maxPrice, pagination);
+        var result = await _auction.GetAllPagedAsync(search, category, sort, status, minPrice, maxPrice, pagination);
         return Ok(result);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var auction = await _businessLogic.Auctions.GetByIdAsync(id);
+        var auction = await _auction.GetByIdAsync(id);
         if (auction == null)
             return NotFound();
         return Ok(auction);
@@ -60,7 +62,7 @@ public class AuctionsController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreateAuctionDto dto)
     {
         var sellerId = User.GetRequiredUserId();
-        var auction = await _businessLogic.Auctions.CreateAsync(dto, sellerId);
+        var auction = await _auction.CreateAsync(dto, sellerId);
         return CreatedAtAction(nameof(GetById), new { id = auction.Id }, auction);
     }
 
@@ -69,7 +71,7 @@ public class AuctionsController : ControllerBase
     public async Task<IActionResult> Update(int id, [FromBody] UpdateAuctionDto dto)
     {
         var sellerId = User.GetRequiredUserId();
-        var auction = await _businessLogic.Auctions.UpdateAsync(id, dto, sellerId);
+        var auction = await _auction.UpdateAsync(id, dto, sellerId);
         if (auction == null)
             return NotFound();
         return Ok(auction);
@@ -80,10 +82,11 @@ public class AuctionsController : ControllerBase
     public async Task<IActionResult> Delete(int id)
     {
         var sellerId = User.GetRequiredUserId();
-        var result = await _businessLogic.Auctions.DeleteAsync(id, sellerId);
-        if (!result)
-            return BadRequest(new { message = "Cannot delete auction with existing bids" });
-        return NoContent();
+        var result = await _auction.DeleteAsync(id, sellerId);
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
     }
 
     [HttpGet("my")]
@@ -91,7 +94,7 @@ public class AuctionsController : ControllerBase
     public async Task<IActionResult> GetMyAuctions()
     {
         var sellerId = User.GetRequiredUserId();
-        var auctions = await _businessLogic.Auctions.GetBySellerAsync(sellerId);
+        var auctions = await _auction.GetBySellerAsync(sellerId);
         return Ok(auctions);
     }
 }

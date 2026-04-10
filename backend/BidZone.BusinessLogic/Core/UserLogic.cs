@@ -3,6 +3,7 @@ using BidZone.BusinessLogic.Interface;
 using BidZone.DataAccess.Interfaces;
 using BidZone.Domains.DTOs;
 using BidZone.Domains.Entities;
+using BidZone.Domains.Responses;
 using Microsoft.AspNetCore.Identity;
 
 namespace BidZone.BusinessLogic.Core;
@@ -54,18 +55,18 @@ public class UserLogic : IUserLogic
         return _mapper.Map<UserDto>(user);
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<ActionResponse> DeleteAsync(int id)
     {
         var user = await _userManager.FindByIdAsync(id.ToString());
         if (user == null)
-            return false;
+            return ActionResponse.Failure("User was not found.");
 
         user.IsActive = false;
         var result = await _userManager.UpdateAsync(user);
         if (!result.Succeeded)
-            return false;
+            return ActionResponse.Failure("User could not be deleted.");
 
         await _userManager.UpdateSecurityStampAsync(user);
-        return true;
+        return ActionResponse.Success("User deleted successfully.");
     }
 }

@@ -3,6 +3,7 @@ using BidZone.BusinessLogic.Interface;
 using BidZone.DataAccess.Interfaces;
 using BidZone.Domains.DTOs;
 using BidZone.Domains.Entities;
+using BidZone.Domains.Responses;
 using Microsoft.Extensions.Logging;
 
 namespace BidZone.BusinessLogic.Core;
@@ -143,17 +144,17 @@ public class AuctionLogic : IAuctionLogic
         return _mapper.Map<AuctionDto>(updated!);
     }
 
-    public async Task<bool> DeleteAsync(int id, int sellerId)
+    public async Task<ActionResponse> DeleteAsync(int id, int sellerId)
     {
         var auction = await _auctionRepo.GetByIdAsync(id);
         if (auction == null || auction.SellerId != sellerId)
-            return false;
+            return ActionResponse.Failure("Auction was not found or does not belong to the current seller.");
 
         if (auction.Bids.Any())
-            return false;
+            return ActionResponse.Failure("Cannot delete auction with existing bids.");
 
         await _auctionRepo.DeleteAsync(id);
         _logger.LogInformation("Auction {AuctionId} deleted by seller {SellerId}", id, sellerId);
-        return true;
+        return ActionResponse.Success("Auction deleted successfully.");
     }
 }

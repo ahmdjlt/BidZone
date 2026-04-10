@@ -34,9 +34,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserLogic, UserLogic>();
         services.AddScoped<IReportLogic, ReportLogic>();
 
-        // BLL – Agregator central
-        services.AddScoped<IBusinessLogic, BusinessLogic>();
-
         // AutoMapper
         services.AddAutoMapper(typeof(MappingProfile));
 

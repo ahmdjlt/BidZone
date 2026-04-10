@@ -1,5 +1,6 @@
 using BidZone.BusinessLogic.Interface;
 using Microsoft.AspNetCore.Mvc;
+using BusinessLogicFactory = BidZone.BusinessLogic.BusinessLogic;
 
 namespace BidZone.Api.Controllers;
 
@@ -7,24 +8,27 @@ namespace BidZone.Api.Controllers;
 [Route("api/categories")]
 public class CategoriesController : ControllerBase
 {
-    private readonly IBusinessLogic _businessLogic;
+    internal ICategoryLogic _category;
+    internal IAuctionLogic _auction;
 
-    public CategoriesController(IBusinessLogic businessLogic)
+    public CategoriesController()
     {
-        _businessLogic = businessLogic;
+        var bl = new BusinessLogicFactory();
+        _category = bl.CategoryAction();
+        _auction = bl.AuctionAction();
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var categories = await _businessLogic.Categories.GetAllAsync();
+        var categories = await _category.GetAllAsync();
         return Ok(categories);
     }
 
     [HttpGet("{id}/auctions")]
     public async Task<IActionResult> GetAuctionsByCategory(int id)
     {
-        var auctions = await _businessLogic.Auctions.GetByCategoryAsync(id);
+        var auctions = await _auction.GetByCategoryAsync(id);
         return Ok(auctions);
     }
 }

@@ -1,4 +1,5 @@
 using BidZone.Domains.DTOs;
+using BidZone.Domains.Responses;
 
 namespace BidZone.BusinessLogic.Interface;
 
@@ -8,5 +9,5 @@ public interface IUserLogic
     Task<UserDto?> GetByIdAsync(int id);
     Task<UserDto?> GetProfileAsync(int userId);
     Task<UserDto?> UpdateAsync(int id, UserDto dto);
-    Task<bool> DeleteAsync(int id);
+    Task<ActionResponse> DeleteAsync(int id);
 }

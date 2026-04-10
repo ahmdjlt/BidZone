@@ -4,6 +4,7 @@ using BidZone.BusinessLogic.Security;
 using BidZone.DataAccess.Interfaces;
 using BidZone.Domains.DTOs;
 using BidZone.Domains.Entities;
+using BidZone.Domains.Responses;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using BidZone.Domains.Constants;
@@ -86,13 +87,14 @@ public class AuthLogic : IAuthLogic
         return _mapper.Map<UserDto>(user);
     }
 
-    public async Task LogoutAsync(int userId)
+    public async Task<ActionResponse> LogoutAsync(int userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
-            return;
+            return ActionResponse.Failure("User not found.");
 
         await _userManager.UpdateSecurityStampAsync(user);
+        return ActionResponse.Success("Logged out successfully.");
     }
 
     private AuthResponseDto CreateAuthResponse(User user)

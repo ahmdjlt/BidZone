@@ -1,32 +1,36 @@
 using BidZone.BusinessLogic.Interface;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BidZone.BusinessLogic;
 
 public class BusinessLogic : IBusinessLogic
 {
-    public BusinessLogic(
-        IAuthLogic auth,
-        IAuctionLogic auctions,
-        IBidLogic bids,
-        ICategoryLogic categories,
-        IReportLogic reports,
-        IUserLogic users,
-        IWatchlistLogic watchlist)
+    private static IHttpContextAccessor? _httpContextAccessor;
+
+    public BusinessLogic() { }
+
+    public static void Configure(IHttpContextAccessor httpContextAccessor)
     {
-        Auth = auth;
-        Auctions = auctions;
-        Bids = bids;
-        Categories = categories;
-        Reports = reports;
-        Users = users;
-        Watchlist = watchlist;
+        _httpContextAccessor = httpContextAccessor;
     }
 
-    public IAuthLogic Auth { get; }
-    public IAuctionLogic Auctions { get; }
-    public IBidLogic Bids { get; }
-    public ICategoryLogic Categories { get; }
-    public IReportLogic Reports { get; }
-    public IUserLogic Users { get; }
-    public IWatchlistLogic Watchlist { get; }
+    public IAuthLogic AuthAction() => Resolve<IAuthLogic>();
+    public IAuctionLogic AuctionAction() => Resolve<IAuctionLogic>();
+    public IBidLogic BidAction() => Resolve<IBidLogic>();
+    public ICategoryLogic CategoryAction() => Resolve<ICategoryLogic>();
+    public IReportLogic ReportAction() => Resolve<IReportLogic>();
+    public IUserLogic UserAction() => Resolve<IUserLogic>();
+    public IWatchlistLogic WatchlistAction() => Resolve<IWatchlistLogic>();
+
+    private static T Resolve<T>() where T : notnull
+    {
+        var requestServices = _httpContextAccessor?.HttpContext?.RequestServices;
+        if (requestServices == null)
+        {
+            throw new InvalidOperationException("BusinessLogic is not configured with the current request services.");
+        }
+
+        return requestServices.GetRequiredService<T>();
+    }
 }
