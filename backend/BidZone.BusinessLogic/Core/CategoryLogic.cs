@@ -1,30 +1,24 @@
-using AutoMapper;
-using BidZone.BusinessLogic.Interface;
-using BidZone.DataAccess.Interfaces;
+using BidZone.Domains;
 using BidZone.Domains.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace BidZone.BusinessLogic.Core;
 
-public class CategoryLogic : ICategoryLogic
+public class CategoryLogic
 {
-    private readonly ICategoryRepository _categoryRepo;
-    private readonly IMapper _mapper;
+    public CategoryLogic() { }
 
-    public CategoryLogic(ICategoryRepository categoryRepo, IMapper mapper)
+    internal async Task<List<CategoryDto>> GetAllExecution()
     {
-        _categoryRepo = categoryRepo;
-        _mapper = mapper;
+        using var db = new AppDbContext();
+        var categories = await db.Categories.Include(c => c.Auctions).ToListAsync();
+        return Mappers.ToDtoList(categories);
     }
 
-    public async Task<List<CategoryDto>> GetAllAsync()
+    internal async Task<CategoryDto?> GetByIdExecution(int id)
     {
-        var categories = await _categoryRepo.GetAllAsync();
-        return _mapper.Map<List<CategoryDto>>(categories);
-    }
-
-    public async Task<CategoryDto?> GetByIdAsync(int id)
-    {
-        var category = await _categoryRepo.GetByIdAsync(id);
-        return category == null ? null : _mapper.Map<CategoryDto>(category);
+        using var db = new AppDbContext();
+        var category = await db.Categories.Include(c => c.Auctions).FirstOrDefaultAsync(c => c.Id == id);
+        return category == null ? null : Mappers.ToDto(category);
     }
 }

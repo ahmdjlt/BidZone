@@ -1,110 +1,110 @@
-using AutoMapper;
-using BidZone.BusinessLogic.Interface;
-using BidZone.DataAccess.Interfaces;
+using BidZone.Domains;
 using BidZone.Domains.DTOs;
 using BidZone.Domains.Entities;
 using BidZone.Domains.Responses;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace BidZone.BusinessLogic.Core;
 
-public class AuctionLogic : IAuctionLogic
+public class AuctionLogic
 {
-    private readonly IAuctionRepository _auctionRepo;
-    private readonly ICategoryRepository _categoryRepo;
-    private readonly IMapper _mapper;
-    private readonly ILogger<AuctionLogic> _logger;
+    public AuctionLogic() { }
 
-    public AuctionLogic(
-        IAuctionRepository auctionRepo,
-        ICategoryRepository categoryRepo,
-        IMapper mapper,
-        ILogger<AuctionLogic> logger)
+    internal async Task<List<AuctionDto>> GetAllExecution(string? search, string? category, string? sort, string? status, decimal? minPrice, decimal? maxPrice)
     {
-        _auctionRepo = auctionRepo;
-        _categoryRepo = categoryRepo;
-        _mapper = mapper;
-        _logger = logger;
-    }
+        using var db = new AppDbContext();
 
-    public async Task<List<AuctionDto>> GetAllAsync(string? search, string? category, string? sort, string? status, decimal? minPrice, decimal? maxPrice)
-    {
         int? categoryId = null;
         if (!string.IsNullOrEmpty(category))
         {
-            var cat = await _categoryRepo.GetBySlugAsync(category);
+            var cat = await db.Categories.FirstOrDefaultAsync(c => c.Slug == category);
             categoryId = cat?.Id;
         }
 
-        var filters = new AuctionFilterParams
-        {
-            Search = search,
-            Sort = sort,
-            Status = status,
-            MinPrice = minPrice,
-            MaxPrice = maxPrice
-        };
-
-        var auctions = await _auctionRepo.GetFilteredAsync(filters, categoryId);
-        return _mapper.Map<List<AuctionDto>>(auctions);
+        var query = BuildFilteredQuery(db, new AuctionFilterParams { Search = search, Sort = sort, Status = status, MinPrice = minPrice, MaxPrice = maxPrice }, categoryId);
+        var auctions = await query.ToListAsync();
+        return Mappers.ToDtoList(auctions);
     }
 
-    public async Task<PaginatedResult<AuctionDto>> GetAllPagedAsync(string? search, string? category, string? sort, string? status, decimal? minPrice, decimal? maxPrice, PaginationParams pagination)
+    internal async Task<PaginatedResult<AuctionDto>> GetAllPagedExecution(string? search, string? category, string? sort, string? status, decimal? minPrice, decimal? maxPrice, PaginationParams pagination)
     {
+        using var db = new AppDbContext();
+
         int? categoryId = null;
         if (!string.IsNullOrEmpty(category))
         {
-            var cat = await _categoryRepo.GetBySlugAsync(category);
+            var cat = await db.Categories.FirstOrDefaultAsync(c => c.Slug == category);
             categoryId = cat?.Id;
         }
 
-        var filters = new AuctionFilterParams
-        {
-            Search = search,
-            Sort = sort,
-            Status = status,
-            MinPrice = minPrice,
-            MaxPrice = maxPrice
-        };
+        var query = BuildFilteredQuery(db, new AuctionFilterParams { Search = search, Sort = sort, Status = status, MinPrice = minPrice, MaxPrice = maxPrice }, categoryId);
 
-        var (items, totalCount) = await _auctionRepo.GetFilteredPagedAsync(filters, pagination, categoryId);
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .Skip((pagination.Page - 1) * pagination.PageSize)
+            .Take(pagination.PageSize)
+            .ToListAsync();
+
         return new PaginatedResult<AuctionDto>
         {
-            Items = _mapper.Map<List<AuctionDto>>(items),
+            Items = Mappers.ToDtoList(items),
             TotalCount = totalCount,
             Page = pagination.Page,
             PageSize = pagination.PageSize
         };
     }
 
-    public async Task<AuctionDto?> GetByIdAsync(int id)
+    internal async Task<AuctionDto?> GetByIdExecution(int id)
     {
-        var auction = await _auctionRepo.GetByIdAsync(id);
-        if (auction == null) return null;
-
-        return _mapper.Map<AuctionDto>(auction);
+        using var db = new AppDbContext();
+        var auction = await db.Auctions
+            .Include(a => a.Seller)
+            .Include(a => a.Category)
+            .Include(a => a.Bids).ThenInclude(b => b.Bidder)
+            .FirstOrDefaultAsync(a => a.Id == id);
+        return auction == null ? null : Mappers.ToDto(auction);
     }
 
-    public async Task<List<AuctionDto>> GetActiveAsync()
+    internal async Task<List<AuctionDto>> GetActiveExecution()
     {
-        var auctions = await _auctionRepo.GetActiveAsync();
-        return _mapper.Map<List<AuctionDto>>(auctions);
+        using var db = new AppDbContext();
+        var auctions = await db.Auctions
+            .Include(a => a.Seller)
+            .Include(a => a.Category)
+            .Include(a => a.Bids)
+            .Where(a => a.Status == "Active" && a.EndTime > DateTime.UtcNow)
+            .ToListAsync();
+        return Mappers.ToDtoList(auctions);
     }
 
-    public async Task<List<AuctionDto>> GetByCategoryAsync(int categoryId)
+    internal async Task<List<AuctionDto>> GetByCategoryExecution(int categoryId)
     {
-        var auctions = await _auctionRepo.GetByCategoryAsync(categoryId);
-        return _mapper.Map<List<AuctionDto>>(auctions);
+        using var db = new AppDbContext();
+        var auctions = await db.Auctions
+            .Include(a => a.Seller)
+            .Include(a => a.Category)
+            .Include(a => a.Bids)
+            .Where(a => a.CategoryId == categoryId)
+            .ToListAsync();
+        return Mappers.ToDtoList(auctions);
     }
 
-    public async Task<List<AuctionDto>> GetBySellerAsync(int sellerId)
+    internal async Task<List<AuctionDto>> GetBySellerExecution(int sellerId)
     {
-        var auctions = await _auctionRepo.GetBySellerAsync(sellerId);
-        return _mapper.Map<List<AuctionDto>>(auctions);
+        using var db = new AppDbContext();
+        var auctions = await db.Auctions
+            .Include(a => a.Seller)
+            .Include(a => a.Category)
+            .Include(a => a.Bids)
+            .Where(a => a.SellerId == sellerId)
+            .ToListAsync();
+        return Mappers.ToDtoList(auctions);
     }
 
-    public async Task<AuctionDto> CreateAsync(CreateAuctionDto dto, int sellerId)
+    internal async Task<AuctionDto> CreateExecution(CreateAuctionDto dto, int sellerId)
     {
+        using var db = new AppDbContext();
+
         var auction = new Auction
         {
             Title = dto.Title,
@@ -120,15 +120,21 @@ public class AuctionLogic : IAuctionLogic
             CategoryId = dto.CategoryId
         };
 
-        var created = await _auctionRepo.InsertAsync(auction);
-        _logger.LogInformation("Auction {AuctionId} created by seller {SellerId}", created.Id, sellerId);
-        var full = await _auctionRepo.GetByIdAsync(created.Id);
-        return _mapper.Map<AuctionDto>(full!);
+        db.Auctions.Add(auction);
+        await db.SaveChangesAsync();
+
+        var full = await db.Auctions
+            .Include(a => a.Seller)
+            .Include(a => a.Category)
+            .Include(a => a.Bids)
+            .FirstAsync(a => a.Id == auction.Id);
+        return Mappers.ToDto(full);
     }
 
-    public async Task<AuctionDto?> UpdateAsync(int id, UpdateAuctionDto dto, int sellerId)
+    internal async Task<AuctionDto?> UpdateExecution(int id, UpdateAuctionDto dto, int sellerId)
     {
-        var auction = await _auctionRepo.GetByIdAsync(id);
+        using var db = new AppDbContext();
+        var auction = await db.Auctions.FirstOrDefaultAsync(a => a.Id == id);
         if (auction == null || auction.SellerId != sellerId)
             return null;
 
@@ -139,22 +145,63 @@ public class AuctionLogic : IAuctionLogic
         if (dto.EndTime.HasValue) auction.EndTime = dto.EndTime.Value.ToUniversalTime();
         if (dto.CategoryId.HasValue) auction.CategoryId = dto.CategoryId.Value;
 
-        await _auctionRepo.UpdateAsync(auction);
-        var updated = await _auctionRepo.GetByIdAsync(id);
-        return _mapper.Map<AuctionDto>(updated!);
+        await db.SaveChangesAsync();
+
+        var updated = await db.Auctions
+            .Include(a => a.Seller)
+            .Include(a => a.Category)
+            .Include(a => a.Bids)
+            .FirstAsync(a => a.Id == id);
+        return Mappers.ToDto(updated);
     }
 
-    public async Task<ActionResponse> DeleteAsync(int id, int sellerId)
+    internal async Task<ActionResponse> DeleteExecution(int id, int sellerId)
     {
-        var auction = await _auctionRepo.GetByIdAsync(id);
+        using var db = new AppDbContext();
+        var auction = await db.Auctions.Include(a => a.Bids).FirstOrDefaultAsync(a => a.Id == id);
         if (auction == null || auction.SellerId != sellerId)
             return ActionResponse.Failure("Auction was not found or does not belong to the current seller.");
 
         if (auction.Bids.Any())
             return ActionResponse.Failure("Cannot delete auction with existing bids.");
 
-        await _auctionRepo.DeleteAsync(id);
-        _logger.LogInformation("Auction {AuctionId} deleted by seller {SellerId}", id, sellerId);
+        db.Auctions.Remove(auction);
+        await db.SaveChangesAsync();
         return ActionResponse.Success("Auction deleted successfully.");
+    }
+
+    private static IQueryable<Auction> BuildFilteredQuery(AppDbContext db, AuctionFilterParams filters, int? categoryId)
+    {
+        var query = db.Auctions
+            .Include(a => a.Seller)
+            .Include(a => a.Category)
+            .Include(a => a.Bids)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(filters.Search))
+            query = query.Where(a => a.Title.ToLower().Contains(filters.Search.ToLower()));
+
+        if (categoryId.HasValue)
+            query = query.Where(a => a.CategoryId == categoryId.Value);
+
+        if (!string.IsNullOrEmpty(filters.Status))
+            query = query.Where(a => a.Status.ToLower() == filters.Status.ToLower());
+
+        if (filters.MinPrice.HasValue)
+            query = query.Where(a => a.CurrentPrice >= filters.MinPrice.Value);
+
+        if (filters.MaxPrice.HasValue)
+            query = query.Where(a => a.CurrentPrice <= filters.MaxPrice.Value);
+
+        query = filters.Sort switch
+        {
+            "price_asc" => query.OrderBy(a => a.CurrentPrice),
+            "price_desc" => query.OrderByDescending(a => a.CurrentPrice),
+            "ending_soon" => query.OrderBy(a => a.EndTime),
+            "newest" => query.OrderByDescending(a => a.StartTime),
+            _ => query.OrderByDescending(a => a.StartTime)
+        };
+
+        return query;
     }
 }

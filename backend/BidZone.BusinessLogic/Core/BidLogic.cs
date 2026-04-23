@@ -1,67 +1,42 @@
-using AutoMapper;
 using BidZone.BusinessLogic.Interface;
-using BidZone.DataAccess.Interfaces;
+using BidZone.BusinessLogic.Structure;
+using BidZone.Domains;
 using BidZone.Domains.DTOs;
 using BidZone.Domains.Entities;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace BidZone.BusinessLogic.Core;
 
-public class BidLogic : IBidLogic
+public class BidLogic
 {
-    private readonly IBidRepository _bidRepo;
-    private readonly IAuctionRepository _auctionRepo;
-    private readonly IAuctionFinalizationService _auctionFinalizationService;
-    private readonly IWatchlistRepository _watchlistRepo;
-    private readonly IMapper _mapper;
-    private readonly ILogger<BidLogic> _logger;
+    public BidLogic() { }
 
-    public BidLogic(
-        IBidRepository bidRepo,
-        IAuctionRepository auctionRepo,
-        IAuctionFinalizationService auctionFinalizationService,
-        IWatchlistRepository watchlistRepo,
-        IMapper mapper,
-        ILogger<BidLogic> logger)
+    internal async Task<BidDto?> PlaceBidExecution(PlaceBidDto dto, int bidderId)
     {
-        _bidRepo = bidRepo;
-        _auctionRepo = auctionRepo;
-        _auctionFinalizationService = auctionFinalizationService;
-        _watchlistRepo = watchlistRepo;
-        _mapper = mapper;
-        _logger = logger;
-    }
+        using var db = new AppDbContext();
 
-    public async Task<BidDto?> PlaceBidAsync(PlaceBidDto dto, int bidderId)
-    {
-        var auction = await _auctionRepo.GetByIdAsync(dto.AuctionId);
+        var auction = await db.Auctions.FirstOrDefaultAsync(a => a.Id == dto.AuctionId);
         if (auction == null)
             return null;
 
         if (auction.Status == "Active" && auction.EndTime <= DateTime.UtcNow)
         {
-            await _auctionFinalizationService.FinalizeAuctionIfExpiredAsync(dto.AuctionId);
+            var finalization = new AuctionFinalizationExecution();
+            await finalization.FinalizeAuctionIfExpiredAsync(dto.AuctionId);
             return null;
         }
 
-        // Cannot bid on closed auction
-        if (auction.Status != "Active")
-            return null;
+        if (auction.Status != "Active") return null;
+        if (auction.SellerId == bidderId) return null;
+        if (dto.Amount <= auction.CurrentPrice) return null;
 
-        // Cannot bid on own auction
-        if (auction.SellerId == bidderId)
-            return null;
-
-        // Must exceed current price
-        if (dto.Amount <= auction.CurrentPrice)
-            return null;
-
-        // Mark previous highest bid as Outbid
-        var previousHighest = await _bidRepo.GetHighestBidAsync(dto.AuctionId);
+        var previousHighest = await db.Bids
+            .Where(b => b.AuctionId == dto.AuctionId)
+            .OrderByDescending(b => b.Amount)
+            .FirstOrDefaultAsync();
         if (previousHighest != null)
         {
             previousHighest.Status = "Outbid";
-            await _bidRepo.UpdateAsync(previousHighest);
         }
 
         var bid = new Bid
@@ -72,53 +47,69 @@ public class BidLogic : IBidLogic
             AuctionId = dto.AuctionId,
             BidderId = bidderId
         };
+        db.Bids.Add(bid);
 
-        var created = await _bidRepo.InsertAsync(bid);
-        _logger.LogInformation("Bid {BidId} placed on auction {AuctionId} by user {BidderId} for {Amount}", created.Id, dto.AuctionId, bidderId, dto.Amount);
+        auction.CurrentPrice = dto.Amount;
 
-        // Update auction current price
-        await _auctionRepo.UpdatePriceAsync(dto.AuctionId, dto.Amount);
-
-        // Auto-add to watchlist (ignore if already watching due to race condition)
-        var isWatching = await _watchlistRepo.IsWatchingAsync(bidderId, dto.AuctionId);
-        if (!isWatching)
+        var alreadyWatching = await db.WatchlistItems.AnyAsync(w => w.UserId == bidderId && w.AuctionId == dto.AuctionId);
+        if (!alreadyWatching)
         {
-            try
+            db.WatchlistItems.Add(new WatchlistItem
             {
-                await _watchlistRepo.AddAsync(new WatchlistItem
-                {
-                    UserId = bidderId,
-                    AuctionId = dto.AuctionId,
-                    AddedAt = DateTime.UtcNow
-                });
-            }
-            catch (Microsoft.EntityFrameworkCore.DbUpdateException)
-            {
-                // Duplicate watchlist entry from concurrent bid, safe to ignore
-            }
+                UserId = bidderId,
+                AuctionId = dto.AuctionId,
+                AddedAt = DateTime.UtcNow
+            });
         }
 
-        // Re-fetch with includes
-        var bids = await _bidRepo.GetByAuctionAsync(dto.AuctionId);
-        var newBid = bids.First(b => b.Id == created.Id);
-        return _mapper.Map<BidDto>(newBid);
+        try
+        {
+            await db.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            // Race condition on watchlist unique index — safe to swallow
+        }
+
+        var created = await db.Bids
+            .Include(b => b.Bidder)
+            .Include(b => b.Auction)
+            .FirstAsync(b => b.Id == bid.Id);
+        return Mappers.ToDto(created);
     }
 
-    public async Task<List<BidDto>> GetByAuctionAsync(int auctionId)
+    internal async Task<List<BidDto>> GetByAuctionExecution(int auctionId)
     {
-        var bids = await _bidRepo.GetByAuctionAsync(auctionId);
-        return _mapper.Map<List<BidDto>>(bids);
+        using var db = new AppDbContext();
+        var bids = await db.Bids
+            .Include(b => b.Bidder)
+            .Include(b => b.Auction)
+            .Where(b => b.AuctionId == auctionId)
+            .OrderByDescending(b => b.Amount)
+            .ToListAsync();
+        return Mappers.ToDtoList(bids);
     }
 
-    public async Task<List<BidDto>> GetByUserAsync(int userId)
+    internal async Task<List<BidDto>> GetByUserExecution(int userId)
     {
-        var bids = await _bidRepo.GetByUserAsync(userId);
-        return _mapper.Map<List<BidDto>>(bids);
+        using var db = new AppDbContext();
+        var bids = await db.Bids
+            .Include(b => b.Bidder)
+            .Include(b => b.Auction)
+            .Where(b => b.BidderId == userId)
+            .OrderByDescending(b => b.PlacedAt)
+            .ToListAsync();
+        return Mappers.ToDtoList(bids);
     }
 
-    public async Task<BidDto?> GetHighestBidAsync(int auctionId)
+    internal async Task<BidDto?> GetHighestBidExecution(int auctionId)
     {
-        var bid = await _bidRepo.GetHighestBidAsync(auctionId);
-        return bid == null ? null : _mapper.Map<BidDto>(bid);
+        using var db = new AppDbContext();
+        var bid = await db.Bids
+            .Include(b => b.Bidder)
+            .Where(b => b.AuctionId == auctionId)
+            .OrderByDescending(b => b.Amount)
+            .FirstOrDefaultAsync();
+        return bid == null ? null : Mappers.ToDto(bid);
     }
 }

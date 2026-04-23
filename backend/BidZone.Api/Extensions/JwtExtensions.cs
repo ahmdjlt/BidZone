@@ -2,9 +2,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using BidZone.BusinessLogic.Security;
-using BidZone.Domains.Entities;
+using BidZone.Domains;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace BidZone.Api.Extensions;
@@ -13,10 +13,12 @@ public static class JwtExtensions
 {
     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        var jwtSection = configuration.GetSection("Jwt");
+        var issuer = jwtSection["Issuer"] ?? string.Empty;
+        var audience = jwtSection["Audience"] ?? string.Empty;
+        var key = jwtSection["Key"] ?? string.Empty;
 
-        var jwtOptions = configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
-        if (string.IsNullOrWhiteSpace(jwtOptions.Key))
+        if (string.IsNullOrWhiteSpace(key))
         {
             throw new InvalidOperationException("JWT settings are missing. Configure Jwt:Key in appsettings or JWT_KEY in the environment.");
         }
@@ -31,9 +33,9 @@ public static class JwtExtensions
                     ValidateAudience = true,
                     ValidateIssuerSigningKey = true,
                     ValidateLifetime = true,
-                    ValidIssuer = jwtOptions.Issuer,
-                    ValidAudience = jwtOptions.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
+                    ValidIssuer = issuer,
+                    ValidAudience = audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
                     ClockSkew = TimeSpan.FromMinutes(1),
                     NameClaimType = ClaimTypes.Name,
                     RoleClaimType = ClaimTypes.Role
@@ -43,27 +45,27 @@ public static class JwtExtensions
                 {
                     OnTokenValidated = async context =>
                     {
-                        var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<User>>();
                         var principal = context.Principal;
-                        var userId = principal?.FindFirstValue(ClaimTypes.NameIdentifier)
+                        var userIdStr = principal?.FindFirstValue(ClaimTypes.NameIdentifier)
                             ?? principal?.FindFirstValue(JwtRegisteredClaimNames.Sub);
                         var tokenSecurityStamp = principal?.FindFirstValue("security_stamp");
                         var tokenRole = principal?.FindFirstValue(ClaimTypes.Role);
 
-                        if (string.IsNullOrWhiteSpace(userId))
+                        if (!int.TryParse(userIdStr, out var userId))
                         {
                             context.Fail("Invalid token subject.");
                             return;
                         }
 
-                        var user = await userManager.FindByIdAsync(userId);
+                        using var db = new AppDbContext();
+                        var user = await db.Users.FindAsync(new object?[] { userId }, context.HttpContext.RequestAborted);
                         if (user == null || !user.IsActive)
                         {
                             context.Fail("User is inactive or no longer exists.");
                             return;
                         }
 
-                        if (await userManager.IsLockedOutAsync(user))
+                        if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow)
                         {
                             context.Fail("User is locked out.");
                             return;

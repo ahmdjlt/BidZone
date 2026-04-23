@@ -1,55 +1,41 @@
-using BidZone.BusinessLogic;
-using BidZone.Domains;
 using BidZone.Api.Extensions;
-using Microsoft.AspNetCore.Identity;
 using BidZone.Api.Services;
+using BidZone.BusinessLogic.Security;
+using BidZone.Domains;
 using DotNetEnv;
-using Microsoft.EntityFrameworkCore;
 
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
-if (!string.IsNullOrWhiteSpace(jwtKey))
-{
-    builder.Configuration["Jwt:Key"] = jwtKey;
-}
-
-// DbContext
+// Connection string — expus via DbSession static (pattern eBookStore)
 var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
     ?? builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+DbSession.ConnectionString = connectionString;
 
-// Identity
-builder.Services.AddIdentityCore<BidZone.Domains.Entities.User>(options =>
+// JWT — opțiuni stocate într-un holder static, nu DI
+var envJwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
+if (!string.IsNullOrWhiteSpace(envJwtKey))
 {
-    options.User.RequireUniqueEmail = true;
-    options.Password.RequiredLength = 8;
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireNonAlphanumeric = false;
-})
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddDefaultTokenProviders();
+    builder.Configuration["Jwt:Key"] = envJwtKey;
+}
+var jwtSection = builder.Configuration.GetSection("Jwt");
+JwtOptionsHolder.Issuer = jwtSection["Issuer"] ?? string.Empty;
+JwtOptionsHolder.Audience = jwtSection["Audience"] ?? string.Empty;
+JwtOptionsHolder.Key = jwtSection["Key"] ?? string.Empty;
+if (int.TryParse(jwtSection["ExpirationMinutes"], out var expMinutes))
+{
+    JwtOptionsHolder.ExpirationMinutes = expMinutes;
+}
 
-// Auth, Swagger, CORS
+// Middleware: auth + Swagger + CORS (DI obligatoriu pt. framework, nu pt. BLL/DAL)
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddSwaggerDocumentation();
 builder.Services.AddBidZoneCors(builder.Configuration);
-builder.Services.AddHttpContextAccessor();
-
-// DAL + BLL + AutoMapper
-builder.Services.AddBidZoneServices();
 builder.Services.AddHostedService<AuctionFinalizationHostedService>();
-
 builder.Services.AddControllers();
 
 var app = builder.Build();
-
-BusinessLogic.Configure(app.Services.GetRequiredService<IHttpContextAccessor>());
 
 if (app.Environment.IsDevelopment())
 {

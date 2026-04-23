@@ -1,111 +1,120 @@
-using AutoMapper;
-using BidZone.BusinessLogic.Interface;
 using BidZone.BusinessLogic.Security;
-using BidZone.DataAccess.Interfaces;
+using BidZone.Domains;
+using BidZone.Domains.Constants;
 using BidZone.Domains.DTOs;
 using BidZone.Domains.Entities;
 using BidZone.Domains.Responses;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using BidZone.Domains.Constants;
-using Microsoft.Extensions.Logging;
 
 namespace BidZone.BusinessLogic.Core;
 
-public class AuthLogic : IAuthLogic
+public class AuthLogic
 {
-    private readonly UserManager<User> _userManager;
-    private readonly IUserRepository _userRepo;
-    private readonly IMapper _mapper;
-    private readonly IJwtTokenService _jwtTokenService;
-    private readonly ILogger<AuthLogic> _logger;
+    public AuthLogic() { }
 
-    public AuthLogic(
-        UserManager<User> userManager,
-        IUserRepository userRepo,
-        IMapper mapper,
-        IJwtTokenService jwtTokenService,
-        ILogger<AuthLogic> logger)
+    internal async Task<AuthResultDto> LoginExecution(LoginRequestDto request)
     {
-        _userManager = userManager;
-        _userRepo = userRepo;
-        _mapper = mapper;
-        _jwtTokenService = jwtTokenService;
-        _logger = logger;
-    }
+        using var db = new AppDbContext();
 
-    public async Task<AuthResultDto> LoginAsync(LoginRequestDto request)
-    {
-        var normalizedEmail = _userManager.NormalizeEmail(request.Email.Trim());
-        var user = await _userManager.Users.FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail);
+        var normalizedEmail = Normalize(request.Email);
+        var user = await db.Users.FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail);
         if (user == null || !user.IsActive)
             return AuthResultDto.Failure("Invalid email or password.");
 
-        if (await _userManager.IsLockedOutAsync(user))
+        if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow)
             return AuthResultDto.Failure("Your account is locked.");
 
-        if (!await _userManager.CheckPasswordAsync(user, request.Password))
+        var hasher = new PasswordHasher<User>();
+        var verify = hasher.VerifyHashedPassword(user, user.PasswordHash ?? string.Empty, request.Password);
+        if (verify == PasswordVerificationResult.Failed)
             return AuthResultDto.Failure("Invalid email or password.");
 
-        _logger.LogInformation("User {Email} logged in", request.Email);
+        if (verify == PasswordVerificationResult.SuccessRehashNeeded)
+        {
+            user.PasswordHash = hasher.HashPassword(user, request.Password);
+            await db.SaveChangesAsync();
+        }
+
         return AuthResultDto.Success(CreateAuthResponse(user));
     }
 
-    public async Task<AuthResultDto> RegisterAsync(RegisterRequestDto request)
+    internal async Task<AuthResultDto> RegisterExecution(RegisterRequestDto request)
     {
         var role = RoleConstants.Normalize(request.Role);
         if (role == null)
             return AuthResultDto.Failure("Role must be Buyer or Seller.");
 
+        using var db = new AppDbContext();
+
+        var normalizedEmail = Normalize(request.Email);
+        var normalizedUsername = Normalize(request.Username);
+
+        var existing = await db.Users.AnyAsync(u => u.NormalizedEmail == normalizedEmail || u.NormalizedUserName == normalizedUsername);
+        if (existing)
+            return AuthResultDto.Failure("Email or username is already in use.");
+
         var user = new User
         {
             UserName = request.Username.Trim(),
+            NormalizedUserName = normalizedUsername,
             FullName = request.FullName.Trim(),
             Email = request.Email.Trim(),
+            NormalizedEmail = normalizedEmail,
             EmailConfirmed = true,
             Role = role,
             CreatedAt = DateTime.UtcNow,
-            IsActive = true
+            IsActive = true,
+            SecurityStamp = Guid.NewGuid().ToString(),
+            ConcurrencyStamp = Guid.NewGuid().ToString()
         };
 
-        var result = await _userManager.CreateAsync(user, request.Password);
-        if (!result.Succeeded)
+        var hasher = new PasswordHasher<User>();
+        user.PasswordHash = hasher.HashPassword(user, request.Password);
+
+        db.Users.Add(user);
+        try
         {
-            return AuthResultDto.Failure(result.Errors.Select(error => error.Description).ToArray());
+            await db.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            return AuthResultDto.Failure("Email or username is already in use.");
         }
 
-        _logger.LogInformation("User {Username} registered as {Role}", user.UserName, role);
         return AuthResultDto.Success(CreateAuthResponse(user));
     }
 
-    public async Task<UserDto?> GetCurrentUserAsync(int userId)
+    internal async Task<UserDto?> GetCurrentUserExecution(int userId)
     {
-        var user = await _userRepo.GetByIdAsync(userId);
-        if (user == null || !user.IsActive)
-            return null;
-
-        return _mapper.Map<UserDto>(user);
+        using var db = new AppDbContext();
+        var user = await db.Users.FindAsync(userId);
+        if (user == null || !user.IsActive) return null;
+        return Mappers.ToDto(user);
     }
 
-    public async Task<ActionResponse> LogoutAsync(int userId)
+    internal async Task<ActionResponse> LogoutExecution(int userId)
     {
-        var user = await _userManager.FindByIdAsync(userId.ToString());
+        using var db = new AppDbContext();
+        var user = await db.Users.FindAsync(userId);
         if (user == null)
             return ActionResponse.Failure("User not found.");
 
-        await _userManager.UpdateSecurityStampAsync(user);
+        user.SecurityStamp = Guid.NewGuid().ToString();
+        await db.SaveChangesAsync();
         return ActionResponse.Success("Logged out successfully.");
     }
 
-    private AuthResponseDto CreateAuthResponse(User user)
+    private static AuthResponseDto CreateAuthResponse(User user)
     {
-        var token = _jwtTokenService.GenerateToken(user);
+        var jwt = new JwtTokenService().GenerateToken(user);
         return new AuthResponseDto
         {
-            Token = token.Token,
-            ExpiresAtUtc = token.ExpiresAtUtc,
-            User = _mapper.Map<UserDto>(user)
+            Token = jwt.Token,
+            ExpiresAtUtc = jwt.ExpiresAtUtc,
+            User = Mappers.ToDto(user)
         };
     }
 
+    internal static string Normalize(string value) => value.Trim().ToUpperInvariant();
 }

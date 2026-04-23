@@ -1,72 +1,72 @@
-using AutoMapper;
-using BidZone.BusinessLogic.Interface;
-using BidZone.DataAccess.Interfaces;
+using BidZone.Domains;
 using BidZone.Domains.DTOs;
-using BidZone.Domains.Entities;
 using BidZone.Domains.Responses;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace BidZone.BusinessLogic.Core;
 
-public class UserLogic : IUserLogic
+public class UserLogic
 {
-    private readonly IUserRepository _userRepo;
-    private readonly IMapper _mapper;
-    private readonly UserManager<User> _userManager;
+    public UserLogic() { }
 
-    public UserLogic(IUserRepository userRepo, IMapper mapper, UserManager<User> userManager)
+    internal async Task<List<UserDto>> GetAllExecution()
     {
-        _userRepo = userRepo;
-        _mapper = mapper;
-        _userManager = userManager;
+        using var db = new AppDbContext();
+        var users = await db.Users.ToListAsync();
+        return Mappers.ToDtoList(users);
     }
 
-    public async Task<List<UserDto>> GetAllAsync()
+    internal async Task<UserDto?> GetByIdExecution(int id)
     {
-        var users = await _userRepo.GetAllAsync();
-        return _mapper.Map<List<UserDto>>(users);
+        using var db = new AppDbContext();
+        var user = await db.Users.FindAsync(id);
+        return user == null ? null : Mappers.ToDto(user);
     }
 
-    public async Task<UserDto?> GetByIdAsync(int id)
+    internal async Task<UserDto?> UpdateExecution(int id, UserDto dto)
     {
-        var user = await _userRepo.GetByIdAsync(id);
-        return user == null ? null : _mapper.Map<UserDto>(user);
-    }
+        using var db = new AppDbContext();
+        var user = await db.Users.FindAsync(id);
+        if (user == null || !user.IsActive) return null;
 
-    public async Task<UserDto?> GetProfileAsync(int userId)
-    {
-        return await GetByIdAsync(userId);
-    }
+        var newUsername = dto.Username.Trim();
+        var newEmail = dto.Email.Trim();
+        var normalizedUsername = AuthLogic.Normalize(newUsername);
+        var normalizedEmail = AuthLogic.Normalize(newEmail);
 
-    public async Task<UserDto?> UpdateAsync(int id, UserDto dto)
-    {
-        var user = await _userManager.FindByIdAsync(id.ToString());
-        if (user == null || !user.IsActive)
-            return null;
+        var conflict = await db.Users.AnyAsync(u =>
+            u.Id != id &&
+            (u.NormalizedUserName == normalizedUsername || u.NormalizedEmail == normalizedEmail));
+        if (conflict) return null;
 
-        user.UserName = dto.Username.Trim();
-        user.Email = dto.Email.Trim();
+        user.UserName = newUsername;
+        user.NormalizedUserName = normalizedUsername;
+        user.Email = newEmail;
+        user.NormalizedEmail = normalizedEmail;
         user.FullName = dto.FullName.Trim();
+        user.ConcurrencyStamp = Guid.NewGuid().ToString();
 
-        var result = await _userManager.UpdateAsync(user);
-        if (!result.Succeeded)
+        try
+        {
+            await db.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
             return null;
-
-        return _mapper.Map<UserDto>(user);
+        }
+        return Mappers.ToDto(user);
     }
 
-    public async Task<ActionResponse> DeleteAsync(int id)
+    internal async Task<ActionResponse> DeleteExecution(int id)
     {
-        var user = await _userManager.FindByIdAsync(id.ToString());
+        using var db = new AppDbContext();
+        var user = await db.Users.FindAsync(id);
         if (user == null)
             return ActionResponse.Failure("User was not found.");
 
         user.IsActive = false;
-        var result = await _userManager.UpdateAsync(user);
-        if (!result.Succeeded)
-            return ActionResponse.Failure("User could not be deleted.");
-
-        await _userManager.UpdateSecurityStampAsync(user);
+        user.SecurityStamp = Guid.NewGuid().ToString();
+        await db.SaveChangesAsync();
         return ActionResponse.Success("User deleted successfully.");
     }
 }

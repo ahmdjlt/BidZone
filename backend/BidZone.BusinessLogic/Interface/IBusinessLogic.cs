@@ -9,4 +9,5 @@ public interface IBusinessLogic
     IReportLogic ReportAction();
     IUserLogic UserAction();
     IWatchlistLogic WatchlistAction();
+    IAuctionFinalizationService AuctionFinalizationAction();
 }

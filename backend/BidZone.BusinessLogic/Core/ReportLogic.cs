@@ -1,37 +1,35 @@
-using BidZone.BusinessLogic.Core;
-using BidZone.BusinessLogic.Interface;
 using BidZone.Domains;
 using BidZone.Domains.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace BidZone.BusinessLogic.Core;
 
-public class ReportLogic : BaseLogic, IReportLogic
+public class ReportLogic
 {
-    public ReportLogic(AppDbContext context) : base(context) { }
+    public ReportLogic() { }
 
-    public async Task<DashboardStatsDto> GetDashboardStatsAsync()
+    internal async Task<DashboardStatsDto> GetDashboardStatsExecution()
     {
+        using var db = new AppDbContext();
         var stats = new DashboardStatsDto
         {
-            TotalUsers = await _context.Users.CountAsync(),
-            TotalAuctions = await _context.Auctions.CountAsync(),
-            ActiveAuctions = await _context.Auctions.CountAsync(a => a.Status == "Active"),
-            TotalBids = await _context.Bids.CountAsync(),
-            TotalRevenue = await _context.Auctions
+            TotalUsers = await db.Users.CountAsync(),
+            TotalAuctions = await db.Auctions.CountAsync(),
+            ActiveAuctions = await db.Auctions.CountAsync(a => a.Status == "Active"),
+            TotalBids = await db.Bids.CountAsync(),
+            TotalRevenue = await db.Auctions
                 .Where(a => a.Status == "Closed" && a.Bids.Any(b => b.Status == "Won"))
                 .SumAsync(a => (decimal?)a.CurrentPrice) ?? 0m,
-            RecentBidActivity = await GetBidActivityAsync(7)
+            RecentBidActivity = await GetBidActivityExecution(7)
         };
-
         return stats;
     }
 
-    public async Task<List<BidActivityDto>> GetBidActivityAsync(int days = 30)
+    internal async Task<List<BidActivityDto>> GetBidActivityExecution(int days = 30)
     {
+        using var db = new AppDbContext();
         var startDate = DateTime.UtcNow.AddDays(-days);
-
-        var activity = await _context.Bids
+        var activity = await db.Bids
             .Where(b => b.PlacedAt >= startDate)
             .GroupBy(b => b.PlacedAt.Date)
             .Select(g => new BidActivityDto
@@ -42,7 +40,6 @@ public class ReportLogic : BaseLogic, IReportLogic
             })
             .OrderBy(a => a.Date)
             .ToListAsync();
-
         return activity;
     }
 }

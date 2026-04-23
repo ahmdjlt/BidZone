@@ -7,6 +7,8 @@ namespace BidZone.Domains;
 
 public class AppDbContext : IdentityUserContext<User, int>
 {
+    public AppDbContext() { }
+
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<Auction> Auctions => Set<Auction>();
@@ -14,11 +16,18 @@ public class AppDbContext : IdentityUserContext<User, int>
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<WatchlistItem> WatchlistItems => Set<WatchlistItem>();
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseNpgsql(DbSession.ConnectionString);
+        }
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // User
         modelBuilder.Entity<User>(e =>
         {
             e.ToTable("Users");
@@ -32,21 +41,18 @@ public class AppDbContext : IdentityUserContext<User, int>
             e.HasIndex(u => u.NormalizedUserName).IsUnique();
         });
 
-        // Auction
         modelBuilder.Entity<Auction>(e =>
         {
             e.HasOne(a => a.Seller).WithMany(u => u.Auctions).HasForeignKey(a => a.SellerId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne(a => a.Category).WithMany(c => c.Auctions).HasForeignKey(a => a.CategoryId);
         });
 
-        // Bid
         modelBuilder.Entity<Bid>(e =>
         {
             e.HasOne(b => b.Auction).WithMany(a => a.Bids).HasForeignKey(b => b.AuctionId);
             e.HasOne(b => b.Bidder).WithMany(u => u.Bids).HasForeignKey(b => b.BidderId).OnDelete(DeleteBehavior.Restrict);
         });
 
-        // WatchlistItem
         modelBuilder.Entity<WatchlistItem>(e =>
         {
             e.HasOne(w => w.User).WithMany(u => u.WatchlistItems).HasForeignKey(w => w.UserId);

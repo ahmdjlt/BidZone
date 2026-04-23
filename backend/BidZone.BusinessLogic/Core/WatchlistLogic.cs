@@ -1,39 +1,33 @@
-using AutoMapper;
-using BidZone.BusinessLogic.Interface;
-using BidZone.DataAccess.Interfaces;
+using BidZone.Domains;
 using BidZone.Domains.DTOs;
 using BidZone.Domains.Entities;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace BidZone.BusinessLogic.Core;
 
-public class WatchlistLogic : IWatchlistLogic
+public class WatchlistLogic
 {
-    private readonly IWatchlistRepository _watchlistRepo;
-    private readonly IAuctionRepository _auctionRepo;
-    private readonly IMapper _mapper;
-    private readonly ILogger<WatchlistLogic> _logger;
+    public WatchlistLogic() { }
 
-    public WatchlistLogic(IWatchlistRepository watchlistRepo, IAuctionRepository auctionRepo, IMapper mapper, ILogger<WatchlistLogic> logger)
+    internal async Task<List<WatchlistDto>> GetUserWatchlistExecution(int userId)
     {
-        _watchlistRepo = watchlistRepo;
-        _auctionRepo = auctionRepo;
-        _mapper = mapper;
-        _logger = logger;
+        using var db = new AppDbContext();
+        var items = await db.WatchlistItems
+            .Include(w => w.Auction).ThenInclude(a => a.Category)
+            .Where(w => w.UserId == userId)
+            .OrderByDescending(w => w.AddedAt)
+            .ToListAsync();
+        return Mappers.ToDtoList(items);
     }
 
-    public async Task<List<WatchlistDto>> GetUserWatchlistAsync(int userId)
+    internal async Task<WatchlistDto?> AddExecution(int userId, int auctionId)
     {
-        var items = await _watchlistRepo.GetByUserAsync(userId);
-        return _mapper.Map<List<WatchlistDto>>(items);
-    }
+        using var db = new AppDbContext();
 
-    public async Task<WatchlistDto?> AddAsync(int userId, int auctionId)
-    {
-        var auction = await _auctionRepo.GetByIdAsync(auctionId);
+        var auction = await db.Auctions.FirstOrDefaultAsync(a => a.Id == auctionId);
         if (auction == null) return null;
 
-        var already = await _watchlistRepo.IsWatchingAsync(userId, auctionId);
+        var already = await db.WatchlistItems.AnyAsync(w => w.UserId == userId && w.AuctionId == auctionId);
         if (already) return null;
 
         var item = new WatchlistItem
@@ -42,9 +36,8 @@ public class WatchlistLogic : IWatchlistLogic
             AuctionId = auctionId,
             AddedAt = DateTime.UtcNow
         };
-
-        await _watchlistRepo.AddAsync(item);
-        _logger.LogInformation("User {UserId} added auction {AuctionId} to watchlist", userId, auctionId);
+        db.WatchlistItems.Add(item);
+        await db.SaveChangesAsync();
 
         return new WatchlistDto
         {
@@ -59,13 +52,20 @@ public class WatchlistLogic : IWatchlistLogic
         };
     }
 
-    public async Task RemoveAsync(int userId, int auctionId)
+    internal async Task RemoveExecution(int userId, int auctionId)
     {
-        await _watchlistRepo.RemoveAsync(userId, auctionId);
+        using var db = new AppDbContext();
+        var item = await db.WatchlistItems.FirstOrDefaultAsync(w => w.UserId == userId && w.AuctionId == auctionId);
+        if (item != null)
+        {
+            db.WatchlistItems.Remove(item);
+            await db.SaveChangesAsync();
+        }
     }
 
-    public async Task<bool> IsWatchingAsync(int userId, int auctionId)
+    internal async Task<bool> IsWatchingExecution(int userId, int auctionId)
     {
-        return await _watchlistRepo.IsWatchingAsync(userId, auctionId);
+        using var db = new AppDbContext();
+        return await db.WatchlistItems.AnyAsync(w => w.UserId == userId && w.AuctionId == auctionId);
     }
 }

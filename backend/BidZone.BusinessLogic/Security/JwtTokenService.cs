@@ -2,30 +2,25 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using BidZone.Domains.Entities;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace BidZone.BusinessLogic.Security;
 
-public class JwtTokenService : IJwtTokenService
+public class JwtTokenService
 {
-    private readonly JwtOptions _options;
-
-    public JwtTokenService(IOptions<JwtOptions> options)
-    {
-        _options = options.Value;
-    }
+    public JwtTokenService() { }
 
     public JwtTokenResult GenerateToken(User user)
     {
-        if (string.IsNullOrWhiteSpace(_options.Key) || Encoding.UTF8.GetByteCount(_options.Key) < 32)
+        var key = JwtOptionsHolder.Key;
+        if (string.IsNullOrWhiteSpace(key) || Encoding.UTF8.GetByteCount(key) < 32)
         {
             throw new InvalidOperationException("JWT signing key must be configured and at least 32 bytes long.");
         }
 
-        var expiresAtUtc = DateTime.UtcNow.AddMinutes(_options.ExpirationMinutes);
+        var expiresAtUtc = DateTime.UtcNow.AddMinutes(JwtOptionsHolder.ExpirationMinutes);
         var credentials = new SigningCredentials(
-            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Key)),
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
             SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>
@@ -41,8 +36,8 @@ public class JwtTokenService : IJwtTokenService
         };
 
         var token = new JwtSecurityToken(
-            issuer: _options.Issuer,
-            audience: _options.Audience,
+            issuer: JwtOptionsHolder.Issuer,
+            audience: JwtOptionsHolder.Audience,
             claims: claims,
             notBefore: DateTime.UtcNow,
             expires: expiresAtUtc,
