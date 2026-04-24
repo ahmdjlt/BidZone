@@ -3,4 +3,5 @@
   <Project Path="BidZone.DataAccess/BidZone.DataAccess.csproj" />
   <Project Path="BidZone.Domains/BidZone.Domains.csproj" />
   <Project Path="BidZone.Api/BidZone.Api.csproj" />
+  <Project Path="BidZone.Tests/BidZone.Tests.csproj" />
 </Solution>
