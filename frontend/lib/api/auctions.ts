@@ -1,20 +1,5 @@
 import type { Auction, AuctionSummary, CreateAuctionData, UpdateAuctionData, Category } from "@/types/auction";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5171";
-
-async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${url}`, {
-    credentials: "include",
-    headers: { "Content-Type": "application/json", ...options?.headers },
-    ...options,
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(body || `Request failed: ${res.status}`);
-  }
-  if (res.status === 204) return undefined as T;
-  return res.json();
-}
+import { apiFetch } from "@/lib/api/client";
 
 export interface AuctionFilters {
   search?: string;

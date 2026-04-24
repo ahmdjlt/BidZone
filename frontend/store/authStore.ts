@@ -1,34 +1,42 @@
 import { create } from "zustand";
 import type { User } from "@/types/user";
 import * as api from "@/lib/api/users";
+import { setAuthFailureHandler } from "@/lib/api/client";
 
 interface AuthState {
   user: User | null;
-  token: string | null;
+  accessToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  hasBootstrapped: boolean;
 
   login: (email: string, password: string) => Promise<void>;
   register: (data: { username: string; fullName: string; email: string; password: string; role: "Buyer" | "Seller" }) => Promise<void>;
   logout: () => Promise<void>;
+  bootstrapAuth: () => Promise<void>;
   setUser: (user: User | null) => void;
-  checkAuth: () => Promise<void>;
+  clearAuth: () => void;
 }
 
-const initialToken = api.getAuthToken();
+let bootstrapPromise: Promise<void> | null = null;
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
-  token: initialToken,
+  accessToken: null,
   isAuthenticated: false,
   isLoading: false,
+  hasBootstrapped: false,
 
   login: async (email, password) => {
     set({ isLoading: true });
     try {
       const res = await api.login({ email, password });
-      api.setAuthToken(res.token);
-      set({ user: res.user, token: res.token, isAuthenticated: true });
+      set({
+        user: res.user,
+        accessToken: res.accessToken,
+        isAuthenticated: true,
+        hasBootstrapped: true,
+      });
     } finally {
       set({ isLoading: false });
     }
@@ -38,42 +46,97 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true });
     try {
       const res = await api.register(data);
-      api.setAuthToken(res.token);
-      set({ user: res.user, token: res.token, isAuthenticated: true });
+      set({
+        user: res.user,
+        accessToken: res.accessToken,
+        isAuthenticated: true,
+        hasBootstrapped: true,
+      });
     } finally {
       set({ isLoading: false });
     }
   },
 
   logout: async () => {
+    set({ isLoading: true });
     try {
       await api.logout();
     } finally {
       api.clearAuthToken();
-      set({ user: null, token: null, isAuthenticated: false });
+      set({
+        user: null,
+        accessToken: null,
+        isAuthenticated: false,
+        isLoading: false,
+        hasBootstrapped: true,
+      });
     }
   },
 
   setUser: (user) => {
-    set({ user, isAuthenticated: !!user });
+    set({
+      user,
+      accessToken: user ? get().accessToken : null,
+      isAuthenticated: !!user,
+    });
   },
 
-  checkAuth: async () => {
-    const token = api.getAuthToken();
-    if (!token) {
-      set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+  clearAuth: () => {
+    api.clearAuthToken();
+    set({
+      user: null,
+      accessToken: null,
+      isAuthenticated: false,
+      hasBootstrapped: true,
+      isLoading: false,
+    });
+  },
+
+  bootstrapAuth: async () => {
+    if (get().hasBootstrapped) {
       return;
     }
 
-    set({ isLoading: true });
-    try {
-      const user = await api.getCurrentUser();
-      set({ user, token, isAuthenticated: true });
-    } catch {
-      api.clearAuthToken();
-      set({ user: null, token: null, isAuthenticated: false });
-    } finally {
-      set({ isLoading: false });
+    if (bootstrapPromise) {
+      return bootstrapPromise;
     }
+
+    bootstrapPromise = (async () => {
+      set({ isLoading: true });
+      try {
+        const session = await api.refreshSession();
+        const user = await api.getCurrentUser();
+        set({
+          user,
+          accessToken: session.accessToken,
+          isAuthenticated: true,
+          hasBootstrapped: true,
+        });
+      } catch {
+        api.clearAuthToken();
+        set({
+          user: null,
+          accessToken: null,
+          isAuthenticated: false,
+          hasBootstrapped: true,
+        });
+      } finally {
+        set({ isLoading: false });
+        bootstrapPromise = null;
+      }
+    })();
+
+    return bootstrapPromise;
   },
 }));
+
+setAuthFailureHandler(() => {
+  api.clearAuthToken();
+  useAuthStore.setState({
+    user: null,
+    accessToken: null,
+    isAuthenticated: false,
+    isLoading: false,
+    hasBootstrapped: true,
+  });
+});

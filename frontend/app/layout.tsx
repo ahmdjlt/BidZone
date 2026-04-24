@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, DM_Serif_Display } from "next/font/google";
+import AuthBootstrapper from "@/components/auth/AuthBootstrapper";
 import ThemeProvider from "@/components/ThemeProvider";
 import "./globals.css";
 
@@ -37,7 +38,10 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${dmSerif.variable} antialiased`}
       >
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <AuthBootstrapper />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

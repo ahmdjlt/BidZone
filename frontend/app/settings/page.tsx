@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import RequireAuth from "@/components/auth/RequireAuth";
 import { useTheme } from "@/components/ThemeProvider";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -392,10 +393,11 @@ export default function SettingsPage() {
   }[activeTab];
 
   return (
-    <div className="page-gradient min-h-screen">
-      <Navbar />
+    <RequireAuth>
+      <div className="page-gradient min-h-screen">
+        <Navbar />
 
-      <main className="mx-auto w-full max-w-[1440px] px-6 py-10 sm:px-10">
+        <main className="mx-auto w-full max-w-[1440px] px-6 py-10 sm:px-10">
         <div className="flex flex-col gap-10 lg:flex-row">
           {/* Sidebar nav */}
           <nav className="shrink-0 lg:w-52">
@@ -425,9 +427,10 @@ export default function SettingsPage() {
             {panel}
           </div>
         </div>
-      </main>
+        </main>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </RequireAuth>
   );
 }

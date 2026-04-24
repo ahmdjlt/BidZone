@@ -77,7 +77,7 @@ export default function Navbar() {
   const [authModal, setAuthModal]   = useState<"login" | "register" | null>(null);
   const lastScrollY                 = useRef(0);
   const userDropdownRef             = useRef<HTMLDivElement>(null);
-  const { user, isAuthenticated, checkAuth, logout } = useAuthStore();
+  const { user, isAuthenticated, hasBootstrapped, isLoading, logout } = useAuthStore();
 
   const displayName = user?.fullName || user?.username || "User";
   const initials = displayName
@@ -108,11 +108,8 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
-  useEffect(() => {
-    void checkAuth();
-  }, [checkAuth]);
-
   const closeAll = () => { setUserOpen(false); setMenuOpen(false); };
+  const authReady = hasBootstrapped && !isLoading;
 
   const sectionLabel = (label: MenuSection) => (
     <p className="mb-1 mt-3 px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-text-muted first:mt-0">
@@ -153,7 +150,9 @@ export default function Navbar() {
             {/* Right side */}
             <div className="flex shrink-0 items-center gap-1.5 ml-auto">
 
-              {isAuthenticated ? (
+              {!authReady ? (
+                <div className="h-9 w-24 rounded-xl bg-accent-soft/60" />
+              ) : isAuthenticated ? (
                 <>
                   {/* Language */}
                   <button

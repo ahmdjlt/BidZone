@@ -3,6 +3,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import RequireAuth from "@/components/auth/RequireAuth";
 
 const categories = ["Collectibles", "Electronics", "Art", "Sports Cards", "Gear", "Books", "Home Design", "Other"];
 const durations = ["1 day", "3 days", "5 days", "7 days", "10 days", "14 days"];
@@ -92,7 +93,8 @@ export default function CreateAuctionPage() {
   const [duration, setDuration] = useState("7 days");
 
   return (
-    <>
+    <RequireAuth allowedRoles={["Seller", "Admin"]} fallbackPath="/dashboard">
+      <>
       {/* Header */}
       <div className="mb-8">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
@@ -216,6 +218,7 @@ export default function CreateAuctionPage() {
           </div>
         </form>
       </div>
-    </>
+      </>
+    </RequireAuth>
   );
 }

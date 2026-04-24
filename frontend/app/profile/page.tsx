@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import RequireAuth from "@/components/auth/RequireAuth";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
@@ -605,10 +606,11 @@ export default function ProfilePage() {
   }[activeTab];
 
   return (
-    <div className="page-gradient min-h-screen">
-      <Navbar />
+    <RequireAuth>
+      <div className="page-gradient min-h-screen">
+        <Navbar />
 
-      <main className="mx-auto w-full max-w-[1440px] px-6 py-10 sm:px-10">
+        <main className="mx-auto w-full max-w-[1440px] px-6 py-10 sm:px-10">
         {/* Profile header */}
         <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-5">
@@ -658,9 +660,10 @@ export default function ProfilePage() {
             {panel}
           </div>
         </div>
-      </main>
+        </main>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </RequireAuth>
   );
 }

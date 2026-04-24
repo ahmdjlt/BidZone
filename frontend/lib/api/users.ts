@@ -1,82 +1,59 @@
 import type { User, AuthResponse, LoginRequest, RegisterRequest } from "@/types/user";
 import type { WatchlistItem, DashboardStats, BidActivity } from "@/types/auction";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5171";
-const TOKEN_STORAGE_KEY = "bidzone.auth.token";
+import {
+  apiFetch,
+  clearAccessToken,
+  getAccessToken,
+  refreshAccessToken,
+  setAccessToken,
+} from "@/lib/api/client";
 
 export function getAuthToken(): string | null {
-  if (typeof window === "undefined") return null;
-
-  try {
-    return window.localStorage.getItem(TOKEN_STORAGE_KEY);
-  } catch {
-    return null;
-  }
-}
-
-export function setAuthToken(token: string): void {
-  if (typeof window === "undefined") return;
-
-  window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
+  return getAccessToken();
 }
 
 export function clearAuthToken(): void {
-  if (typeof window === "undefined") return;
-
-  window.localStorage.removeItem(TOKEN_STORAGE_KEY);
-}
-
-async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
-  const token = getAuthToken();
-  const headers = new Headers(options?.headers);
-  if (!headers.has("Content-Type")) {
-    headers.set("Content-Type", "application/json");
-  }
-  if (token && !headers.has("Authorization")) {
-    headers.set("Authorization", `Bearer ${token}`);
-  }
-
-  const res = await fetch(`${API_BASE}${url}`, {
-    headers,
-    ...options,
-  });
-
-  if (!res.ok) {
-    const contentType = res.headers.get("content-type") ?? "";
-    if (contentType.includes("application/json")) {
-      const body = await res.json().catch(() => null);
-      const message =
-        body?.message
-        ?? (Array.isArray(body?.errors) ? body.errors.join(" ") : null)
-        ?? `Request failed: ${res.status}`;
-      throw new Error(message);
-    }
-
-    const body = await res.text().catch(() => "");
-    throw new Error(body || `Request failed: ${res.status}`);
-  }
-
-  if (res.status === 204) return undefined as T;
-  return res.json();
+  clearAccessToken();
 }
 
 // Auth
 export async function login(data: LoginRequest): Promise<AuthResponse> {
-  return apiFetch<AuthResponse>("/api/auth/login", {
+  const session = await apiFetch<AuthResponse>("/api/auth/login", {
     method: "POST",
     body: JSON.stringify(data),
+    retryOnAuthFailure: false,
+    skipAuth: true,
   });
+  setAccessToken(session.accessToken);
+  return session;
 }
 
 export async function register(data: RegisterRequest): Promise<AuthResponse> {
-  return apiFetch<AuthResponse>("/api/auth/register", {
+  const session = await apiFetch<AuthResponse>("/api/auth/register", {
     method: "POST",
     body: JSON.stringify(data),
+    retryOnAuthFailure: false,
+    skipAuth: true,
   });
+  setAccessToken(session.accessToken);
+  return session;
+}
+
+export async function refreshSession(): Promise<AuthResponse> {
+  const session = await refreshAccessToken();
+  if (!session) {
+    throw new Error("Session refresh failed.");
+  }
+
+  return session;
 }
 
 export async function logout(): Promise<void> {
-  return apiFetch<void>("/api/auth/logout", { method: "POST" });
+  try {
+    await apiFetch<void>("/api/auth/logout", { method: "POST" });
+  } finally {
+    clearAccessToken();
+  }
 }
 
 export async function getCurrentUser(): Promise<User> {

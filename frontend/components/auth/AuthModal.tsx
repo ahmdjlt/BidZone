@@ -1,16 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 
 interface AuthModalProps {
+  closeOnSuccess?: boolean;
   onClose: () => void;
   initialView?: "login" | "register";
+  redirectTo?: string;
 }
 
-export default function AuthModal({ onClose, initialView = "login" }: AuthModalProps) {
+export default function AuthModal({
+  closeOnSuccess = true,
+  onClose,
+  initialView = "login",
+  redirectTo = "/profile",
+}: AuthModalProps) {
   const [view, setView] = useState<"login" | "register">(initialView);
   const [rememberMe, setRememberMe] = useState(false);
   const [fullName, setFullName] = useState("");
@@ -18,10 +25,21 @@ export default function AuthModal({ onClose, initialView = "login" }: AuthModalP
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const role = "Buyer";
+  const [role, setRole] = useState<"Buyer" | "Seller">("Buyer");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { login, register, isLoading } = useAuthStore();
+  const { bootstrapAuth, hasBootstrapped, isAuthenticated, isLoading, login, register } = useAuthStore();
+
+  useEffect(() => {
+    if (!hasBootstrapped) {
+      void bootstrapAuth();
+      return;
+    }
+
+    if (isAuthenticated) {
+      router.replace(redirectTo);
+    }
+  }, [bootstrapAuth, hasBootstrapped, isAuthenticated, redirectTo, router]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -45,8 +63,10 @@ export default function AuthModal({ onClose, initialView = "login" }: AuthModalP
         });
       }
 
-      onClose();
-      router.push("/profile");
+      if (closeOnSuccess) {
+        onClose();
+      }
+      router.push(redirectTo);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Authentication failed.");
     }
@@ -151,6 +171,22 @@ export default function AuthModal({ onClose, initialView = "login" }: AuthModalP
                 className="w-full rounded-lg border border-border-strong bg-surface-alt px-3 py-2 text-sm text-text-heading placeholder:text-text-muted transition focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
                 required
               />
+              <div className="grid grid-cols-2 gap-2">
+                {(["Buyer", "Seller"] as const).map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setRole(option)}
+                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
+                      role === option
+                        ? "border-accent bg-accent-soft text-accent"
+                        : "border-border-strong bg-surface-alt text-text-heading hover:bg-accent-soft/40"
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
             </>
           )}
 
