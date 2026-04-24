@@ -4,7 +4,7 @@
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace BidZone.Domains.Migrations
+namespace BidZone.DataAccess.Migrations
 {
     /// <inheritdoc />
     public partial class SyncCategorySeedsWithFrontend : Migration

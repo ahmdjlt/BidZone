@@ -1,3 +1,4 @@
+using BidZone.BusinessLogic.Functions.Auth;
 using BidZone.BusinessLogic.Interface;
 using BidZone.BusinessLogic.Structure;
 
@@ -7,7 +8,7 @@ public class BusinessLogic : IBusinessLogic
 {
     public BusinessLogic() { }
 
-    public IAuthLogic AuthAction() => new AuthExecution();
+    public IAuthLogic AuthAction() => new AuthFlow();
     public IAuctionLogic AuctionAction() => new AuctionExecution();
     public IBidLogic BidAction() => new BidExecution();
     public ICategoryLogic CategoryAction() => new CategoryExecution();

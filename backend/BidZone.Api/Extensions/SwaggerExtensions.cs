@@ -21,6 +21,10 @@ public static class SwaggerExtensions
             };
 
             options.AddSecurityDefinition("Bearer", securityScheme);
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecuritySchemeReference("Bearer", document, "JWT bearer token")] = new List<string>()
+            });
         });
 
         return services;

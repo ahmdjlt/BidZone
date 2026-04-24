@@ -1,4 +1,5 @@
-using BidZone.Domains;
+using BidZone.BusinessLogic.Core.Auth;
+using BidZone.DataAccess.Context;
 using BidZone.Domains.DTOs;
 using BidZone.Domains.Responses;
 using Microsoft.EntityFrameworkCore;
@@ -31,8 +32,8 @@ public class UserLogic
 
         var newUsername = dto.Username.Trim();
         var newEmail = dto.Email.Trim();
-        var normalizedUsername = AuthLogic.Normalize(newUsername);
-        var normalizedEmail = AuthLogic.Normalize(newEmail);
+        var normalizedUsername = AuthActions.Normalize(newUsername);
+        var normalizedEmail = AuthActions.Normalize(newEmail);
 
         var conflict = await db.Users.AnyAsync(u =>
             u.Id != id &&
@@ -60,12 +61,23 @@ public class UserLogic
     internal async Task<ActionResponse> DeleteExecution(int id)
     {
         using var db = new AppDbContext();
-        var user = await db.Users.FindAsync(id);
+        var user = await db.Users
+            .Include(u => u.RefreshTokens)
+            .FirstOrDefaultAsync(u => u.Id == id);
         if (user == null)
             return ActionResponse.Failure("User was not found.");
 
         user.IsActive = false;
         user.SecurityStamp = Guid.NewGuid().ToString();
+        user.ConcurrencyStamp = Guid.NewGuid().ToString();
+
+        var now = DateTime.UtcNow;
+        foreach (var refreshToken in user.RefreshTokens.Where(r => !r.RevokedAtUtc.HasValue && r.ExpiresAtUtc > now))
+        {
+            refreshToken.RevokedAtUtc = now;
+            refreshToken.Reason = "User deactivated.";
+        }
+
         await db.SaveChangesAsync();
         return ActionResponse.Success("User deleted successfully.");
     }

@@ -18,7 +18,7 @@ public class JwtTokenService
             throw new InvalidOperationException("JWT signing key must be configured and at least 32 bytes long.");
         }
 
-        var expiresAtUtc = DateTime.UtcNow.AddMinutes(JwtOptionsHolder.ExpirationMinutes);
+        var expiresAtUtc = DateTime.UtcNow.AddMinutes(JwtOptionsHolder.AccessTokenMinutes);
         var credentials = new SigningCredentials(
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
             SecurityAlgorithms.HmacSha256);
@@ -26,6 +26,7 @@ public class JwtTokenService
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Name, user.UserName ?? string.Empty),
             new(ClaimTypes.Email, user.Email ?? string.Empty),
@@ -45,7 +46,7 @@ public class JwtTokenService
 
         return new JwtTokenResult
         {
-            Token = new JwtSecurityTokenHandler().WriteToken(token),
+            AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
             ExpiresAtUtc = expiresAtUtc
         };
     }

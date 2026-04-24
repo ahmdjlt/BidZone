@@ -1,6 +1,36 @@
 @BidZone.Api_HostAddress = http://localhost:5171
 
-GET {{BidZone.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+POST {{BidZone.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "buyer1@bidzone.com",
+  "password": "Buyer123A"
+}
 
 ###
+
+POST {{BidZone.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "new-seller",
+  "fullName": "New Seller",
+  "email": "seller@bidzone.com",
+  "password": "Seller123A",
+  "role": "Seller"
+}
+
+###
+
+GET {{BidZone.Api_HostAddress}}/api/auth/me
+Authorization: Bearer {{accessToken}}
+
+###
+
+POST {{BidZone.Api_HostAddress}}/api/auth/refresh
+
+###
+
+POST {{BidZone.Api_HostAddress}}/api/auth/logout
+Authorization: Bearer {{accessToken}}

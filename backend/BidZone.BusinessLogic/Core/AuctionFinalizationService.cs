@@ -1,4 +1,4 @@
-using BidZone.Domains;
+using BidZone.DataAccess.Context;
 using BidZone.Domains.Entities;
 using Microsoft.EntityFrameworkCore;
 

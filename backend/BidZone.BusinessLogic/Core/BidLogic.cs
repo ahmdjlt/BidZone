@@ -1,6 +1,6 @@
 using BidZone.BusinessLogic.Interface;
 using BidZone.BusinessLogic.Structure;
-using BidZone.Domains;
+using BidZone.DataAccess.Context;
 using BidZone.Domains.DTOs;
 using BidZone.Domains.Entities;
 using Microsoft.EntityFrameworkCore;

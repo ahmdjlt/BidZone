@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace BidZone.Domains.Migrations
+namespace BidZone.DataAccess.Migrations
 {
     /// <inheritdoc />
     public partial class AlignWithFrontendRedesign : Migration

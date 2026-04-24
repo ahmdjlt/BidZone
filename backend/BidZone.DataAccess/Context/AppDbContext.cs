@@ -3,7 +3,7 @@ using BidZone.Domains.Seeds;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace BidZone.Domains;
+namespace BidZone.DataAccess.Context;
 
 public class AppDbContext : IdentityUserContext<User, int>
 {
@@ -14,14 +14,29 @@ public class AppDbContext : IdentityUserContext<User, int>
     public DbSet<Auction> Auctions => Set<Auction>();
     public DbSet<Bid> Bids => Set<Bid>();
     public DbSet<Category> Categories => Set<Category>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<WatchlistItem> WatchlistItems => Set<WatchlistItem>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        if (!optionsBuilder.IsConfigured)
+        if (optionsBuilder.IsConfigured)
         {
-            optionsBuilder.UseNpgsql(DbSession.ConnectionString);
+            return;
         }
+
+        var connectionString = DbSession.ConnectionString;
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new InvalidOperationException("Database connection string has not been configured.");
+        }
+
+        if (DbSession.IsSqliteConnectionString(connectionString))
+        {
+            optionsBuilder.UseSqlite(connectionString);
+            return;
+        }
+
+        optionsBuilder.UseNpgsql(connectionString);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -39,6 +54,22 @@ public class AppDbContext : IdentityUserContext<User, int>
             e.Property(u => u.Role).HasMaxLength(20);
             e.HasIndex(u => u.NormalizedEmail).IsUnique();
             e.HasIndex(u => u.NormalizedUserName).IsUnique();
+        });
+
+        modelBuilder.Entity<RefreshToken>(e =>
+        {
+            e.ToTable("RefreshTokens");
+            e.Property(r => r.TokenHash).HasMaxLength(128).IsRequired();
+            e.Property(r => r.ReplacedByTokenHash).HasMaxLength(128);
+            e.Property(r => r.CreatedByIp).HasMaxLength(64);
+            e.Property(r => r.RevokedByIp).HasMaxLength(64);
+            e.Property(r => r.Reason).HasMaxLength(200);
+            e.HasIndex(r => r.TokenHash).IsUnique();
+            e.HasIndex(r => new { r.UserId, r.ExpiresAtUtc });
+            e.HasOne(r => r.User)
+                .WithMany(u => u.RefreshTokens)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Auction>(e =>

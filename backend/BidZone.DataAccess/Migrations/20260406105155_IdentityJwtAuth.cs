@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace BidZone.Domains.Migrations
+namespace BidZone.DataAccess.Migrations
 {
     /// <inheritdoc />
     public partial class IdentityJwtAuth : Migration

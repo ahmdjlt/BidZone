@@ -17,5 +17,6 @@ public class User : IdentityUser<int>
 
     public ICollection<Auction> Auctions { get; set; } = new List<Auction>();
     public ICollection<Bid> Bids { get; set; } = new List<Bid>();
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     public ICollection<WatchlistItem> WatchlistItems { get; set; } = new List<WatchlistItem>();
 }
