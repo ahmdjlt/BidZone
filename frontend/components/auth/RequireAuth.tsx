@@ -18,13 +18,11 @@ export default function RequireAuth({
 }: RequireAuthProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { bootstrapAuth, hasBootstrapped, isAuthenticated, isLoading, user } = useAuthStore((state) => ({
-    bootstrapAuth: state.bootstrapAuth,
-    hasBootstrapped: state.hasBootstrapped,
-    isAuthenticated: state.isAuthenticated,
-    isLoading: state.isLoading,
-    user: state.user,
-  }));
+  const bootstrapAuth = useAuthStore((state) => state.bootstrapAuth);
+  const hasBootstrapped = useAuthStore((state) => state.hasBootstrapped);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     if (!hasBootstrapped) {
