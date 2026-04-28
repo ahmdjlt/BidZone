@@ -74,9 +74,11 @@ export default function Navbar() {
   const [visible, setVisible]       = useState(true);
   const [menuOpen, setMenuOpen]     = useState(false);
   const [userOpen, setUserOpen]     = useState(false);
+  const [personOpen, setPersonOpen] = useState(false);
   const [authModal, setAuthModal]   = useState<"login" | "register" | null>(null);
   const lastScrollY                 = useRef(0);
   const userDropdownRef             = useRef<HTMLDivElement>(null);
+  const personDropdownRef           = useRef<HTMLDivElement>(null);
   const { user, isAuthenticated, hasBootstrapped, isLoading, logout } = useAuthStore();
 
   const displayName = user?.fullName || user?.username || "User";
@@ -103,12 +105,15 @@ export default function Navbar() {
       if (userDropdownRef.current && !userDropdownRef.current.contains(e.target as Node)) {
         setUserOpen(false);
       }
+      if (personDropdownRef.current && !personDropdownRef.current.contains(e.target as Node)) {
+        setPersonOpen(false);
+      }
     };
     document.addEventListener("mousedown", onClickOutside);
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
-  const closeAll = () => { setUserOpen(false); setMenuOpen(false); };
+  const closeAll = () => { setUserOpen(false); setMenuOpen(false); setPersonOpen(false); };
   const authReady = hasBootstrapped && !isLoading;
 
   const sectionLabel = (label: MenuSection) => (
@@ -165,16 +170,56 @@ export default function Navbar() {
                     <span className="text-xs font-semibold">EN</span>
                   </button>
 
-                  {/* Hamburger (mobile) */}
-                  <button
-                    onClick={() => setMenuOpen((prev) => !prev)}
-                    aria-label="Toggle menu"
-                    className="flex h-9 w-9 flex-col items-center justify-center gap-[5px] rounded-lg transition hover:bg-accent-soft sm:hidden"
-                  >
-                    <span className={`block h-[2px] w-5 rounded-full bg-text-heading transition-transform duration-300 ${menuOpen ? "translate-y-[7px] rotate-45" : ""}`} />
-                    <span className={`block h-[2px] w-5 rounded-full bg-text-heading transition-opacity duration-300 ${menuOpen ? "opacity-0" : ""}`} />
-                    <span className={`block h-[2px] w-5 rounded-full bg-text-heading transition-transform duration-300 ${menuOpen ? "-translate-y-[7px] -rotate-45" : ""}`} />
-                  </button>
+                  {/* Person menu (mobile) */}
+                  <div ref={personDropdownRef} className="relative sm:hidden">
+                    <button
+                      onClick={() => setPersonOpen((v) => !v)}
+                      aria-label="Account menu"
+                      className="flex h-9 w-9 items-center justify-center rounded-lg text-text-heading transition hover:bg-accent-soft"
+                    >
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <circle cx="12" cy="8" r="4" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 21a8 8 0 0116 0" />
+                      </svg>
+                    </button>
+
+                    {personOpen && (
+                      <div className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-lg border border-border-strong bg-card-bg shadow-[0_20px_60px_-20px_var(--card-shadow)]">
+                        <div className="flex items-center gap-3 border-b border-border px-4 py-3">
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#1a4fa0,#3b7dd8)] text-xs font-black tracking-wide text-white">
+                            {initials}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-text-heading">{displayName}</p>
+                            <p className="truncate text-xs text-text-muted">{email}</p>
+                          </div>
+                        </div>
+                        <div className="px-2 py-2">
+                          <MenuLink
+                            href="/profile"
+                            label="Profile"
+                            icon={<path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />}
+                            onClick={closeAll}
+                          />
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              closeAll();
+                              await logout();
+                            }}
+                            className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-red-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
+                          >
+                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-red-50 dark:bg-red-950/30">
+                              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1" />
+                              </svg>
+                            </span>
+                            Log out
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   {/* User dropdown trigger */}
                   <div ref={userDropdownRef} className="relative">
@@ -259,15 +304,16 @@ export default function Navbar() {
                   >
                     Sign Up
                   </button>
-                  {/* Hamburger */}
+                  {/* Person menu */}
                   <button
                     onClick={() => setMenuOpen((prev) => !prev)}
                     aria-label="Toggle menu"
-                    className="ml-1 flex h-9 w-9 flex-col items-center justify-center gap-[5px] rounded-lg transition hover:bg-accent-soft"
+                    className="ml-1 flex h-9 w-9 items-center justify-center rounded-lg text-text-heading transition hover:bg-accent-soft"
                   >
-                    <span className={`block h-[2px] w-5 rounded-full bg-text-heading transition-transform duration-300 ${menuOpen ? "translate-y-[7px] rotate-45" : ""}`} />
-                    <span className={`block h-[2px] w-5 rounded-full bg-text-heading transition-opacity duration-300 ${menuOpen ? "opacity-0" : ""}`} />
-                    <span className={`block h-[2px] w-5 rounded-full bg-text-heading transition-transform duration-300 ${menuOpen ? "-translate-y-[7px] -rotate-45" : ""}`} />
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <circle cx="12" cy="8" r="4" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 21a8 8 0 0116 0" />
+                    </svg>
                   </button>
                 </>
               )}
