@@ -6,6 +6,8 @@ import Link from "next/link";
 import RequireAuth from "@/components/auth/RequireAuth";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { useAuthStore } from "@/store/authStore";
+import type { User } from "@/types/user";
 
 type Tab = "overview" | "auction-history" | "reviews" | "favourites" | "bids" | "offers" | "orders" | "watchlist" | "sales" | "in-auction" | "submissions" | "sold" | "not-sold" | "payments" | "analytics";
 
@@ -27,14 +29,53 @@ const tabs: { id: Tab; label: string }[] = [
   { id: "reviews",         label: "Reviews" },
 ];
 
-const profile = {
-  name: "User",
-  initials: "U",
-  joinDate: "Member since March 2024",
-  bio: "Collector of rare watches, vintage cameras, and sports memorabilia. Passionate about finding unique items and connecting with fellow enthusiasts.",
-  location: "Algiers, Algeria",
-  email: "user@bidzone.com",
-};
+interface ProfileViewModel {
+  name: string;
+  initials: string;
+  username: string;
+  email: string;
+  role: User["role"];
+  status: string;
+  joinDate: string;
+}
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) {
+    return "U";
+  }
+
+  return parts
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
+function formatJoinDate(createdAt: string): string {
+  const date = new Date(createdAt);
+  if (Number.isNaN(date.getTime())) {
+    return "Recently";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    year: "numeric",
+  }).format(date);
+}
+
+function buildProfile(user: User | null): ProfileViewModel {
+  const fallbackName = user?.fullName?.trim() || user?.username?.trim() || "User";
+
+  return {
+    name: fallbackName,
+    initials: getInitials(fallbackName),
+    username: user?.username ?? "user",
+    email: user?.email ?? "No email available",
+    role: user?.role ?? "Buyer",
+    status: user?.isActive === false ? "Inactive" : "Active",
+    joinDate: user ? formatJoinDate(user.createdAt) : "Recently",
+  };
+}
 
 const profileStats = [
   { label: "Auctions Created", value: "34" },
@@ -78,7 +119,7 @@ function StarRating({ rating }: { rating: number }) {
 
 // ─── Tab panels ──────────────────────────────────────────────────────────────
 
-function OverviewTab() {
+function OverviewTab({ profile }: { profile: ProfileViewModel }) {
   return (
     <div>
       <h2 className="text-xl font-semibold tracking-tight text-text-heading">Overview</h2>
@@ -89,16 +130,24 @@ function OverviewTab() {
           <p className="mt-1 text-sm text-text-heading">{profile.name}</p>
         </div>
         <div className="border-b border-border py-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">Location</p>
-          <p className="mt-1 text-sm text-text-heading">{profile.location}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">Username</p>
+          <p className="mt-1 text-sm text-text-heading">@{profile.username}</p>
+        </div>
+        <div className="border-b border-border py-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">Email</p>
+          <p className="mt-1 text-sm text-text-heading">{profile.email}</p>
+        </div>
+        <div className="border-b border-border py-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">Role</p>
+          <p className="mt-1 text-sm text-text-heading">{profile.role}</p>
+        </div>
+        <div className="border-b border-border py-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">Status</p>
+          <p className="mt-1 text-sm text-text-heading">{profile.status}</p>
         </div>
         <div className="border-b border-border py-5">
           <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">Member since</p>
-          <p className="mt-1 text-sm text-text-heading">March 2024</p>
-        </div>
-        <div className="border-b border-border py-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">Bio</p>
-          <p className="mt-1 text-sm leading-relaxed text-text-heading">{profile.bio}</p>
+          <p className="mt-1 text-sm text-text-heading">{profile.joinDate}</p>
         </div>
       </div>
 
@@ -586,9 +635,11 @@ function AnalyticsTab() {
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<Tab>("overview");
+  const user = useAuthStore((state) => state.user);
+  const profile = buildProfile(user);
 
   const panel = {
-    "overview":        <OverviewTab />,
+    "overview":        <OverviewTab profile={profile} />,
     "favourites":      <FavouritesTab />,
     "bids":            <BidsTab />,
     "offers":          <OffersTab />,
@@ -620,9 +671,11 @@ export default function ProfilePage() {
             <div>
               <h1 className="text-2xl font-semibold tracking-tight text-text-heading">{profile.name}</h1>
               <div className="mt-0.5 flex flex-wrap items-center gap-2 text-sm text-text-muted">
-                <span>{profile.location}</span>
+                <span>@{profile.username}</span>
                 <span className="h-1 w-1 rounded-full bg-text-muted/50" />
-                <span>{profile.joinDate}</span>
+                <span>{profile.role}</span>
+                <span className="h-1 w-1 rounded-full bg-text-muted/50" />
+                <span>Member since {profile.joinDate}</span>
               </div>
             </div>
           </div>
