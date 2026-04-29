@@ -973,12 +973,7 @@ export default function ProfilePage() {
   const user = useAuthStore((state) => state.user);
   const profile = buildProfile(user);
   const availableTabs = getTabs(user?.role);
-
-  useEffect(() => {
-    if (!availableTabs.some((tab) => tab.id === activeTab)) {
-      setActiveTab("overview");
-    }
-  }, [activeTab, availableTabs]);
+  const selectedTab = availableTabs.some((tab) => tab.id === activeTab) ? activeTab : "overview";
 
   useEffect(() => {
     if (!user) {
@@ -986,10 +981,11 @@ export default function ProfilePage() {
     }
 
     let cancelled = false;
+    const currentUser = user;
 
     async function loadProfileData() {
-      const canSell = user.role === "Seller" || user.role === "Admin";
-      const isAdmin = user.role === "Admin";
+      const canSell = currentUser.role === "Seller" || currentUser.role === "Admin";
+      const isAdmin = currentUser.role === "Admin";
 
       const [
         watchlistResult,
@@ -1139,7 +1135,7 @@ export default function ProfilePage() {
         },
         {
           label: "Live auctions",
-          value: formatCount(data.platformActiveAuctions.length || data.dashboardStats?.activeAuctions ?? 0),
+          value: formatCount(data.platformActiveAuctions.length || (data.dashboardStats?.activeAuctions ?? 0)),
         },
         {
           label: "Revenue closed",
@@ -1233,7 +1229,7 @@ export default function ProfilePage() {
         isLoading={data.isLoading}
       />
     ),
-  }[activeTab];
+  }[selectedTab];
 
   return (
     <RequireAuth>
@@ -1279,7 +1275,7 @@ export default function ProfilePage() {
                     <button
                       onClick={() => setActiveTab(tab.id)}
                       className={`flex w-full items-center whitespace-nowrap py-2.5 text-sm font-medium transition-colors ${
-                        activeTab === tab.id
+                        selectedTab === tab.id
                           ? "border-l-2 border-accent pl-4 text-text-heading"
                           : "pl-[18px] text-text-muted hover:text-text-heading"
                       }`}
