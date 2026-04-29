@@ -86,6 +86,32 @@ export default function AuctionsPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (!isFilterOpen) {
+      return;
+    }
+
+    const scrollY = window.scrollY;
+    const { body } = document;
+    const previousOverflow = body.style.overflow;
+    const previousPosition = body.style.position;
+    const previousTop = body.style.top;
+    const previousWidth = body.style.width;
+
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.width = "100%";
+
+    return () => {
+      body.style.overflow = previousOverflow;
+      body.style.position = previousPosition;
+      body.style.top = previousTop;
+      body.style.width = previousWidth;
+      window.scrollTo(0, scrollY);
+    };
+  }, [isFilterOpen]);
+
   const filtered =
     activeCategorySlug === null
       ? allAuctions
@@ -310,7 +336,7 @@ export default function AuctionsPage() {
             </div>
 
             {/* Filter list */}
-            <div className="flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="flex-1 overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {filterSections.map((filter) => (
                 <button
                   key={filter.key}
