@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BidZone Frontend
 
-## Getting Started
+Next.js frontend for BidZone auctions.
 
-First, run the development server:
+## Backend-Connected Flows
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+The following pages are now connected to the backend API:
+
+- `/auctions`:
+  - Loads auctions from `GET /api/auctions`
+  - Uses category + price filters and backend sort params
+  - Shows loading/error/empty states from real API responses
+- `/auctions/[id]`:
+  - Loads auction details from `GET /api/auctions/{id}`
+  - Loads bid history from `GET /api/bids/auction/{id}`
+  - Places bids through `POST /api/bids`
+- `/create-listing`:
+  - Loads categories from `GET /api/categories`
+  - Creates listings with `POST /api/auctions`
+  - Redirects to the created auction detail page
+
+## Realtime Behavior
+
+- Auction detail uses polling every 5 seconds while an auction is `Active`.
+- Polling refreshes both auction details and bid history.
+- Websocket-based realtime is intentionally deferred in this pass.
+- Existing socket utilities are currently not wired to backend realtime events.
+
+## Environment
+
+Create `.env.local` in `frontend/`:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5171
+NEXT_PUBLIC_SOCKET_URL=http://localhost:5171
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`NEXT_PUBLIC_SOCKET_URL` is kept for future websocket integration.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Local Run
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+From `frontend/`:
 
-## Learn More
+```bash
+npm install
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Open `http://localhost:3000`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Verification Checklist
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Open `/auctions` and confirm live backend auction data renders.
+2. Open any `/auctions/{id}` and confirm:
+   - detail data loads
+   - bid history loads
+   - placing a bid updates UI after success
+3. Open `/create-listing` as `Seller` or `Admin` and confirm:
+   - categories load
+   - listing creation succeeds
+   - redirect lands on the new auction detail page
+4. Keep an active auction detail page open and confirm periodic refresh every 5 seconds.
