@@ -1,6 +1,27 @@
+# Environment files
 .env
-.claude/
+.env.*
+!.env.example
+
+# Build artifacts
 **/bin/
 **/obj/
+**/TestResults/
+**/artifacts/
+
+# User/IDE files
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+
+# Logs and local cache
+*.log
+*.cache
+
+# Workspace/frontend local folders
+.claude/
 node_modules/
 .next/

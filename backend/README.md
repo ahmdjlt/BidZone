@@ -26,7 +26,20 @@ BidZone.Api  →  BidZone.BusinessLogic  →  BidZone.DataAccess  →  BidZone.D
 
 ## Setup
 
-1. **Update the connection string** in `BidZone.Api/appsettings.json`:
+1. **Configure environment values** (recommended via `BidZone.Api/.env`):
+
+   ```env
+   DATABASE_URL=Host=localhost;Port=5432;Database=bidzone;Username=postgres;Password=postgres
+   FRONTEND_URL=http://localhost:3000
+   JWT_ISSUER=BidZone.Api
+   JWT_AUDIENCE=BidZone.Frontend
+   JWT_KEY=BidZone.Dev.Jwt.Key.2026.Change.This.To.A.Real.Secret
+   JWT_ACCESS_TOKEN_MINUTES=15
+   JWT_REFRESH_TOKEN_DAYS=7
+   JWT_REFRESH_COOKIE_NAME=bidzone.refresh
+   ```
+
+   The API also supports `ConnectionStrings:DefaultConnection` in `BidZone.Api/appsettings.json`:
 
    ```json
    "ConnectionStrings": {
@@ -34,12 +47,11 @@ BidZone.Api  →  BidZone.BusinessLogic  →  BidZone.DataAccess  →  BidZone.D
    }
    ```
 
-2. **Create the database and apply migrations**:
+2. **Apply existing migrations**:
 
    ```bash
-   cd BidZone.Api
-   dotnet ef migrations add InitialCreate
-   dotnet ef database update
+   cd backend
+   dotnet ef database update --project BidZone.DataAccess --startup-project BidZone.Api
    ```
 
 3. **Run the API**:
@@ -49,6 +61,12 @@ BidZone.Api  →  BidZone.BusinessLogic  →  BidZone.DataAccess  →  BidZone.D
    ```
 
 4. **Open Swagger UI** at `http://localhost:5171/swagger`
+
+5. **Run tests**:
+
+   ```bash
+   dotnet test BidZone.Tests/BidZone.Tests.csproj
+   ```
 
 ## Seed Data
 
@@ -65,6 +83,7 @@ The database is seeded with:
 |--------|-------|-------------|
 | POST | `/login` | Login with email/password |
 | POST | `/register` | Register new user |
+| POST | `/refresh` | Refresh session using HTTP-only cookie |
 | POST | `/logout` | Logout (auth required) |
 | GET | `/me` | Get current user (auth required) |
 
@@ -78,6 +97,7 @@ Authorization: Bearer <jwt>
 | Method | Route | Description |
 |--------|-------|-------------|
 | GET | `/` | List auctions (query: search, category, sort, status) |
+| GET | `/paged` | List auctions with pagination (`page`, `pageSize`) |
 | GET | `/{id}` | Get auction by ID |
 | POST | `/` | Create auction (Seller/Admin) |
 | PUT | `/{id}` | Update auction (Seller/Admin) |
@@ -123,22 +143,24 @@ Authorization: Bearer <jwt>
 
 ```
 backend/
-├── BidZone.sln
+├── BidZone.slnx
 ├── BidZone.Domains/
 │   ├── Entities/          # User, Auction, Bid, Category, WatchlistItem
 │   ├── DTOs/              # Request/response data transfer objects
-│   └── AppDbContext.cs    # EF Core context with seed data
+│   ├── Seeds/             # Seeded users/categories/auctions
+│   └── Responses/         # Common API response models
 ├── BidZone.DataAccess/
-│   ├── Interfaces/        # Repository contracts
-│   └── Repositories/      # EF Core implementations
+│   ├── Context/           # AppDbContext
+│   └── Migrations/        # EF Core migrations
 ├── BidZone.BusinessLogic/
-│   ├── Interfaces/        # Business logic contracts
-│   ├── Core/              # BaseLogic base class
-│   ├── Logics/            # Business logic implementations
-│   └── MappingProfile.cs  # AutoMapper configuration
+│   ├── Interface/         # Business logic contracts
+│   ├── Core/              # Business rules
+│   ├── Structure/         # Concrete logic implementations
+│   └── Security/          # JWT + refresh token services
 └── BidZone.Api/
     ├── Controllers/       # 7 API controllers
-    ├── Extensions/        # ClaimsPrincipal helpers
-    ├── Program.cs         # DI, Identity, JWT, CORS, Swagger, pipeline
-    └── appsettings.json   # Configuration
+    ├── Extensions/        # Auth/CORS/Swagger helpers
+    ├── Services/          # Background services
+    ├── Program.cs         # Startup, env loading, middleware pipeline
+    └── appsettings.json   # Default configuration
 ```
