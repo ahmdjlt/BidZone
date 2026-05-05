@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 export interface AuctionPreview {
-  id: string;
+  id: number;
   title: string;
   description: string;
   location: string;

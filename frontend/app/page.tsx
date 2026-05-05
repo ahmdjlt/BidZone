@@ -9,7 +9,7 @@ import Navbar from "@/components/layout/Navbar";
 
 const featuredAuctions: AuctionPreview[] = [
   {
-    id: "rare-seiko-chrono",
+    id: 1,
     title: "Rare Seiko Chronograph",
     description: "Automatic Movement, 42mm Case, Stainless Steel Bracelet, Sapphire Crystal",
     location: "Tokyo, Japan",
@@ -22,7 +22,7 @@ const featuredAuctions: AuctionPreview[] = [
     imageAccent: "linear-gradient(135deg,#2f80ff,#8ec5ff)",
   },
   {
-    id: "psa10-jordan-rookie",
+    id: 2,
     title: "PSA 10 Jordan Rookie Card",
     description: "1986 Fleer #57, Gem Mint Condition, Authenticated & Graded",
     location: "Chicago, IL 60601",
@@ -35,7 +35,7 @@ const featuredAuctions: AuctionPreview[] = [
     imageAccent: "linear-gradient(135deg,#3d9bff,#d5ebff)",
   },
   {
-    id: "mid-century-lounge-chair",
+    id: 3,
     title: "Mid-Century Lounge Chair",
     description: "Walnut Frame, Italian Leather Cushions, Original 1960s Design",
     location: "Portland, OR 97201",
@@ -48,7 +48,7 @@ const featuredAuctions: AuctionPreview[] = [
     imageAccent: "linear-gradient(135deg,#2c6ce8,#5fc7ff)",
   },
   {
-    id: "signed-first-edition",
+    id: 4,
     title: "Signed First Edition Novel",
     description: "Hardcover, Dust Jacket Intact, Author-Signed, Near Fine Condition",
     location: "New York, NY 10001",
@@ -61,7 +61,7 @@ const featuredAuctions: AuctionPreview[] = [
     imageAccent: "linear-gradient(135deg,#105ed6,#8cbcff)",
   },
   {
-    id: "lens-master-kit",
+    id: 5,
     title: "Cinema Lens Master Kit",
     description: "3-Lens Set, PL Mount, T1.5 Aperture, Hard Carrying Case Included",
     location: "Los Angeles, CA 90028",
@@ -74,7 +74,7 @@ const featuredAuctions: AuctionPreview[] = [
     imageAccent: "linear-gradient(135deg,#1a7cf4,#88d6ff)",
   },
   {
-    id: "kit_auto",
+    id: 1,
     title: "OEM Front Bumper Kit",
     description: "Complete Assembly, Primer Finish, Fog Light Brackets, Hardware Included",
     location: "Detroit, MI 48201",

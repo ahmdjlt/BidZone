@@ -82,7 +82,7 @@ function formatEndsIn(value: string): string {
 
 function toPreview(auction: AuctionSummary): AuctionPreview {
   return {
-    id: String(auction.id),
+    id: auction.id,
     title: auction.title,
     description: `${auction.categoryName} auction`,
     location: "Online",
