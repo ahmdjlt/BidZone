@@ -11,11 +11,12 @@ export default function AuctionDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const auctionId = Number(id);
 
   return (
     <>
       <Navbar />
-      <AuctionDetailPageComponent />
+      <AuctionDetailPageComponent auctionId={Number.isNaN(auctionId) ? 0 : auctionId} />
       <Footer />
     </>
   );
