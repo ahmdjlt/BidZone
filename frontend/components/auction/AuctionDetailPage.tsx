@@ -95,6 +95,20 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
     };
   }, [loadAuction]);
 
+  useEffect(() => {
+    if (!auction || auction.status !== "Active") {
+      return;
+    }
+
+    const intervalId = setInterval(() => {
+      void loadAuction();
+    }, 5000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [auction, loadAuction]);
+
   const handlePlaceBid = useCallback(async (amount: number) => {
     if (!auction) {
       throw new Error("Auction is not available.");
