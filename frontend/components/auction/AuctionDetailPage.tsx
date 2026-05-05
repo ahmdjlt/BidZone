@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import BidForm from "./BidForm";
 import BidHistory, { type Bid as BidHistoryItem } from "./BidHistory";
 import { getAuctionById } from "@/lib/api/auctions";
-import { getBidsByAuction } from "@/lib/api/bids";
+import { getBidsByAuction, placeBid } from "@/lib/api/bids";
 import type { Auction } from "@/types/auction";
 import type { Bid } from "@/types/bid";
 
@@ -51,49 +51,63 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
   const [bids, setBids] = useState<Bid[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isBidding, setIsBidding] = useState(false);
 
-  useEffect(() => {
+  const loadAuction = useCallback(async () => {
     if (!auctionId) {
       setError("Invalid auction id.");
       setIsLoading(false);
       return;
     }
+    setIsLoading(true);
+    setError(null);
 
+    try {
+      const [auctionResponse, bidsResponse] = await Promise.all([
+        getAuctionById(auctionId),
+        getBidsByAuction(auctionId),
+      ]);
+      setAuction(auctionResponse);
+      setBids(bidsResponse);
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : "Could not load auction.");
+      setAuction(null);
+      setBids([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [auctionId]);
+
+  useEffect(() => {
     let cancelled = false;
 
-    async function loadAuction() {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const [auctionResponse, bidsResponse] = await Promise.all([
-          getAuctionById(auctionId),
-          getBidsByAuction(auctionId),
-        ]);
-
-        if (!cancelled) {
-          setAuction(auctionResponse);
-          setBids(bidsResponse);
-        }
-      } catch (loadError) {
-        if (!cancelled) {
-          setError(loadError instanceof Error ? loadError.message : "Could not load auction.");
-          setAuction(null);
-          setBids([]);
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
+    async function runLoad() {
+      await loadAuction();
+      if (cancelled) {
+        return;
       }
     }
 
-    void loadAuction();
+    void runLoad();
 
     return () => {
       cancelled = true;
     };
-  }, [auctionId]);
+  }, [loadAuction]);
+
+  const handlePlaceBid = useCallback(async (amount: number) => {
+    if (!auction) {
+      throw new Error("Auction is not available.");
+    }
+
+    setIsBidding(true);
+    try {
+      await placeBid(auction.id, amount);
+      await loadAuction();
+    } finally {
+      setIsBidding(false);
+    }
+  }, [auction, loadAuction]);
 
   const bidHistory = useMemo(() => toBidHistory(bids), [bids]);
 
@@ -190,9 +204,8 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
                 minIncrement={50}
                 totalBids={auction.bidCount}
                 endTime={auction.endTime}
-                onPlaceBid={(amount) => {
-                  console.log("Bid request prepared:", amount);
-                }}
+                onPlaceBid={handlePlaceBid}
+                disabled={auction.status !== "Active" || isBidding}
               />
             </div>
 

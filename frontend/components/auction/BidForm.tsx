@@ -8,7 +8,8 @@ interface BidFormProps {
   totalBids?: number;
   estimatedValue?: number;
   endTime?: string;
-  onPlaceBid?: (amount: number) => void;
+  onPlaceBid?: (amount: number) => Promise<void> | void;
+  disabled?: boolean;
 }
 
 function useCountdown(endTime?: string) {
@@ -45,6 +46,7 @@ export default function BidForm({
   estimatedValue,
   endTime,
   onPlaceBid,
+  disabled = false,
 }: BidFormProps) {
   const minimumBid = currentBid + minIncrement;
   const [amount, setAmount] = useState(minimumBid);
@@ -66,20 +68,28 @@ export default function BidForm({
     setError("");
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (disabled) {
+      return;
+    }
+
     if (amount < minimumBid) {
       setError(`Minimum bid is $${minimumBid.toLocaleString()}`);
       return;
     }
     setError("");
     setIsSubmitting(true);
-    setTimeout(() => {
+
+    try {
+      await onPlaceBid?.(amount);
       setIsSubmitting(false);
       setSuccess(true);
-      onPlaceBid?.(amount);
       setTimeout(() => setSuccess(false), 2000);
-    }, 800);
+    } catch (submitError) {
+      setIsSubmitting(false);
+      setError(submitError instanceof Error ? submitError.message : "Failed to place bid.");
+    }
   }
 
   return (
@@ -118,6 +128,7 @@ export default function BidForm({
               }}
               min={minimumBid}
               step={minIncrement}
+              disabled={disabled || isSubmitting}
               className="w-full rounded-lg bg-accent-soft/50 py-2.5 pl-7 pr-3 text-sm font-semibold tabular-nums text-text-heading outline-none transition-colors placeholder:text-text-muted focus:ring-2 focus:ring-accent/20"
               placeholder={minimumBid.toString()}
             />
@@ -125,6 +136,7 @@ export default function BidForm({
           <button
             type="button"
             onClick={decrement}
+            disabled={disabled || isSubmitting}
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-soft/50 text-base font-bold text-text-heading transition hover:bg-accent-soft"
           >
             −
@@ -132,6 +144,7 @@ export default function BidForm({
           <button
             type="button"
             onClick={increment}
+            disabled={disabled || isSubmitting}
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-soft/50 text-base font-bold text-text-heading transition hover:bg-accent-soft"
           >
             +
@@ -144,7 +157,7 @@ export default function BidForm({
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={disabled || isSubmitting}
           className={`w-full rounded-lg py-2.5 text-sm font-semibold text-white shadow-[0_12px_28px_-16px_rgba(16,84,209,0.85)] transition-all ${
             success
               ? "bg-green-500"
@@ -153,7 +166,7 @@ export default function BidForm({
                 : "bg-accent hover:brightness-110 active:scale-[0.98]"
           }`}
         >
-          {success ? "Bid placed!" : isSubmitting ? "Placing bid..." : "Bid now"}
+          {success ? "Bid placed!" : disabled ? "Bidding unavailable" : isSubmitting ? "Placing bid..." : "Bid now"}
         </button>
 
         {estimatedValue && (
