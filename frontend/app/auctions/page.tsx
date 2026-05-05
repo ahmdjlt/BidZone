@@ -7,6 +7,8 @@ import AuctionGrid from "@/components/auction/AuctionGrid";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import type { AuctionPreview } from "@/components/auction/AuctionCard";
+import { getAuctions } from "@/lib/api/auctions";
+import type { AuctionSummary } from "@/types/auction";
 
 const categories = [
   { label: "All", slug: null, icon: "" },
@@ -46,21 +48,61 @@ const filterSections = [
 const sortOptions = ["Price: Low → High", "Price: High → Low"] as const;
 type SortOption = (typeof sortOptions)[number];
 
-const allAuctions: AuctionPreview[] = [
-  { id: "rare-seiko-chrono", title: "Rare Seiko Chronograph", description: "Automatic Movement, 42mm Case, Stainless Steel Bracelet, Sapphire Crystal", location: "Tokyo, Japan", category: "Collectibles", currentBid: "$1,240", bids: 37, endsIn: "2h 11m", watchers: 91, imageUrl: "/auction-images/rare-seiko-chrono.svg", imageAccent: "linear-gradient(135deg,#2f80ff,#8ec5ff)" },
-  { id: "psa10-jordan-rookie", title: "PSA 10 Jordan Rookie Card", description: "1986 Fleer #57, Gem Mint Condition, Authenticated & Graded", location: "Chicago, IL 60601", category: "Sports Cards", currentBid: "$6,850", bids: 52, endsIn: "5h 44m", watchers: 138, imageUrl: "/auction-images/psa10-jordan-rookie.svg", imageAccent: "linear-gradient(135deg,#3d9bff,#d5ebff)" },
-  { id: "mid-century-lounge-chair", title: "Mid-Century Lounge Chair", description: "Walnut Frame, Italian Leather Cushions, Original 1960s Design", location: "Portland, OR 97201", category: "Home Design", currentBid: "$2,100", bids: 19, endsIn: "1d 03h", watchers: 64, imageUrl: "/auction-images/mid-century-lounge-chair.svg", imageAccent: "linear-gradient(135deg,#2c6ce8,#5fc7ff)" },
-  { id: "signed-first-edition", title: "Signed First Edition Novel", description: "Hardcover, Dust Jacket Intact, Author-Signed, Near Fine Condition", location: "New York, NY 10001", category: "Books", currentBid: "$740", bids: 26, endsIn: "8h 14m", watchers: 58, imageUrl: "/auction-images/signed-first-edition.svg", imageAccent: "linear-gradient(135deg,#105ed6,#8cbcff)" },
-  { id: "lens-master-kit", title: "Cinema Lens Master Kit", description: "3-Lens Set, PL Mount, T1.5 Aperture, Hard Carrying Case Included", location: "Los Angeles, CA 90028", category: "Gear", currentBid: "$4,920", bids: 14, endsIn: "3d 06h", watchers: 72, imageUrl: "/auction-images/lens-master-kit.svg", imageAccent: "linear-gradient(135deg,#1a7cf4,#88d6ff)" },
-  { id: "vintage-polaroid", title: "Vintage Polaroid SX-70", description: "Original Leather Case, Film Tested, Excellent Working Condition", location: "San Francisco, CA 94102", category: "Electronics", currentBid: "$380", bids: 41, endsIn: "1h 35m", watchers: 104, imageUrl: "/auction-images/vintage-polaroid.svg", imageAccent: "linear-gradient(135deg,#2468d6,#7ec4ff)" },
-  { id: "abstract-oil-canvas", title: "Abstract Oil on Canvas", description: "36x48 Gallery Wrapped, Signed by Artist, Certificate of Authenticity", location: "Miami, FL 33101", category: "Art", currentBid: "$3,200", bids: 22, endsIn: "2d 18h", watchers: 87, imageUrl: "/auction-images/abstract-oil-canvas.svg", imageAccent: "linear-gradient(135deg,#1955c0,#63b3ff)" },
-  { id: "limited-sneakers", title: "Limited Edition Air Max 1", description: "Size 10, Deadstock, Original Box & Hang Tags Included", location: "Austin, TX 78701", category: "Collectibles", currentBid: "$890", bids: 33, endsIn: "6h 02m", watchers: 112, imageUrl: "/auction-images/limited-sneakers.svg", imageAccent: "linear-gradient(135deg,#3576e8,#a2d4ff)" },
-];
+function mapSortToBackend(sort: SortOption): "price_asc" | "price_desc" {
+  return sort === "Price: High → Low" ? "price_desc" : "price_asc";
+}
+
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function formatEndsIn(value: string): string {
+  const end = new Date(value);
+  const diffMs = end.getTime() - Date.now();
+
+  if (diffMs <= 0) {
+    return "Ended";
+  }
+
+  const totalMinutes = Math.floor(diffMs / (1000 * 60));
+  const days = Math.floor(totalMinutes / (60 * 24));
+  const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+  const minutes = totalMinutes % 60;
+
+  if (days > 0) {
+    return `${days}d ${hours.toString().padStart(2, "0")}h`;
+  }
+
+  return `${hours}h ${minutes.toString().padStart(2, "0")}m`;
+}
+
+function toPreview(auction: AuctionSummary): AuctionPreview {
+  return {
+    id: String(auction.id),
+    title: auction.title,
+    description: `${auction.categoryName} auction`,
+    location: "Online",
+    category: auction.categoryName,
+    currentBid: formatCurrency(auction.currentPrice),
+    bids: auction.bidCount,
+    endsIn: formatEndsIn(auction.endTime),
+    watchers: 0,
+    imageUrl: auction.imageUrl || "/auction-images/abstract-oil-canvas.svg",
+    imageAccent: "linear-gradient(135deg,#2f80ff,#8ec5ff)",
+  };
+}
 
 export default function AuctionsPage() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [apiAuctions, setApiAuctions] = useState<AuctionSummary[]>([]);
+  const [isLoadingAuctions, setIsLoadingAuctions] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [activeSort, setActiveSort] = useState<SortOption>("Price: Low → High");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -112,13 +154,45 @@ export default function AuctionsPage() {
     };
   }, [isFilterOpen]);
 
-  const filtered =
-    activeCategorySlug === null
-      ? allAuctions
-      : allAuctions.filter((auction) => {
-          const category = categories.find((option) => option.label === auction.category);
-          return category?.slug === activeCategorySlug;
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadAuctions() {
+      setIsLoadingAuctions(true);
+      setLoadError(null);
+
+      try {
+        const isSpecialCategory = activeCategorySlug === "this-week" || activeCategorySlug === "trending";
+        const category = !isSpecialCategory ? activeCategorySlug ?? undefined : undefined;
+
+        const auctions = await getAuctions({
+          category,
+          sort: mapSortToBackend(activeSort),
+          minPrice: minPrice ? Number(minPrice) : undefined,
+          maxPrice: maxPrice ? Number(maxPrice) : undefined,
         });
+
+        if (!cancelled) {
+          setApiAuctions(auctions);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setLoadError(error instanceof Error ? error.message : "Could not load auctions.");
+          setApiAuctions([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoadingAuctions(false);
+        }
+      }
+    }
+
+    void loadAuctions();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeCategorySlug, activeSort, minPrice, maxPrice]);
 
   const handleCategoryChange = (slug: string | null) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -132,22 +206,23 @@ export default function AuctionsPage() {
   };
 
   const sortedAuctions = useMemo(() => {
-    const toNumber = (value: string) => Number(value.replace(/[^\d.]/g, ""));
-    let auctions = [...filtered];
+    let auctions = [...apiAuctions];
 
-    // Price range filter
-    const min = minPrice ? Number(minPrice) : 0;
-    const max = maxPrice ? Number(maxPrice) : Infinity;
-    if (minPrice || maxPrice) {
-      auctions = auctions.filter((a) => {
-        const price = toNumber(a.currentBid);
-        return price >= min && price <= max;
+    if (activeCategorySlug === "this-week") {
+      const now = Date.now();
+      const weekAhead = now + 7 * 24 * 60 * 60 * 1000;
+      auctions = auctions.filter((auction) => {
+        const endTime = new Date(auction.endTime).getTime();
+        return auction.status === "Active" && endTime >= now && endTime <= weekAhead;
       });
     }
 
-    if (activeSort === "Price: High → Low") return auctions.sort((a, b) => toNumber(b.currentBid) - toNumber(a.currentBid));
-    return auctions.sort((a, b) => toNumber(a.currentBid) - toNumber(b.currentBid));
-  }, [filtered, activeSort, minPrice, maxPrice]);
+    if (activeCategorySlug === "trending") {
+      auctions.sort((left, right) => right.bidCount - left.bidCount);
+    }
+
+    return auctions.map(toPreview);
+  }, [activeCategorySlug, apiAuctions]);
 
   return (
     <div className="page-gradient relative min-h-screen">
@@ -306,8 +381,21 @@ export default function AuctionsPage() {
           Showing <span className="font-semibold text-text-heading">{sortedAuctions.length}</span> auctions
         </p>
 
-        {/* Grid */}
-        <AuctionGrid auctions={sortedAuctions} />
+        {isLoadingAuctions ? (
+          <div className="rounded-xl border border-dashed border-border-strong px-5 py-7 text-sm text-text-muted">
+            Loading live auctions...
+          </div>
+        ) : loadError ? (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
+            {loadError}
+          </div>
+        ) : sortedAuctions.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-border-strong px-5 py-7 text-sm text-text-muted">
+            No auctions found for the current filters.
+          </div>
+        ) : (
+          <AuctionGrid auctions={sortedAuctions} />
+        )}
       </main>
 
       {/* Filter drawer overlay */}
