@@ -1,4 +1,6 @@
+using System.Security.Cryptography;
 using BidZone.BusinessLogic.Core;
+using BidZone.BusinessLogic.Email;
 using BidZone.BusinessLogic.Security;
 using BidZone.DataAccess.Context;
 using BidZone.Domains.Constants;
@@ -31,6 +33,9 @@ public class AuthActions
         if (verify == PasswordVerificationResult.Failed)
             return AuthResultDto.Failure("Invalid email or password.");
 
+        if (!user.EmailConfirmed)
+            return AuthResultDto.Failure("Please confirm your email before signing in.");
+
         if (verify == PasswordVerificationResult.SuccessRehashNeeded)
         {
             user.PasswordHash = hasher.HashPassword(user, request.Password);
@@ -62,7 +67,9 @@ public class AuthActions
             FullName = request.FullName.Trim(),
             Email = request.Email.Trim(),
             NormalizedEmail = normalizedEmail,
-            EmailConfirmed = true,
+            EmailConfirmed = false,
+            EmailConfirmationToken = GenerateConfirmationToken(),
+            EmailConfirmationTokenExpiresAt = DateTime.UtcNow.AddHours(EmailOptionsHolder.ConfirmationTokenHours),
             Role = role,
             CreatedAt = DateTime.UtcNow,
             IsActive = true,
@@ -83,7 +90,104 @@ public class AuthActions
             return AuthResultDto.Failure("Email or username is already in use.");
         }
 
-        return await CreateAuthResultAsync(db, user, ipAddress);
+        await SendConfirmationEmailAsync(user);
+        return AuthResultDto.Pending(
+            "Account created. Check your email for a confirmation link before signing in.",
+            requiresEmailConfirmation: true);
+    }
+
+    internal async Task<AuthResultDto> ConfirmEmailExecution(ConfirmEmailRequestDto request)
+    {
+        using var db = new AppDbContext();
+        var normalizedEmail = Normalize(request.Email);
+        var user = await db.Users.FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail);
+        if (user == null)
+            return AuthResultDto.Failure("Confirmation link is invalid.");
+
+        if (user.EmailConfirmed)
+            return AuthResultDto.Pending("Your email is already confirmed. You can sign in.");
+
+        if (string.IsNullOrEmpty(user.EmailConfirmationToken) ||
+            !FixedTimeEquals(user.EmailConfirmationToken, request.Token))
+            return AuthResultDto.Failure("Confirmation link is invalid.");
+
+        if (user.EmailConfirmationTokenExpiresAt.HasValue &&
+            user.EmailConfirmationTokenExpiresAt.Value < DateTime.UtcNow)
+            return AuthResultDto.Failure("Confirmation link has expired. Please request a new one.");
+
+        user.EmailConfirmed = true;
+        user.EmailConfirmationToken = null;
+        user.EmailConfirmationTokenExpiresAt = null;
+        user.ConcurrencyStamp = Guid.NewGuid().ToString();
+        await db.SaveChangesAsync();
+
+        return AuthResultDto.Pending("Email confirmed. You can now sign in.");
+    }
+
+    internal async Task<AuthResultDto> ResendConfirmationExecution(ResendConfirmationRequestDto request)
+    {
+        using var db = new AppDbContext();
+        var normalizedEmail = Normalize(request.Email);
+        var user = await db.Users.FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail);
+
+        // Always return the same response to avoid leaking which emails exist.
+        if (user != null && !user.EmailConfirmed)
+        {
+            user.EmailConfirmationToken = GenerateConfirmationToken();
+            user.EmailConfirmationTokenExpiresAt = DateTime.UtcNow.AddHours(EmailOptionsHolder.ConfirmationTokenHours);
+            await db.SaveChangesAsync();
+            await SendConfirmationEmailAsync(user);
+        }
+
+        return AuthResultDto.Pending(
+            "If an unconfirmed account exists for that email, a new confirmation link has been sent.",
+            requiresEmailConfirmation: true);
+    }
+
+    private static string GenerateConfirmationToken()
+    {
+        Span<byte> bytes = stackalloc byte[32];
+        RandomNumberGenerator.Fill(bytes);
+        return Convert.ToHexString(bytes).ToLowerInvariant();
+    }
+
+    private static bool FixedTimeEquals(string a, string b)
+    {
+        var aBytes = System.Text.Encoding.UTF8.GetBytes(a);
+        var bBytes = System.Text.Encoding.UTF8.GetBytes(b);
+        return CryptographicOperations.FixedTimeEquals(aBytes, bBytes);
+    }
+
+    private static async Task SendConfirmationEmailAsync(User user)
+    {
+        if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.EmailConfirmationToken))
+            return;
+
+        var baseUrl = EmailOptionsHolder.FrontendUrl.TrimEnd('/');
+        var confirmUrl = $"{baseUrl}/verify-email?token={Uri.EscapeDataString(user.EmailConfirmationToken)}&email={Uri.EscapeDataString(user.Email)}";
+
+        var subject = "Confirm your BidZone email";
+        var body = $@"
+            <div style=""font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#222"">
+              <h2 style=""color:#0848B8"">Welcome to BidZone</h2>
+              <p>Hi {System.Net.WebUtility.HtmlEncode(user.FullName)},</p>
+              <p>Confirm your email to activate your account. This link expires in {EmailOptionsHolder.ConfirmationTokenHours} hours.</p>
+              <p style=""margin:24px 0"">
+                <a href=""{confirmUrl}"" style=""background:#0848B8;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;display:inline-block"">
+                  Confirm email
+                </a>
+              </p>
+              <p style=""font-size:12px;color:#666"">If the button doesn't work, paste this URL into your browser:<br/>{confirmUrl}</p>
+            </div>";
+
+        try
+        {
+            await EmailSenderFactory.Create().SendAsync(user.Email, subject, body);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Failed to send confirmation email to {user.Email}: {ex.Message}");
+        }
     }
 
     internal async Task<UserDto?> GetCurrentUserExecution(int userId)

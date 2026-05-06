@@ -25,7 +25,7 @@ public class AuthController : ControllerBase
     {
         var result = await _auth.LoginAsync(request, GetClientIpAddress());
         if (!result.Succeeded || result.Response == null)
-            return Unauthorized(new { message = "Invalid email or password" });
+            return Unauthorized(new { message = result.Errors.FirstOrDefault() ?? "Invalid email or password" });
 
         WriteRefreshCookie(result.RefreshToken);
         return Ok(result.Response);
@@ -36,7 +36,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
     {
         var result = await _auth.RegisterAsync(request, GetClientIpAddress());
-        if (!result.Succeeded || result.Response == null)
+        if (!result.Succeeded)
         {
             return BadRequest(new
             {
@@ -45,8 +45,36 @@ public class AuthController : ControllerBase
             });
         }
 
+        if (result.Response == null)
+        {
+            return Ok(new
+            {
+                message = result.Message,
+                requiresEmailConfirmation = result.RequiresEmailConfirmation
+            });
+        }
+
         WriteRefreshCookie(result.RefreshToken);
         return Ok(result.Response);
+    }
+
+    [HttpPost("confirm-email")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailRequestDto request)
+    {
+        var result = await _auth.ConfirmEmailAsync(request);
+        if (!result.Succeeded)
+            return BadRequest(new { message = result.Errors.FirstOrDefault() ?? "Confirmation failed" });
+
+        return Ok(new { message = result.Message });
+    }
+
+    [HttpPost("resend-confirmation")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ResendConfirmation([FromBody] ResendConfirmationRequestDto request)
+    {
+        var result = await _auth.ResendConfirmationAsync(request);
+        return Ok(new { message = result.Message });
     }
 
     [HttpPost("refresh")]

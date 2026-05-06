@@ -110,7 +110,7 @@ public class AuthFlowTests : IClassFixture<SqliteAuthFixture>
     }
 
     [Fact]
-    public async Task RegisterAsync_CreatesSellerAndStoresRefreshToken()
+    public async Task RegisterAsync_CreatesUnconfirmedSellerAndIssuesConfirmationToken()
     {
         _fixture.ResetDatabase();
         var auth = new BusinessLogicFactory().AuthAction();
@@ -127,15 +127,16 @@ public class AuthFlowTests : IClassFixture<SqliteAuthFixture>
             "127.0.0.5");
 
         Assert.True(result.Succeeded);
-        Assert.NotNull(result.Response);
-        Assert.Equal("Seller", result.Response!.User.Role);
-        Assert.False(string.IsNullOrWhiteSpace(result.RefreshToken));
+        Assert.True(result.RequiresEmailConfirmation);
+        Assert.Null(result.Response);
+        Assert.True(string.IsNullOrEmpty(result.RefreshToken));
 
         using var db = _fixture.CreateDbContext();
         var user = await db.Users.SingleAsync(currentUser => currentUser.Email == "seller-two@bidzone.com");
-        var refreshToken = await db.RefreshTokens.SingleAsync(currentToken => currentToken.UserId == user.Id);
 
         Assert.Equal("Seller", user.Role);
-        Assert.Equal(RefreshTokenService.HashToken(result.RefreshToken!), refreshToken.TokenHash);
+        Assert.False(user.EmailConfirmed);
+        Assert.False(string.IsNullOrEmpty(user.EmailConfirmationToken));
+        Assert.False(await db.RefreshTokens.AnyAsync(currentToken => currentToken.UserId == user.Id));
     }
 }
