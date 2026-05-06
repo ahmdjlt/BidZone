@@ -18,7 +18,7 @@ export default function AuctionGrid({ auctions, columns = 4 }: AuctionGridProps)
     <div className={gridCols}>
       {auctions.map((auction, index) => (
         <AuctionCard
-          key={auction.id}
+          key={`${auction.id}-${index}`}
           auction={auction}
           priority={index < 4}
         />

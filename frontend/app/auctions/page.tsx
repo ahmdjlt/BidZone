@@ -221,7 +221,11 @@ export default function AuctionsPage() {
       auctions.sort((left, right) => right.bidCount - left.bidCount);
     }
 
-    return auctions.map(toPreview);
+    const uniqueAuctions = Array.from(
+      new Map(auctions.map((auction) => [auction.id, auction])).values()
+    );
+
+    return uniqueAuctions.map(toPreview);
   }, [activeCategorySlug, apiAuctions]);
 
   return (
