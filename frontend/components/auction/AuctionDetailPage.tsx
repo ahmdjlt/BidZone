@@ -8,6 +8,7 @@ import { getAuctionById } from "@/lib/api/auctions";
 import { getBidsByAuction, placeBid } from "@/lib/api/bids";
 import type { Auction } from "@/types/auction";
 import type { Bid } from "@/types/bid";
+import { useAuthStore } from "@/store/authStore";
 
 export interface AuctionDetailPageProps {
   auctionId: number;
@@ -47,6 +48,7 @@ function toBidHistory(bids: Bid[]): BidHistoryItem[] {
 }
 
 export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps) {
+  const user = useAuthStore((state) => state.user);
   const [auction, setAuction] = useState<Auction | null>(null);
   const [bids, setBids] = useState<Bid[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -131,6 +133,15 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
   }, [auction, loadAuction]);
 
   const bidHistory = useMemo(() => toBidHistory(bids), [bids]);
+  const myLatestBid = useMemo(() => {
+    if (!user) {
+      return null;
+    }
+
+    return bids
+      .filter((bid) => bid.bidderId == user.id)
+      .sort((left, right) => new Date(right.placedAt).getTime() - new Date(left.placedAt).getTime())[0] ?? null;
+  }, [bids, user]);
 
   if (isLoading) {
     return (
@@ -154,6 +165,41 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
         </main>
       </div>
     );
+  }
+
+  const isAuctionClosed = auction.status !== "Active";
+  const isWinning = myLatestBid?.status === "Winning";
+  const isWon = myLatestBid?.status === "Won";
+  const isOutbid = myLatestBid?.status === "Outbid";
+  const isLost = myLatestBid?.status === "Lost";
+  const isBidDisabled = isAuctionClosed || isBidding || isWinning;
+
+  let disabledLabel: string | undefined;
+  if (isBidding) {
+    disabledLabel = "Placing bid...";
+  } else if (isWinning) {
+    disabledLabel = "Winning";
+  } else if (isAuctionClosed) {
+    disabledLabel = "Auction closed";
+  }
+
+  let stateMessage: string | null = null;
+  let stateTone: "success" | "warning" | "neutral" = "neutral";
+
+  if (isWinning) {
+    stateMessage = "You are currently the highest bidder.";
+    stateTone = "success";
+  } else if (isOutbid) {
+    stateMessage = "You were outbid. Increase your bid to take the lead.";
+    stateTone = "warning";
+  } else if (isWon) {
+    stateMessage = "Auction ended. You won this item.";
+    stateTone = "success";
+  } else if (isLost) {
+    stateMessage = "Auction ended. This item was won by another bidder.";
+    stateTone = "warning";
+  } else if (isAuctionClosed) {
+    stateMessage = "This auction has ended.";
   }
 
   return (
@@ -226,7 +272,10 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
                 totalBids={auction.bidCount}
                 endTime={auction.endTime}
                 onPlaceBid={handlePlaceBid}
-                disabled={auction.status !== "Active" || isBidding}
+                disabled={isBidDisabled}
+                disabledLabel={disabledLabel}
+                stateMessage={stateMessage}
+                stateTone={stateTone}
               />
             </div>
 

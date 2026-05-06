@@ -10,6 +10,9 @@ interface BidFormProps {
   endTime?: string;
   onPlaceBid?: (amount: number) => Promise<void> | void;
   disabled?: boolean;
+  disabledLabel?: string;
+  stateMessage?: string | null;
+  stateTone?: "success" | "warning" | "neutral";
 }
 
 function useCountdown(endTime?: string) {
@@ -47,6 +50,9 @@ export default function BidForm({
   endTime,
   onPlaceBid,
   disabled = false,
+  disabledLabel = "Bidding unavailable",
+  stateMessage = null,
+  stateTone = "neutral",
 }: BidFormProps) {
   const minimumBid = currentBid + minIncrement;
   const [amount, setAmount] = useState(minimumBid);
@@ -112,6 +118,20 @@ export default function BidForm({
         </div>
       </div>
 
+      {stateMessage && (
+        <div
+          className={`rounded-lg border px-3 py-2 text-xs font-medium ${
+            stateTone === "success"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              : stateTone === "warning"
+                ? "border-amber-200 bg-amber-50 text-amber-700"
+                : "border-border-strong bg-accent-soft/40 text-text-muted"
+          }`}
+        >
+          {stateMessage}
+        </div>
+      )}
+
       {/* Amount input with +/- */}
       <form onSubmit={handleSubmit} className="space-y-2">
         <div className="flex items-center gap-1.5">
@@ -166,7 +186,7 @@ export default function BidForm({
                 : "bg-accent hover:brightness-110 active:scale-[0.98]"
           }`}
         >
-          {success ? "Bid placed!" : disabled ? "Bidding unavailable" : isSubmitting ? "Placing bid..." : "Bid now"}
+          {success ? "Bid placed!" : disabled ? disabledLabel : isSubmitting ? "Placing bid..." : "Bid now"}
         </button>
 
         {estimatedValue && (
