@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import RequireAuth from "@/components/auth/RequireAuth";
 import { createAuction, getCategories } from "@/lib/api/auctions";
+import { uploadAuctionImage } from "@/lib/api/uploads";
 import type { Category } from "@/types/auction";
 
 const durations = [
@@ -24,6 +25,7 @@ export default function CreateAuctionPage() {
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -34,6 +36,7 @@ export default function CreateAuctionPage() {
   const [startingPrice, setStartingPrice] = useState("");
   const [reservePrice, setReservePrice] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -123,10 +126,16 @@ export default function CreateAuctionPage() {
 
     setIsSubmitting(true);
     try {
+      let finalImageUrl = imageUrl.trim() || null;
+      if (imageFile) {
+        setIsUploadingImage(true);
+        finalImageUrl = await uploadAuctionImage(imageFile);
+      }
+
       const created = await createAuction({
         title: normalizedTitle,
         description: normalizedDescription,
-        imageUrl: imageUrl.trim() || null,
+        imageUrl: finalImageUrl,
         startingPrice: starting,
         reservePrice: reserve,
         endTime,
@@ -136,6 +145,7 @@ export default function CreateAuctionPage() {
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Could not create listing.");
     } finally {
+      setIsUploadingImage(false);
       setIsSubmitting(false);
     }
   }
@@ -289,7 +299,18 @@ export default function CreateAuctionPage() {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-semibold text-text-heading">Image URL (optional)</label>
+              <label className="mb-1.5 block text-sm font-semibold text-text-heading">Auction image (optional)</label>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
+                className="w-full rounded-xl border border-border-strong bg-input-bg px-4 py-2.5 text-sm text-text-heading file:mr-3 file:rounded-lg file:border-0 file:bg-accent file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white"
+              />
+              <p className="mt-1 text-xs text-text-muted">If you choose a file, it will be uploaded to Cloudinary automatically.</p>
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-text-heading">Or image URL (optional)</label>
               <input
                 type="url"
                 value={imageUrl}
@@ -308,10 +329,10 @@ export default function CreateAuctionPage() {
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <button
                 type="submit"
-                disabled={isSubmitting || isLoadingCategories}
+                disabled={isSubmitting || isUploadingImage || isLoadingCategories}
                 className="rounded-2xl bg-accent px-6 py-3 text-sm font-semibold text-white shadow-[0_20px_40px_-24px_rgba(16,84,209,0.85)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {isSubmitting ? "Publishing..." : "Publish Listing"}
+                {isUploadingImage ? "Uploading image..." : isSubmitting ? "Publishing..." : "Publish Listing"}
               </button>
               <Link
                 href="/dashboard"
