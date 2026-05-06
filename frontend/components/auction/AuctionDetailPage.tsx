@@ -55,6 +55,7 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
   const [error, setError] = useState<string | null>(null);
   const [isBidding, setIsBidding] = useState(false);
   const [contact, setContact] = useState<AuctionContact | null>(null);
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string>("");
 
   const loadAuction = useCallback(async (showLoader = false) => {
     if (!auctionId) {
@@ -130,6 +131,16 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
       clearInterval(intervalId);
     };
   }, [auction, loadAuction]);
+
+  useEffect(() => {
+    if (!auction) {
+      setSelectedImageUrl("");
+      return;
+    }
+
+    const firstGalleryImage = auction.images?.[0]?.url;
+    setSelectedImageUrl(firstGalleryImage || auction.imageUrl || "/auction-images/abstract-oil-canvas.svg");
+  }, [auction]);
 
   const handlePlaceBid = useCallback(async (amount: number) => {
     if (!auction) {
@@ -223,13 +234,35 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
           <div className="lg:col-span-3">
             <div className="relative aspect-[4/3] overflow-hidden rounded-sm bg-card-bg card-shadow">
               <Image
-                src={auction.imageUrl ?? "/auction-images/abstract-oil-canvas.svg"}
+                src={selectedImageUrl || auction.imageUrl || "/auction-images/abstract-oil-canvas.svg"}
                 alt={auction.title}
                 fill
                 className="object-cover"
                 priority
               />
             </div>
+
+            {auction.images.length > 1 && (
+              <div className="mt-3 grid grid-cols-4 gap-2">
+                {auction.images.map((image) => (
+                  <button
+                    key={image.id}
+                    type="button"
+                    onClick={() => setSelectedImageUrl(image.url)}
+                    className={`relative aspect-[4/3] overflow-hidden rounded-md border transition ${
+                      selectedImageUrl === image.url ? "border-accent" : "border-border-strong"
+                    }`}
+                  >
+                    <Image
+                      src={image.url}
+                      alt={`${auction.title} image ${image.sortOrder + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
 
             <div className="mt-6 border-t border-border/40 pt-5">
               <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.12em] text-text-muted">
