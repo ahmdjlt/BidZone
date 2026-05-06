@@ -7,6 +7,8 @@ public class AuthResultDto
     public bool Succeeded { get; set; }
     public AuthResponseDto? Response { get; set; }
     public string? RefreshToken { get; set; }
+    public string? Message { get; set; }
+    public bool RequiresEmailConfirmation { get; set; }
     public IReadOnlyCollection<string> Errors { get; set; } = Array.Empty<string>();
 
     public static AuthResultDto Success(AuthResponseDto response, string refreshToken) => new()
@@ -14,6 +16,13 @@ public class AuthResultDto
         Succeeded = true,
         Response = response,
         RefreshToken = refreshToken
+    };
+
+    public static AuthResultDto Pending(string message, bool requiresEmailConfirmation = false) => new()
+    {
+        Succeeded = true,
+        Message = message,
+        RequiresEmailConfirmation = requiresEmailConfirmation
     };
 
     public static AuthResultDto Failure(params string[] errors) => new()

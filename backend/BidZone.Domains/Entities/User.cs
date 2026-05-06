@@ -15,6 +15,11 @@ public class User : IdentityUser<int>
 
     public bool IsActive { get; set; } = true;
 
+    [MaxLength(128)]
+    public string? EmailConfirmationToken { get; set; }
+
+    public DateTime? EmailConfirmationTokenExpiresAt { get; set; }
+
     public ICollection<Auction> Auctions { get; set; } = new List<Auction>();
     public ICollection<Bid> Bids { get; set; } = new List<Bid>();
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
