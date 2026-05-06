@@ -237,17 +237,17 @@ export default function Navbar() {
                   >
                     Sign Up
                   </button>
-                  {/* Person menu */}
-                  <button
-                    onClick={() => setMenuOpen((prev) => !prev)}
-                    aria-label="Toggle menu"
+                  {/* Person icon → settings */}
+                  <Link
+                    href="/dashboard/settings"
+                    aria-label="Settings"
                     className="ml-1 flex h-9 w-9 items-center justify-center rounded-lg text-text-heading transition hover:bg-accent-soft"
                   >
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <circle cx="12" cy="8" r="4" />
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4 21a8 8 0 0116 0" />
                     </svg>
-                  </button>
+                  </Link>
                 </>
               )}
             </div>
