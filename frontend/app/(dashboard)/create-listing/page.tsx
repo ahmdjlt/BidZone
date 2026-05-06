@@ -16,6 +16,8 @@ const durations = [
   { label: "14 days", days: 14 },
 ] as const;
 
+type EndMode = "duration" | "custom";
+
 export default function CreateAuctionPage() {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -27,6 +29,8 @@ export default function CreateAuctionPage() {
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState<number | null>(null);
   const [duration, setDuration] = useState<(typeof durations)[number]["label"]>("7 days");
+  const [endMode, setEndMode] = useState<EndMode>("duration");
+  const [customEndTime, setCustomEndTime] = useState("");
   const [startingPrice, setStartingPrice] = useState("");
   const [reservePrice, setReservePrice] = useState("");
   const [imageUrl, setImageUrl] = useState("");
@@ -99,7 +103,23 @@ export default function CreateAuctionPage() {
       return;
     }
 
-    const endTime = new Date(Date.now() + selectedDurationDays * 24 * 60 * 60 * 1000).toISOString();
+    let endTime: string;
+    if (endMode === "custom") {
+      if (!customEndTime) {
+        setErrorMessage("Please choose a custom end time.");
+        return;
+      }
+
+      const parsedCustomEndTime = new Date(customEndTime);
+      if (Number.isNaN(parsedCustomEndTime.getTime()) || parsedCustomEndTime <= new Date()) {
+        setErrorMessage("Custom end time must be in the future.");
+        return;
+      }
+
+      endTime = parsedCustomEndTime.toISOString();
+    } else {
+      endTime = new Date(Date.now() + selectedDurationDays * 24 * 60 * 60 * 1000).toISOString();
+    }
 
     setIsSubmitting(true);
     try {
@@ -164,33 +184,69 @@ export default function CreateAuctionPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-1.5 block text-sm font-semibold text-text-heading">Category</label>
-                <select
-                  value={categoryId ?? ""}
-                  onChange={(event) => setCategoryId(Number(event.target.value))}
-                  disabled={isLoadingCategories || categories.length === 0}
-                  className="w-full rounded-xl border border-border-strong bg-input-bg px-4 py-2.5 text-sm text-text-heading focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-                >
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={categoryId ?? ""}
+                    onChange={(event) => setCategoryId(Number(event.target.value))}
+                    disabled={isLoadingCategories || categories.length === 0}
+                    className="w-full appearance-none rounded-xl border border-border-strong bg-input-bg px-4 py-2.5 pr-10 text-sm text-text-heading focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                  >
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-muted">▼</span>
+                </div>
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-semibold text-text-heading">Duration</label>
-                <select
-                  value={duration}
-                  onChange={(event) => setDuration(event.target.value as (typeof durations)[number]["label"])}
-                  className="w-full rounded-xl border border-border-strong bg-input-bg px-4 py-2.5 text-sm text-text-heading focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-                >
-                  {durations.map((option) => (
-                    <option key={option.label} value={option.label}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                <label className="mb-1.5 block text-sm font-semibold text-text-heading">Auction end</label>
+                <div className="mb-2 flex items-center gap-4 text-sm">
+                  <label className="inline-flex items-center gap-2 text-text-heading">
+                    <input
+                      type="radio"
+                      name="endMode"
+                      checked={endMode === "duration"}
+                      onChange={() => setEndMode("duration")}
+                    />
+                    Duration
+                  </label>
+                  <label className="inline-flex items-center gap-2 text-text-heading">
+                    <input
+                      type="radio"
+                      name="endMode"
+                      checked={endMode === "custom"}
+                      onChange={() => setEndMode("custom")}
+                    />
+                    Custom date/time
+                  </label>
+                </div>
+                {endMode === "duration" ? (
+                <div className="relative">
+                  <select
+                    value={duration}
+                    onChange={(event) => setDuration(event.target.value as (typeof durations)[number]["label"])}
+                    className="w-full appearance-none rounded-xl border border-border-strong bg-input-bg px-4 py-2.5 pr-10 text-sm text-text-heading focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                  >
+                    {durations.map((option) => (
+                      <option key={option.label} value={option.label}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-muted">▼</span>
+                </div>
+                ) : (
+                  <input
+                    type="datetime-local"
+                    value={customEndTime}
+                    onChange={(event) => setCustomEndTime(event.target.value)}
+                    className="w-full rounded-xl border border-border-strong bg-input-bg px-4 py-2.5 text-sm text-text-heading focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                    required={endMode === "custom"}
+                  />
+                )}
               </div>
             </div>
 
