@@ -282,7 +282,7 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
             <div className="mt-4">
               <BidForm
                 currentBid={auction.currentPrice}
-                minIncrement={50}
+                minIncrement={1}
                 totalBids={auction.bidCount}
                 endTime={auction.endTime}
                 onPlaceBid={handlePlaceBid}
