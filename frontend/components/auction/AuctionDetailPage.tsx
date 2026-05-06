@@ -53,14 +53,17 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
   const [error, setError] = useState<string | null>(null);
   const [isBidding, setIsBidding] = useState(false);
 
-  const loadAuction = useCallback(async () => {
+  const loadAuction = useCallback(async (showLoader = false) => {
     if (!auctionId) {
       setError("Invalid auction id.");
       setIsLoading(false);
       return;
     }
-    setIsLoading(true);
-    setError(null);
+
+    if (showLoader) {
+      setIsLoading(true);
+      setError(null);
+    }
 
     try {
       const [auctionResponse, bidsResponse] = await Promise.all([
@@ -70,11 +73,15 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
       setAuction(auctionResponse);
       setBids(bidsResponse);
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Could not load auction.");
-      setAuction(null);
-      setBids([]);
+      if (showLoader) {
+        setError(loadError instanceof Error ? loadError.message : "Could not load auction.");
+        setAuction(null);
+        setBids([]);
+      }
     } finally {
-      setIsLoading(false);
+      if (showLoader) {
+        setIsLoading(false);
+      }
     }
   }, [auctionId]);
 
@@ -82,7 +89,7 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
     let cancelled = false;
 
     async function runLoad() {
-      await loadAuction();
+      await loadAuction(true);
       if (cancelled) {
         return;
       }
