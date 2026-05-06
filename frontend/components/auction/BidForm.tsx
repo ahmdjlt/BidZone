@@ -55,22 +55,31 @@ export default function BidForm({
   stateTone = "neutral",
 }: BidFormProps) {
   const minimumBid = currentBid + minIncrement;
-  const [amount, setAmount] = useState(minimumBid);
+  const [amountInput, setAmountInput] = useState(minimumBid.toString());
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const countdown = useCountdown(endTime);
 
+  useEffect(() => {
+    setAmountInput(minimumBid.toString());
+  }, [minimumBid]);
+
+  function getCurrentAmount() {
+    const parsed = Number(amountInput);
+    return Number.isFinite(parsed) ? parsed : minimumBid;
+  }
+
   function increment() {
-    setAmount((prev) => prev + minIncrement);
+    const next = getCurrentAmount() + minIncrement;
+    setAmountInput(next.toString());
     setError("");
   }
 
   function decrement() {
-    setAmount((prev) => {
-      const next = prev - minIncrement;
-      return next >= minimumBid ? next : prev;
-    });
+    const currentAmount = getCurrentAmount();
+    const next = currentAmount - minIncrement;
+    setAmountInput((next >= minimumBid ? next : currentAmount).toString());
     setError("");
   }
 
@@ -80,7 +89,8 @@ export default function BidForm({
       return;
     }
 
-    if (amount < minimumBid) {
+    const amount = Number(amountInput);
+    if (!Number.isFinite(amount) || amount < minimumBid) {
       setError(`Minimum bid is $${minimumBid.toLocaleString()}`);
       return;
     }
@@ -140,14 +150,19 @@ export default function BidForm({
               $
             </span>
             <input
-              type="number"
-              value={amount}
+              type="text"
+              inputMode="numeric"
+              value={amountInput}
               onChange={(e) => {
-                setAmount(Number(e.target.value));
+                const digitsOnly = e.target.value.replace(/\D/g, "");
+                if (digitsOnly === "") {
+                  setAmountInput("");
+                  setError("");
+                  return;
+                }
+                setAmountInput(String(Number(digitsOnly)));
                 setError("");
               }}
-              min={minimumBid}
-              step={minIncrement}
               disabled={disabled || isSubmitting}
               className="w-full rounded-lg bg-accent-soft/50 py-2.5 pl-7 pr-3 text-sm font-semibold tabular-nums text-text-heading outline-none transition-colors placeholder:text-text-muted focus:ring-2 focus:ring-accent/20"
               placeholder={minimumBid.toString()}
