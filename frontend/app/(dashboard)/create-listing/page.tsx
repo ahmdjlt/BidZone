@@ -36,7 +36,7 @@ export default function CreateAuctionPage() {
   const [startingPrice, setStartingPrice] = useState("");
   const [reservePrice, setReservePrice] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -126,16 +126,24 @@ export default function CreateAuctionPage() {
 
     setIsSubmitting(true);
     try {
-      let finalImageUrl = imageUrl.trim() || null;
-      if (imageFile) {
+      const manualImageUrl = imageUrl.trim();
+      const finalImageUrls: string[] = [];
+
+      if (imageFiles.length > 0) {
         setIsUploadingImage(true);
-        finalImageUrl = await uploadAuctionImage(imageFile);
+        const uploadedUrls = await Promise.all(imageFiles.map((file) => uploadAuctionImage(file)));
+        finalImageUrls.push(...uploadedUrls);
+      }
+
+      if (manualImageUrl) {
+        finalImageUrls.push(manualImageUrl);
       }
 
       const created = await createAuction({
         title: normalizedTitle,
         description: normalizedDescription,
-        imageUrl: finalImageUrl,
+        imageUrl: finalImageUrls[0] ?? null,
+        imageUrls: finalImageUrls,
         startingPrice: starting,
         reservePrice: reserve,
         endTime,
@@ -303,10 +311,11 @@ export default function CreateAuctionPage() {
               <input
                 type="file"
                 accept="image/png,image/jpeg,image/webp,image/gif"
-                onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
+                multiple
+                onChange={(event) => setImageFiles(Array.from(event.target.files ?? []))}
                 className="w-full rounded-xl border border-border-strong bg-input-bg px-4 py-2.5 text-sm text-text-heading file:mr-3 file:rounded-lg file:border-0 file:bg-accent file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white"
               />
-              <p className="mt-1 text-xs text-text-muted">If you choose a file, it will be uploaded to Cloudinary automatically.</p>
+              <p className="mt-1 text-xs text-text-muted">You can select multiple files. They will be uploaded to Cloudinary automatically.</p>
             </div>
 
             <div>

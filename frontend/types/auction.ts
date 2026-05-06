@@ -3,6 +3,7 @@ export interface Auction {
   title: string;
   description: string;
   imageUrl: string | null;
+  images: AuctionImage[];
   startingPrice: number;
   currentPrice: number;
   reservePrice: number | null;
@@ -15,6 +16,12 @@ export interface Auction {
   categoryName: string;
   categorySlug: string;
   bidCount: number;
+}
+
+export interface AuctionImage {
+  id: number;
+  url: string;
+  sortOrder: number;
 }
 
 export interface AuctionSummary {
@@ -33,6 +40,7 @@ export interface CreateAuctionData {
   title: string;
   description: string;
   imageUrl?: string | null;
+  imageUrls?: string[];
   startingPrice: number;
   reservePrice?: number | null;
   endTime: string;
