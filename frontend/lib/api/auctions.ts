@@ -1,4 +1,4 @@
-import type { Auction, AuctionSummary, CreateAuctionData, UpdateAuctionData, Category } from "@/types/auction";
+import type { Auction, AuctionSummary, CreateAuctionData, UpdateAuctionData, Category, AuctionContact } from "@/types/auction";
 import { apiFetch } from "@/lib/api/client";
 
 export interface AuctionFilters {
@@ -24,6 +24,10 @@ export async function getAuctions(filters?: AuctionFilters): Promise<AuctionSumm
 
 export async function getAuctionById(id: string | number): Promise<Auction> {
   return apiFetch<Auction>(`/api/auctions/${id}`);
+}
+
+export async function getAuctionContact(id: string | number): Promise<AuctionContact> {
+  return apiFetch<AuctionContact>(`/api/auctions/${id}/contact`);
 }
 
 export async function createAuction(data: CreateAuctionData): Promise<Auction> {

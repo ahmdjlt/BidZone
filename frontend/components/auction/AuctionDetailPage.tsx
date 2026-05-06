@@ -4,9 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import BidForm from "./BidForm";
 import BidHistory, { type Bid as BidHistoryItem } from "./BidHistory";
-import { getAuctionById } from "@/lib/api/auctions";
+import { getAuctionById, getAuctionContact } from "@/lib/api/auctions";
 import { getBidsByAuction, placeBid } from "@/lib/api/bids";
-import type { Auction } from "@/types/auction";
+import type { Auction, AuctionContact } from "@/types/auction";
 import type { Bid } from "@/types/bid";
 import { useAuthStore } from "@/store/authStore";
 
@@ -54,6 +54,7 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isBidding, setIsBidding] = useState(false);
+  const [contact, setContact] = useState<AuctionContact | null>(null);
 
   const loadAuction = useCallback(async (showLoader = false) => {
     if (!auctionId) {
@@ -74,18 +75,30 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
       ]);
       setAuction(auctionResponse);
       setBids(bidsResponse);
+
+      if (user && auctionResponse.status === "Closed") {
+        try {
+          const contactResponse = await getAuctionContact(auctionId);
+          setContact(contactResponse);
+        } catch {
+          setContact(null);
+        }
+      } else {
+        setContact(null);
+      }
     } catch (loadError) {
       if (showLoader) {
         setError(loadError instanceof Error ? loadError.message : "Could not load auction.");
         setAuction(null);
         setBids([]);
+        setContact(null);
       }
     } finally {
       if (showLoader) {
         setIsLoading(false);
       }
     }
-  }, [auctionId]);
+  }, [auctionId, user]);
 
   useEffect(() => {
     let cancelled = false;
@@ -282,6 +295,20 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
             <div className="mt-6">
               <BidHistory bids={bidHistory} />
             </div>
+
+            {contact && (
+              <div className="mt-6 rounded-xl border border-border-strong bg-accent-soft/40 px-4 py-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">
+                  Contact details
+                </p>
+                <p className="mt-2 text-sm text-text-heading">
+                  {contact.viewerRole === "Buyer" ? "Seller" : "Buyer"}: @{contact.counterpartyUsername}
+                </p>
+                <p className="mt-1 text-sm text-text-heading">
+                  Email: {contact.counterpartyEmail}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </main>

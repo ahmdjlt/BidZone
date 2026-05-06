@@ -55,6 +55,12 @@ export interface Category {
   auctionCount: number;
 }
 
+export interface AuctionContact {
+  counterpartyUsername: string;
+  counterpartyEmail: string;
+  viewerRole: "Buyer" | "Seller";
+}
+
 export interface WatchlistItem {
   id: number;
   auctionId: number;
