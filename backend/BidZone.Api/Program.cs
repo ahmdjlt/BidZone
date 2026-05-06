@@ -1,5 +1,6 @@
 using BidZone.Api.Extensions;
 using BidZone.Api.Services;
+using BidZone.BusinessLogic.Email;
 using BidZone.BusinessLogic.Security;
 using BidZone.DataAccess;
 using DotNetEnv;
@@ -35,6 +36,30 @@ if (int.TryParse(jwtSection["RefreshTokenDays"], out var refreshDays))
     JwtOptionsHolder.RefreshTokenDays = refreshDays;
 }
 JwtOptionsHolder.RefreshCookieName = jwtSection["RefreshCookieName"] ?? JwtOptionsHolder.RefreshCookieName;
+
+// Email — same static-holder pattern, allow env overrides for credentials
+ApplyEnvironmentOverride(builder.Configuration, "Email:Username", "EMAIL_USERNAME");
+ApplyEnvironmentOverride(builder.Configuration, "Email:Password", "EMAIL_PASSWORD");
+ApplyEnvironmentOverride(builder.Configuration, "Email:FromAddress", "EMAIL_FROM_ADDRESS");
+ApplyEnvironmentOverride(builder.Configuration, "Email:FromName", "EMAIL_FROM_NAME");
+ApplyEnvironmentOverride(builder.Configuration, "Email:ResendApiKey", "RESEND_API_KEY");
+
+var emailSection = builder.Configuration.GetSection("Email");
+EmailOptionsHolder.SmtpHost = emailSection["SmtpHost"] ?? EmailOptionsHolder.SmtpHost;
+if (int.TryParse(emailSection["SmtpPort"], out var smtpPort))
+{
+    EmailOptionsHolder.SmtpPort = smtpPort;
+}
+EmailOptionsHolder.Username = emailSection["Username"] ?? string.Empty;
+EmailOptionsHolder.Password = emailSection["Password"] ?? string.Empty;
+EmailOptionsHolder.FromAddress = emailSection["FromAddress"] ?? string.Empty;
+EmailOptionsHolder.FromName = emailSection["FromName"] ?? EmailOptionsHolder.FromName;
+EmailOptionsHolder.ResendApiKey = emailSection["ResendApiKey"] ?? string.Empty;
+if (int.TryParse(emailSection["ConfirmationTokenHours"], out var tokenHours))
+{
+    EmailOptionsHolder.ConfirmationTokenHours = tokenHours;
+}
+EmailOptionsHolder.FrontendUrl = builder.Configuration["FrontendUrl"] ?? EmailOptionsHolder.FrontendUrl;
 
 // Middleware: auth + Swagger + CORS (DI obligatoriu pt. framework, nu pt. BLL/DAL)
 builder.Services.AddJwtAuthentication(builder.Configuration);
