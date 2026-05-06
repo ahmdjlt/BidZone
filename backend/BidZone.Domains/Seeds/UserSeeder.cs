@@ -44,6 +44,23 @@ public static class UserSeeder
             },
             new User
             {
+                Id = 1000,
+                UserName = "bidzone_admin",
+                NormalizedUserName = "BIDZONE_ADMIN",
+                FullName = "BidZone Admin",
+                Email = "bidzone@admin.com",
+                NormalizedEmail = "BIDZONE@ADMIN.COM",
+                PasswordHash = "AQAAAAIAAYagAAAAEKyY8Y+6VNQGOb6NT850FBSBAjw+eJjswfXEelYY8zvEfyP3O4vpyk21PMSKa1tOFQ==",
+                SecurityStamp = "b1d2a3c4-5e6f-7890-abcd-ef0123456789",
+                ConcurrencyStamp = "f0e1d2c3-b4a5-6789-0123-456789abcdef",
+                EmailConfirmed = true,
+                Role = "Admin",
+                CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                IsActive = true,
+                LockoutEnabled = false
+            },
+            new User
+            {
                 Id = 3,
                 UserName = "buyer1",
                 NormalizedUserName = "BUYER1",
