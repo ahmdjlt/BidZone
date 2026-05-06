@@ -12,6 +12,7 @@ public class CreateAuctionDto
 
     [MaxLength(500)]
     public string? ImageUrl { get; set; }
+    public List<string>? ImageUrls { get; set; }
 
     [Required]
     public decimal StartingPrice { get; set; }

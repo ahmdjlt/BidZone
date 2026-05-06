@@ -60,6 +60,7 @@ public class AuctionLogic
         var auction = await db.Auctions
             .Include(a => a.Seller)
             .Include(a => a.Category)
+            .Include(a => a.Images)
             .Include(a => a.Bids).ThenInclude(b => b.Bidder)
             .FirstOrDefaultAsync(a => a.Id == id);
         return auction == null ? null : Mappers.ToDto(auction);
@@ -71,6 +72,7 @@ public class AuctionLogic
         var auctions = await db.Auctions
             .Include(a => a.Seller)
             .Include(a => a.Category)
+            .Include(a => a.Images)
             .Include(a => a.Bids)
             .Where(a => a.Status == "Active" && a.EndTime > DateTime.UtcNow)
             .ToListAsync();
@@ -83,6 +85,7 @@ public class AuctionLogic
         var auctions = await db.Auctions
             .Include(a => a.Seller)
             .Include(a => a.Category)
+            .Include(a => a.Images)
             .Include(a => a.Bids)
             .Where(a => a.CategoryId == categoryId)
             .ToListAsync();
@@ -95,6 +98,7 @@ public class AuctionLogic
         var auctions = await db.Auctions
             .Include(a => a.Seller)
             .Include(a => a.Category)
+            .Include(a => a.Images)
             .Include(a => a.Bids)
             .Where(a => a.SellerId == sellerId)
             .ToListAsync();
@@ -160,12 +164,15 @@ public class AuctionLogic
             CategoryId = dto.CategoryId
         };
 
+        SetAuctionImages(auction, dto.ImageUrls, dto.ImageUrl);
+
         db.Auctions.Add(auction);
         await db.SaveChangesAsync();
 
         var full = await db.Auctions
             .Include(a => a.Seller)
             .Include(a => a.Category)
+            .Include(a => a.Images)
             .Include(a => a.Bids)
             .FirstAsync(a => a.Id == auction.Id);
         return Mappers.ToDto(full);
@@ -174,13 +181,16 @@ public class AuctionLogic
     internal async Task<AuctionDto?> UpdateExecution(int id, UpdateAuctionDto dto, int sellerId)
     {
         using var db = new AppDbContext();
-        var auction = await db.Auctions.FirstOrDefaultAsync(a => a.Id == id);
+        var auction = await db.Auctions
+            .Include(a => a.Images)
+            .FirstOrDefaultAsync(a => a.Id == id);
         if (auction == null || auction.SellerId != sellerId)
             return null;
 
         if (dto.Title != null) auction.Title = dto.Title;
         if (dto.Description != null) auction.Description = dto.Description;
         if (dto.ImageUrl != null) auction.ImageUrl = dto.ImageUrl;
+        if (dto.ImageUrls != null) SetAuctionImages(auction, dto.ImageUrls, dto.ImageUrl);
         if (dto.ReservePrice.HasValue) auction.ReservePrice = dto.ReservePrice;
         if (dto.EndTime.HasValue) auction.EndTime = dto.EndTime.Value.ToUniversalTime();
         if (dto.CategoryId.HasValue) auction.CategoryId = dto.CategoryId.Value;
@@ -190,6 +200,7 @@ public class AuctionLogic
         var updated = await db.Auctions
             .Include(a => a.Seller)
             .Include(a => a.Category)
+            .Include(a => a.Images)
             .Include(a => a.Bids)
             .FirstAsync(a => a.Id == id);
         return Mappers.ToDto(updated);
@@ -215,6 +226,7 @@ public class AuctionLogic
         var query = db.Auctions
             .Include(a => a.Seller)
             .Include(a => a.Category)
+            .Include(a => a.Images)
             .Include(a => a.Bids)
             .AsQueryable();
 
@@ -243,5 +255,31 @@ public class AuctionLogic
         };
 
         return query;
+    }
+
+    private static void SetAuctionImages(Auction auction, IEnumerable<string>? imageUrls, string? fallbackImageUrl)
+    {
+        var cleaned = (imageUrls ?? [])
+            .Where(url => !string.IsNullOrWhiteSpace(url))
+            .Select(url => url.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (cleaned.Count == 0 && !string.IsNullOrWhiteSpace(fallbackImageUrl))
+        {
+            cleaned.Add(fallbackImageUrl.Trim());
+        }
+
+        auction.Images.Clear();
+        for (var i = 0; i < cleaned.Count; i++)
+        {
+            auction.Images.Add(new AuctionImage
+            {
+                Url = cleaned[i],
+                SortOrder = i
+            });
+        }
+
+        auction.ImageUrl = cleaned.FirstOrDefault();
     }
 }

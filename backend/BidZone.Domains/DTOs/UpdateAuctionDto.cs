@@ -11,6 +11,7 @@ public class UpdateAuctionDto
 
     [MaxLength(500)]
     public string? ImageUrl { get; set; }
+    public List<string>? ImageUrls { get; set; }
 
     public decimal? ReservePrice { get; set; }
 

@@ -6,6 +6,7 @@ public class AuctionDto
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string? ImageUrl { get; set; }
+    public List<AuctionImageDto> Images { get; set; } = [];
     public decimal StartingPrice { get; set; }
     public decimal CurrentPrice { get; set; }
     public decimal? ReservePrice { get; set; }

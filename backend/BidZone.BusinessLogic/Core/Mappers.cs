@@ -22,6 +22,15 @@ internal static class Mappers
         Title = a.Title,
         Description = a.Description,
         ImageUrl = a.ImageUrl,
+        Images = a.Images?
+            .OrderBy(image => image.SortOrder)
+            .Select(image => new AuctionImageDto
+            {
+                Id = image.Id,
+                Url = image.Url,
+                SortOrder = image.SortOrder
+            })
+            .ToList() ?? [],
         StartingPrice = a.StartingPrice,
         CurrentPrice = a.CurrentPrice,
         ReservePrice = a.ReservePrice,
