@@ -11,7 +11,7 @@ interface AuthState {
   hasBootstrapped: boolean;
 
   login: (email: string, password: string) => Promise<void>;
-  register: (data: { username: string; fullName: string; email: string; password: string; role: "Buyer" | "Seller" }) => Promise<void>;
+  register: (data: { username: string; fullName: string; email: string; password: string; role: "Buyer" | "Seller" }) => Promise<{ pending: boolean; message?: string }>;
   logout: () => Promise<void>;
   bootstrapAuth: () => Promise<void>;
   setUser: (user: User | null) => void;
@@ -45,13 +45,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   register: async (data) => {
     set({ isLoading: true });
     try {
-      const res = await api.register(data);
+      const result = await api.register(data);
+      if (result.status === "pending") {
+        return { pending: true, message: result.message };
+      }
       set({
-        user: res.user,
-        accessToken: res.accessToken,
+        user: result.session.user,
+        accessToken: result.session.accessToken,
         isAuthenticated: true,
         hasBootstrapped: true,
       });
+      return { pending: false };
     } finally {
       set({ isLoading: false });
     }

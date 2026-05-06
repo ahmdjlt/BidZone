@@ -28,6 +28,7 @@ export default function AuthModal({
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<"Buyer" | "Seller">("Buyer");
   const [error, setError] = useState<string | null>(null);
+  const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const router = useRouter();
   const { bootstrapAuth, hasBootstrapped, isAuthenticated, isLoading, login, register } = useAuthStore();
 
@@ -55,13 +56,18 @@ export default function AuthModal({
           return;
         }
 
-        await register({
+        const result = await register({
           username,
           fullName,
           email,
           password,
           role,
         });
+
+        if (result.pending) {
+          setPendingMessage(result.message ?? "Check your email for a confirmation link.");
+          return;
+        }
       }
 
       if (closeOnSuccess) {
@@ -205,6 +211,12 @@ export default function AuthModal({
           {error && (
             <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-300">
               {error}
+            </div>
+          )}
+
+          {pendingMessage && (
+            <div className="rounded-lg border border-accent/30 bg-accent-soft px-4 py-3 text-sm text-text-heading">
+              {pendingMessage}
             </div>
           )}
 

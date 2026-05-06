@@ -28,15 +28,47 @@ export async function login(data: LoginRequest): Promise<AuthResponse> {
   return session;
 }
 
-export async function register(data: RegisterRequest): Promise<AuthResponse> {
-  const session = await apiFetch<AuthResponse>("/api/auth/register", {
+export interface RegisterPendingResponse {
+  message: string;
+  requiresEmailConfirmation: boolean;
+}
+
+export type RegisterResult =
+  | { status: "authenticated"; session: AuthResponse }
+  | { status: "pending"; message: string };
+
+export async function register(data: RegisterRequest): Promise<RegisterResult> {
+  const result = await apiFetch<AuthResponse | RegisterPendingResponse>("/api/auth/register", {
     method: "POST",
     body: JSON.stringify(data),
     retryOnAuthFailure: false,
     skipAuth: true,
   });
-  setAccessToken(session.accessToken);
-  return session;
+
+  if ("requiresEmailConfirmation" in result) {
+    return { status: "pending", message: result.message };
+  }
+
+  setAccessToken(result.accessToken);
+  return { status: "authenticated", session: result };
+}
+
+export async function confirmEmail(email: string, token: string): Promise<{ message: string }> {
+  return apiFetch<{ message: string }>("/api/auth/confirm-email", {
+    method: "POST",
+    body: JSON.stringify({ email, token }),
+    retryOnAuthFailure: false,
+    skipAuth: true,
+  });
+}
+
+export async function resendConfirmation(email: string): Promise<{ message: string }> {
+  return apiFetch<{ message: string }>("/api/auth/resend-confirmation", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+    retryOnAuthFailure: false,
+    skipAuth: true,
+  });
 }
 
 export async function refreshSession(): Promise<AuthResponse> {
