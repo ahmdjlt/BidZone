@@ -12,6 +12,7 @@ public class AppDbContext : IdentityUserContext<User, int>
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<Auction> Auctions => Set<Auction>();
+    public DbSet<AuctionImage> AuctionImages => Set<AuctionImage>();
     public DbSet<Bid> Bids => Set<Bid>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
@@ -76,6 +77,14 @@ public class AppDbContext : IdentityUserContext<User, int>
         {
             e.HasOne(a => a.Seller).WithMany(u => u.Auctions).HasForeignKey(a => a.SellerId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne(a => a.Category).WithMany(c => c.Auctions).HasForeignKey(a => a.CategoryId);
+        });
+
+        modelBuilder.Entity<AuctionImage>(e =>
+        {
+            e.HasOne(i => i.Auction)
+                .WithMany(a => a.Images)
+                .HasForeignKey(i => i.AuctionId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Bid>(e =>
