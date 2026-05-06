@@ -13,6 +13,7 @@ interface BidFormProps {
   disabledLabel?: string;
   stateMessage?: string | null;
   stateTone?: "success" | "warning" | "neutral";
+  showBidButton?: boolean;
 }
 
 function useCountdown(endTime?: string) {
@@ -53,6 +54,7 @@ export default function BidForm({
   disabledLabel = "Bidding unavailable",
   stateMessage = null,
   stateTone = "neutral",
+  showBidButton = true,
 }: BidFormProps) {
   const minimumBid = currentBid + minIncrement;
   const [amountInput, setAmountInput] = useState(minimumBid.toString());
@@ -190,19 +192,21 @@ export default function BidForm({
           <p className="text-xs font-medium text-red-500">{error}</p>
         )}
 
-        <button
-          type="submit"
-          disabled={disabled || isSubmitting}
-          className={`w-full rounded-lg py-2.5 text-sm font-semibold text-white shadow-[0_12px_28px_-16px_rgba(16,84,209,0.85)] transition-all ${
-            success
-              ? "bg-green-500"
-              : isSubmitting
-                ? "cursor-wait bg-accent/70"
-                : "bg-accent hover:brightness-110 active:scale-[0.98]"
-          }`}
-        >
-          {success ? "Bid placed!" : disabled ? disabledLabel : isSubmitting ? "Placing bid..." : "Bid now"}
-        </button>
+        {showBidButton && (
+          <button
+            type="submit"
+            disabled={disabled || isSubmitting}
+            className={`w-full rounded-lg py-2.5 text-sm font-semibold text-white shadow-[0_12px_28px_-16px_rgba(16,84,209,0.85)] transition-all ${
+              success
+                ? "bg-green-500"
+                : isSubmitting
+                  ? "cursor-wait bg-accent/70"
+                  : "bg-accent hover:brightness-110 active:scale-[0.98]"
+            }`}
+          >
+            {success ? "Bid placed!" : disabled ? disabledLabel : isSubmitting ? "Placing bid..." : "Bid now"}
+          </button>
+        )}
 
         {estimatedValue && (
           <button
@@ -213,12 +217,14 @@ export default function BidForm({
           </button>
         )}
 
-        <button
-          type="button"
-          className="w-full rounded-lg bg-accent-soft/50 py-2.5 text-sm font-semibold text-accent transition hover:bg-accent-soft"
-        >
-          Make an offer
-        </button>
+        {showBidButton && (
+          <button
+            type="button"
+            className="w-full rounded-lg bg-accent-soft/50 py-2.5 text-sm font-semibold text-accent transition hover:bg-accent-soft"
+          >
+            Make an offer
+          </button>
+        )}
       </form>
     </div>
   );

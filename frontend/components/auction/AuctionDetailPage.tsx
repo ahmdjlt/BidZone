@@ -181,11 +181,12 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
   }
 
   const isAuctionClosed = auction.status !== "Active";
+  const isOwner = user?.id === auction.sellerId;
   const isWinning = myLatestBid?.status === "Winning";
   const isWon = myLatestBid?.status === "Won";
   const isOutbid = myLatestBid?.status === "Outbid";
   const isLost = myLatestBid?.status === "Lost";
-  const isBidDisabled = isAuctionClosed || isBidding || isWinning;
+  const isBidDisabled = isAuctionClosed || isBidding || isWinning || isOwner;
 
   let disabledLabel: string | undefined;
   if (isBidding) {
@@ -289,6 +290,7 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
                 disabledLabel={disabledLabel}
                 stateMessage={stateMessage}
                 stateTone={stateTone}
+                showBidButton={!isOwner}
               />
             </div>
 
