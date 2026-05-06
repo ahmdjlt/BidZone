@@ -12,7 +12,7 @@ public class UploadsController : ControllerBase
     [HttpPost("image")]
     [Authorize(Roles = "Seller,Admin")]
     [RequestSizeLimit(5 * 1024 * 1024)]
-    public async Task<IActionResult> UploadImage([FromForm] IFormFile? file)
+    public async Task<IActionResult> UploadImage(IFormFile? file)
     {
         if (file == null || file.Length == 0)
             return BadRequest(new { message = "Image file is required." });

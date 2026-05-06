@@ -11,7 +11,7 @@ public static class AuctionSeeder
             new Auction
             {
                 Id = 1, Title = "iPhone 15 Pro Max", Description = "Brand new iPhone 15 Pro Max 256GB",
-                ImageUrl = "/images/iphone15.jpg", StartingPrice = 999.99m, CurrentPrice = 999.99m,
+                ImageUrl = "https://picsum.photos/seed/iphone15/860/600", StartingPrice = 999.99m, CurrentPrice = 999.99m,
                 StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
                 EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
                 Status = "Active", SellerId = 2, CategoryId = 1,
@@ -20,7 +20,7 @@ public static class AuctionSeeder
             new Auction
             {
                 Id = 2, Title = "Vintage Rolex Submariner", Description = "1960s Rolex Submariner in excellent condition",
-                ImageUrl = "/images/rolex.jpg", StartingPrice = 15000m, CurrentPrice = 15000m,
+                ImageUrl = "https://picsum.photos/seed/rolex/860/600", StartingPrice = 15000m, CurrentPrice = 15000m,
                 StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
                 EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
                 Status = "Active", SellerId = 2, CategoryId = 4,
@@ -29,7 +29,7 @@ public static class AuctionSeeder
             new Auction
             {
                 Id = 3, Title = "Mountain Bike Trek", Description = "Trek X-Caliber 8, barely used",
-                ImageUrl = "/images/trek.jpg", StartingPrice = 800m, CurrentPrice = 800m,
+                ImageUrl = "https://picsum.photos/seed/trek/860/600", StartingPrice = 800m, CurrentPrice = 800m,
                 StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
                 EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
                 Status = "Active", SellerId = 2, CategoryId = 1,
@@ -38,7 +38,7 @@ public static class AuctionSeeder
             new Auction
             {
                 Id = 4, Title = "Oil Painting - Sunset", Description = "Original oil painting, 24x36 inches",
-                ImageUrl = "/images/painting.jpg", StartingPrice = 250m, CurrentPrice = 250m,
+                ImageUrl = "https://picsum.photos/seed/painting/860/600", StartingPrice = 250m, CurrentPrice = 250m,
                 StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
                 EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
                 Status = "Active", SellerId = 2, CategoryId = 1,
@@ -47,7 +47,7 @@ public static class AuctionSeeder
             new Auction
             {
                 Id = 5, Title = "Tesla Model 3 2023", Description = "Tesla Model 3 Long Range, white, 10k miles",
-                ImageUrl = "/images/tesla.jpg", StartingPrice = 35000m, CurrentPrice = 35000m,
+                ImageUrl = "https://picsum.photos/seed/tesla/860/600", StartingPrice = 35000m, CurrentPrice = 35000m,
                 StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
                 EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
                 Status = "Active", SellerId = 2, CategoryId = 8,
