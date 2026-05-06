@@ -1238,7 +1238,7 @@ export default function ProfilePage() {
 
         <main className="mx-auto w-full max-w-[1440px] px-6 py-10 sm:px-10">
           <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-5">
+          <div className="flex items-center gap-5">
               <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#1a4fa0,#3b7dd8)] text-xl font-black tracking-wide text-white">
                 {profile.initials}
               </div>
@@ -1253,12 +1253,22 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
-            <Link
-              href="/settings"
-              className="rounded-lg border border-border-strong px-4 py-2 text-sm font-medium text-text-heading transition-colors hover:bg-accent-soft"
-            >
-              Edit Profile
-            </Link>
+            <div className="flex items-center gap-2">
+              {(profile.role === "Seller" || profile.role === "Admin") ? (
+                <Link
+                  href="/create-listing"
+                  className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:brightness-110"
+                >
+                  Create Auction
+                </Link>
+              ) : null}
+              <Link
+                href="/settings"
+                className="rounded-lg border border-border-strong px-4 py-2 text-sm font-medium text-text-heading transition-colors hover:bg-accent-soft"
+              >
+                Edit Profile
+              </Link>
+            </div>
           </div>
 
           {data.loadError ? (
