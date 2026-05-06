@@ -88,4 +88,38 @@ public class AuctionBidIntegrationTests : IClassFixture<SqliteAuthFixture>
         Assert.Equal(1300m, allBids[0].Amount);
         Assert.Contains(allBids, bid => bid.Amount == 1200m && bid.Status == "Outbid");
     }
+
+    [Fact]
+    public async Task PlaceBidAsync_ReturnsNull_WhenCurrentHighestBidderBidsAgain()
+    {
+        _fixture.ResetDatabase();
+        var bl = new BusinessLogicFactory();
+        var bids = bl.BidAction();
+        var auctions = bl.AuctionAction();
+
+        var firstBid = await bids.PlaceBidAsync(
+            new PlaceBidDto
+            {
+                AuctionId = 1,
+                Amount = 1200m
+            },
+            bidderId: 3);
+
+        Assert.NotNull(firstBid);
+
+        var secondBidSameBidder = await bids.PlaceBidAsync(
+            new PlaceBidDto
+            {
+                AuctionId = 1,
+                Amount = 1300m
+            },
+            bidderId: 3);
+
+        Assert.Null(secondBidSameBidder);
+
+        var auction = await auctions.GetByIdAsync(1);
+        Assert.NotNull(auction);
+        Assert.Equal(1200m, auction!.CurrentPrice);
+        Assert.Equal(1, auction.BidCount);
+    }
 }

@@ -34,6 +34,12 @@ public class BidLogic
             .Where(b => b.AuctionId == dto.AuctionId)
             .OrderByDescending(b => b.Amount)
             .FirstOrDefaultAsync();
+
+        if (previousHighest != null && previousHighest.BidderId == bidderId)
+        {
+            return null;
+        }
+
         if (previousHighest != null)
         {
             previousHighest.Status = "Outbid";
