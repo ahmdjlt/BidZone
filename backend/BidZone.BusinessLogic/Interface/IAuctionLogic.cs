@@ -11,6 +11,7 @@ public interface IAuctionLogic
     Task<List<AuctionDto>> GetActiveAsync();
     Task<List<AuctionDto>> GetByCategoryAsync(int categoryId);
     Task<List<AuctionDto>> GetBySellerAsync(int sellerId);
+    Task<AuctionContactDto?> GetContactForUserAsync(int auctionId, int userId);
     Task<AuctionDto> CreateAsync(CreateAuctionDto dto, int sellerId);
     Task<AuctionDto?> UpdateAsync(int id, UpdateAuctionDto dto, int sellerId);
     Task<ActionResponse> DeleteAsync(int id, int sellerId);

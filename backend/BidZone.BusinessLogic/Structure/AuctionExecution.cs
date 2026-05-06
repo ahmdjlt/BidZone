@@ -17,6 +17,7 @@ public class AuctionExecution : AuctionLogic, IAuctionLogic
     public Task<List<AuctionDto>> GetActiveAsync() => GetActiveExecution();
     public Task<List<AuctionDto>> GetByCategoryAsync(int categoryId) => GetByCategoryExecution(categoryId);
     public Task<List<AuctionDto>> GetBySellerAsync(int sellerId) => GetBySellerExecution(sellerId);
+    public Task<AuctionContactDto?> GetContactForUserAsync(int auctionId, int userId) => GetContactForUserExecution(auctionId, userId);
     public Task<AuctionDto> CreateAsync(CreateAuctionDto dto, int sellerId) => CreateExecution(dto, sellerId);
     public Task<AuctionDto?> UpdateAsync(int id, UpdateAuctionDto dto, int sellerId) => UpdateExecution(id, dto, sellerId);
     public Task<ActionResponse> DeleteAsync(int id, int sellerId) => DeleteExecution(id, sellerId);

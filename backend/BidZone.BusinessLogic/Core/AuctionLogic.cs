@@ -101,6 +101,46 @@ public class AuctionLogic
         return Mappers.ToDtoList(auctions);
     }
 
+    internal async Task<AuctionContactDto?> GetContactForUserExecution(int auctionId, int userId)
+    {
+        using var db = new AppDbContext();
+
+        var auction = await db.Auctions
+            .Include(a => a.Seller)
+            .Include(a => a.Bids)
+                .ThenInclude(b => b.Bidder)
+            .FirstOrDefaultAsync(a => a.Id == auctionId);
+
+        if (auction == null || auction.Status != "Closed")
+            return null;
+
+        var winningBid = auction.Bids.FirstOrDefault(b => b.Status == "Won");
+        if (winningBid == null || winningBid.Bidder == null || auction.Seller == null)
+            return null;
+
+        if (auction.SellerId == userId)
+        {
+            return new AuctionContactDto
+            {
+                ViewerRole = "Seller",
+                CounterpartyUsername = winningBid.Bidder.UserName ?? string.Empty,
+                CounterpartyEmail = winningBid.Bidder.Email ?? string.Empty
+            };
+        }
+
+        if (winningBid.BidderId == userId)
+        {
+            return new AuctionContactDto
+            {
+                ViewerRole = "Buyer",
+                CounterpartyUsername = auction.Seller.UserName ?? string.Empty,
+                CounterpartyEmail = auction.Seller.Email ?? string.Empty
+            };
+        }
+
+        return null;
+    }
+
     internal async Task<AuctionDto> CreateExecution(CreateAuctionDto dto, int sellerId)
     {
         using var db = new AppDbContext();

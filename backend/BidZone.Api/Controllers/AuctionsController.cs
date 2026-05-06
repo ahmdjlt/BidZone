@@ -57,6 +57,17 @@ public class AuctionsController : ControllerBase
         return Ok(auction);
     }
 
+    [HttpGet("{id}/contact")]
+    [Authorize]
+    public async Task<IActionResult> GetContact(int id)
+    {
+        var userId = User.GetRequiredUserId();
+        var contact = await _auction.GetContactForUserAsync(id, userId);
+        if (contact == null)
+            return NotFound();
+        return Ok(contact);
+    }
+
     [HttpPost]
     [Authorize(Roles = "Seller,Admin")]
     public async Task<IActionResult> Create([FromBody] CreateAuctionDto dto)
