@@ -10,7 +10,7 @@ export default function DashboardLayout({
     <RequireAuth>
       <div className="min-h-screen bg-surface-alt">
         <main className="flex-1 overflow-y-auto">
-          <div className="w-full px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mx-auto w-full max-w-[1440px] px-6 py-10 sm:px-10">
             {children}
           </div>
         </main>
