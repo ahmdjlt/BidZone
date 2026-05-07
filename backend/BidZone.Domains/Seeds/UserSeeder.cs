@@ -45,8 +45,8 @@ public static class UserSeeder
             new User
             {
                 Id = 1000,
-                UserName = "bidzone_admin",
-                NormalizedUserName = "BIDZONE_ADMIN",
+                UserName = "bidzone",
+                NormalizedUserName = "BIDZONE",
                 FullName = "BidZone Admin",
                 Email = "bidzone@admin.com",
                 NormalizedEmail = "BIDZONE@ADMIN.COM",
