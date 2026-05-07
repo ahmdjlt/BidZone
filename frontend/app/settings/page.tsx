@@ -150,8 +150,18 @@ function PaymentTab() {
                 Default
               </span>
             )}
-            <div className={`mb-4 flex h-8 w-12 items-center justify-center rounded-md bg-gradient-to-r ${card.gradient} text-[10px] font-bold tracking-wide text-white shadow-sm`}>
-              {card.brand}
+            <div className="mb-4">
+              {card.brand === "Visa" ? (
+                <svg viewBox="0 0 60 20" className="h-6 w-auto" aria-label="Visa">
+                  <text x="0" y="17" fontFamily="Arial, sans-serif" fontSize="22" fontWeight="bold" fontStyle="italic" fill="#1a1f71">VISA</text>
+                </svg>
+              ) : (
+                <svg viewBox="0 0 38 24" className="h-6 w-auto" aria-label="Mastercard">
+                  <circle cx="14" cy="12" r="10" fill="#eb001b" />
+                  <circle cx="24" cy="12" r="10" fill="#f79e1b" />
+                  <path d="M19 5.35a10 10 0 0 1 0 13.3A10 10 0 0 1 19 5.35z" fill="#ff5f00" />
+                </svg>
+              )}
             </div>
             <p className="font-mono text-sm tracking-widest text-text-heading">
               •••• {card.last4}
