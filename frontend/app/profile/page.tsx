@@ -14,7 +14,6 @@ import type { Bid } from "@/types/bid";
 import type { User } from "@/types/user";
 
 type Tab =
-  | "overview"
   | "auction-history"
   | "favourites"
   | "bids"
@@ -137,7 +136,6 @@ function buildProfile(user: User | null): ProfileViewModel {
 
 function getTabs(role: User["role"] | undefined): TabDefinition[] {
   const commonTabs: TabDefinition[] = [
-    { id: "overview", label: "Overview" },
     { id: "favourites", label: "Favourite objects" },
     { id: "bids", label: "Bids" },
     { id: "watchlist", label: "Watchlist" },
@@ -254,54 +252,6 @@ function StatusBadge({ status }: { status: string }) {
     <span className={`inline-block rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${statusColor[status] || "bg-accent-soft text-text-muted"}`}>
       {status}
     </span>
-  );
-}
-
-function OverviewTab({
-  profile,
-  stats,
-  isLoading,
-}: {
-  profile: ProfileViewModel;
-  stats: StatCard[];
-  isLoading: boolean;
-}) {
-  return (
-    <div>
-      <h2 className="text-xl font-semibold tracking-tight text-text-heading">Overview</h2>
-
-      <div className="mt-4">
-        <div className="border-b border-border py-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">Name</p>
-          <p className="mt-1 text-sm text-text-heading">{profile.name}</p>
-        </div>
-        <div className="border-b border-border py-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">Username</p>
-          <p className="mt-1 text-sm text-text-heading">@{profile.username}</p>
-        </div>
-        <div className="border-b border-border py-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">Email</p>
-          <p className="mt-1 text-sm text-text-heading">{profile.email}</p>
-        </div>
-        <div className="border-b border-border py-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">Role</p>
-          <p className="mt-1 text-sm text-text-heading">{profile.role}</p>
-        </div>
-        <div className="border-b border-border py-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">Status</p>
-          <p className="mt-1 text-sm text-text-heading">{profile.status}</p>
-        </div>
-        <div className="border-b border-border py-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">Member since</p>
-          <p className="mt-1 text-sm text-text-heading">{profile.joinDate}</p>
-        </div>
-      </div>
-
-      <h3 className="mt-8 text-base font-semibold text-text-heading">Stats</h3>
-      <div className="mt-3">
-        {isLoading ? <LoadingState /> : <StatsGrid stats={stats} />}
-      </div>
-    </div>
   );
 }
 
@@ -968,12 +918,12 @@ function AnalyticsTab({
 }
 
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState<Tab>("overview");
+  const [activeTab, setActiveTab] = useState<Tab>("auction-history");
   const [data, setData] = useState<ProfileDataState>(INITIAL_DATA);
   const user = useAuthStore((state) => state.user);
   const profile = buildProfile(user);
   const availableTabs = getTabs(user?.role);
-  const selectedTab = availableTabs.some((tab) => tab.id === activeTab) ? activeTab : "overview";
+  const selectedTab = availableTabs.some((tab) => tab.id === activeTab) ? activeTab : "auction-history";
 
   useEffect(() => {
     if (!user) {
@@ -1052,77 +1002,6 @@ export default function ProfilePage() {
   const soldOwnedAuctions = closedOwnedAuctions.filter((auction) => auction.bidCount > 0 && (auction.reservePrice == null || auction.currentPrice >= auction.reservePrice));
   const unsoldOwnedAuctions = closedOwnedAuctions.filter((auction) => auction.bidCount === 0 || (auction.reservePrice != null && auction.currentPrice < auction.reservePrice));
 
-  const overviewStats: StatCard[] = isAdmin
-    ? [
-        {
-          label: "Platform users",
-          value: formatCount(data.dashboardStats?.totalUsers ?? 0),
-          helper: "Registered accounts",
-        },
-        {
-          label: "Total auctions",
-          value: formatCount(data.dashboardStats?.totalAuctions ?? 0),
-          helper: "Across the marketplace",
-        },
-        {
-          label: "Active auctions",
-          value: formatCount(data.dashboardStats?.activeAuctions ?? 0),
-          helper: "Live right now",
-        },
-        {
-          label: "Closed revenue",
-          value: formatCurrency(data.dashboardStats?.totalRevenue ?? 0),
-          helper: "Report endpoint total",
-          accentClassName: "text-emerald-600 dark:text-emerald-400",
-        },
-      ]
-    : isSeller
-      ? [
-          {
-            label: "Auctions created",
-            value: formatCount(ownedAuctions.length),
-            helper: "Listings tied to your account",
-          },
-          {
-            label: "Live auctions",
-            value: formatCount(activeOwnedAuctions.length),
-            helper: "Currently active listings",
-          },
-          {
-            label: "Closed auctions",
-            value: formatCount(closedOwnedAuctions.length),
-            helper: "Finished listing lifecycle",
-          },
-          {
-            label: "Gross sales",
-            value: formatCurrency(soldOwnedAuctions.reduce((sum, auction) => sum + auction.currentPrice, 0)),
-            helper: "Closed auctions that met reserve",
-            accentClassName: "text-emerald-600 dark:text-emerald-400",
-          },
-        ]
-      : [
-          {
-            label: "Watchlist items",
-            value: formatCount(data.watchlist.length),
-            helper: "Saved auctions",
-          },
-          {
-            label: "Bids placed",
-            value: formatCount(data.bids.length),
-            helper: "Total bids in your account history",
-          },
-          {
-            label: "Winning bids",
-            value: formatCount(data.bids.filter((bid) => bid.status === "Winning" || bid.status === "Won").length),
-            helper: "Leading or completed bids",
-          },
-          {
-            label: "Active interests",
-            value: formatCount(data.watchlist.filter((item) => item.status === "Active").length),
-            helper: "Live auctions on your watchlist",
-          },
-        ];
-
   const salesStats: StatCard[] = isAdmin
     ? [
         {
@@ -1164,13 +1043,6 @@ export default function ProfilePage() {
       ];
 
   const panel = {
-    overview: (
-      <OverviewTab
-        profile={profile}
-        stats={overviewStats}
-        isLoading={data.isLoading}
-      />
-    ),
     "auction-history": (
       <AuctionHistoryTab
         role={profile.role}
