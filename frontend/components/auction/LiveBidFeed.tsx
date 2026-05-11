@@ -23,12 +23,20 @@ function randomBidder() {
   return simulatedBidders[Math.floor(Math.random() * simulatedBidders.length)];
 }
 
+function timeAgo(date: Date) {
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (seconds < 5) return "just now";
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  return `${minutes}m ago`;
+}
+
 export default function LiveBidFeed({
   initialBids = [],
   simulateRealTime = false,
 }: LiveBidFeedProps) {
   const [bids, setBids] = useState<LiveBid[]>(initialBids);
-  const [lastAmount, setLastAmount] = useState(2840);
+  const [, setLastAmount] = useState(2840);
   const listRef = useRef<HTMLDivElement>(null);
 
   // Simulate incoming bids for demo
@@ -61,14 +69,6 @@ export default function LiveBidFeed({
       listRef.current.scrollTop = 0;
     }
   }, [bids.length]);
-
-  function timeAgo(date: Date) {
-    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-    if (seconds < 5) return "just now";
-    if (seconds < 60) return `${seconds}s ago`;
-    const minutes = Math.floor(seconds / 60);
-    return `${minutes}m ago`;
-  }
 
   return (
     <div className="rounded-2xl border border-border bg-card-bg">

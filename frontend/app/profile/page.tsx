@@ -995,7 +995,6 @@ export default function ProfilePage() {
   }, [user]);
 
   const isAdmin = profile.role === "Admin";
-  const isSeller = profile.role === "Seller";
   const ownedAuctions = [...data.myAuctions].sort((left, right) => right.endTime.localeCompare(left.endTime));
   const activeOwnedAuctions = ownedAuctions.filter((auction) => auction.status === "Active");
   const closedOwnedAuctions = ownedAuctions.filter((auction) => auction.status === "Closed");

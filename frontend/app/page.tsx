@@ -120,7 +120,7 @@ export default function HomePage() {
           <div className="animate-rise max-w-2xl mx-auto text-center">
             <HeroHeading />
             <p className="mt-3 text-sm italic text-text-muted sm:text-base">
-              The live marketplace where every bid counts. Compete, collect, and claim what's yours.
+              The live marketplace where every bid counts. Compete, collect, and claim what&apos;s yours.
             </p>
           </div>
         </section>
