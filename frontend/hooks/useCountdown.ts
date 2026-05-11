@@ -31,6 +31,7 @@ export function useCountdown(endDate: Date | string): CountdownResult {
   const [remaining, setRemaining] = useState(() => calcRemaining(endDate));
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRemaining(calcRemaining(endDate));
     const id = setInterval(() => {
       const r = calcRemaining(endDate);

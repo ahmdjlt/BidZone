@@ -25,6 +25,7 @@ export default function HeroHeading() {
         const timeout = setTimeout(() => setDisplayed(displayed.slice(0, -1)), 50);
         return () => clearTimeout(timeout);
       } else {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setDeleting(false);
         setIndex((prev) => (prev + 1) % words.length);
       }

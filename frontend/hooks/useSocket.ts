@@ -34,6 +34,7 @@ export function useSocket(auctionId?: string | number) {
     socket.on("new-bid", onNewBid);
 
     if (socket.connected) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsConnected(true);
       subscribeToAuction(auctionId);
     }
