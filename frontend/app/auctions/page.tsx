@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import AuctionGrid from "@/components/auction/AuctionGrid";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import type { AuctionPreview } from "@/components/auction/AuctionCard";
+import { toAuctionPreview } from "@/lib/auctionPreview";
 import { getAuctions } from "@/lib/api/auctions";
 import type { AuctionSummary } from "@/types/auction";
 
@@ -50,50 +50,6 @@ type SortOption = (typeof sortOptions)[number];
 
 function mapSortToBackend(sort: SortOption): "price_asc" | "price_desc" {
   return sort === "Price: High → Low" ? "price_desc" : "price_asc";
-}
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-function formatEndsIn(value: string): string {
-  const end = new Date(value);
-  const diffMs = end.getTime() - Date.now();
-
-  if (diffMs <= 0) {
-    return "Ended";
-  }
-
-  const totalMinutes = Math.floor(diffMs / (1000 * 60));
-  const days = Math.floor(totalMinutes / (60 * 24));
-  const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
-  const minutes = totalMinutes % 60;
-
-  if (days > 0) {
-    return `${days}d ${hours.toString().padStart(2, "0")}h`;
-  }
-
-  return `${hours}h ${minutes.toString().padStart(2, "0")}m`;
-}
-
-function toPreview(auction: AuctionSummary): AuctionPreview {
-  return {
-    id: auction.id,
-    title: auction.title,
-    description: `${auction.categoryName} auction`,
-    location: "Online",
-    category: auction.categoryName,
-    currentBid: formatCurrency(auction.currentPrice),
-    bids: auction.bidCount,
-    endsIn: formatEndsIn(auction.endTime),
-    watchers: 0,
-    imageUrl: auction.imageUrl || "/auction-images/abstract-oil-canvas.svg",
-    imageAccent: "linear-gradient(135deg,#2f80ff,#8ec5ff)",
-  };
 }
 
 export default function AuctionsPage() {
@@ -225,7 +181,7 @@ export default function AuctionsPage() {
       new Map(auctions.map((auction) => [auction.id, auction])).values()
     );
 
-    return uniqueAuctions.map(toPreview);
+    return uniqueAuctions.map(toAuctionPreview);
   }, [activeCategorySlug, apiAuctions]);
 
   return (

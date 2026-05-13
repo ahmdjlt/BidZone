@@ -1,4 +1,7 @@
 // Landing page - hero section, featured auctions, call-to-action
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import AuctionGrid from "@/components/auction/AuctionGrid";
 import type { AuctionPreview } from "@/components/auction/AuctionCard";
@@ -6,87 +9,8 @@ import Footer from "@/components/layout/Footer";
 import CategoryBar from "@/components/ui/CategoryBar";
 import HeroHeading from "@/components/ui/HeroHeading";
 import Navbar from "@/components/layout/Navbar";
-
-const featuredAuctions: AuctionPreview[] = [
-  {
-    id: 1,
-    title: "Rare Seiko Chronograph",
-    description: "Automatic Movement, 42mm Case, Stainless Steel Bracelet, Sapphire Crystal",
-    location: "Tokyo, Japan",
-    category: "Collectibles",
-    currentBid: "$1,240",
-    bids: 37,
-    endsIn: "2h 11m",
-    watchers: 91,
-    imageUrl: "/auction-images/ceas.jpg",
-    imageAccent: "linear-gradient(135deg,#2f80ff,#8ec5ff)",
-  },
-  {
-    id: 2,
-    title: "PSA 10 Jordan Rookie Card",
-    description: "1986 Fleer #57, Gem Mint Condition, Authenticated & Graded",
-    location: "Chicago, IL 60601",
-    category: "Sports Cards",
-    currentBid: "$6,850",
-    bids: 52,
-    endsIn: "5h 44m",
-    watchers: 138,
-    imageUrl: "/auction-images/card.jpg",
-    imageAccent: "linear-gradient(135deg,#3d9bff,#d5ebff)",
-  },
-  {
-    id: 3,
-    title: "Mid-Century Lounge Chair",
-    description: "Walnut Frame, Italian Leather Cushions, Original 1960s Design",
-    location: "Portland, OR 97201",
-    category: "Home Design",
-    currentBid: "$2,100",
-    bids: 19,
-    endsIn: "1d 03h",
-    watchers: 64,
-    imageUrl: "/auction-images/scaun.jpg",
-    imageAccent: "linear-gradient(135deg,#2c6ce8,#5fc7ff)",
-  },
-  {
-    id: 4,
-    title: "Signed First Edition Novel",
-    description: "Hardcover, Dust Jacket Intact, Author-Signed, Near Fine Condition",
-    location: "New York, NY 10001",
-    category: "Books",
-    currentBid: "$740",
-    bids: 26,
-    endsIn: "8h 14m",
-    watchers: 58,
-    imageUrl: "/auction-images/premiu.jpg",
-    imageAccent: "linear-gradient(135deg,#105ed6,#8cbcff)",
-  },
-  {
-    id: 5,
-    title: "Cinema Lens Master Kit",
-    description: "3-Lens Set, PL Mount, T1.5 Aperture, Hard Carrying Case Included",
-    location: "Los Angeles, CA 90028",
-    category: "Gear",
-    currentBid: "$4,920",
-    bids: 14,
-    endsIn: "3d 06h",
-    watchers: 72,
-    imageUrl: "/auction-images/obiectiv_foto.jpg",
-    imageAccent: "linear-gradient(135deg,#1a7cf4,#88d6ff)",
-  },
-  {
-    id: 1,
-    title: "OEM Front Bumper Kit",
-    description: "Complete Assembly, Primer Finish, Fog Light Brackets, Hardware Included",
-    location: "Detroit, MI 48201",
-    category: "Auto Parts",
-    currentBid: "$4,920",
-    bids: 14,
-    endsIn: "3d 06h",
-    watchers: 72,
-    imageUrl: "/auction-images/bumper.png",
-    imageAccent: "linear-gradient(135deg,#1a7cf4,#88d6ff)",
-  },
-];
+import { getAuctions } from "@/lib/api/auctions";
+import { toAuctionPreview } from "@/lib/auctionPreview";
 
 const categories = [
   { label: "This Week", icon: "M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" },
@@ -109,8 +33,42 @@ const categories = [
   { label: "Musical", slug: "musical", icon: "M9 19.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm12-3a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM9 19.5V7.5l12-3v12" },
 ];
 
-
 export default function HomePage() {
+  const [featuredAuctions, setFeaturedAuctions] = useState<AuctionPreview[]>([]);
+  const [isLoadingAuctions, setIsLoadingAuctions] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadFeaturedAuctions() {
+      setIsLoadingAuctions(true);
+      setLoadError(null);
+
+      try {
+        const auctions = await getAuctions({ status: "Active", sort: "ending_soon" });
+        if (!cancelled) {
+          setFeaturedAuctions(auctions.slice(0, 8).map(toAuctionPreview));
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setFeaturedAuctions([]);
+          setLoadError(error instanceof Error ? error.message : "Could not load auctions.");
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoadingAuctions(false);
+        }
+      }
+    }
+
+    void loadFeaturedAuctions();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <div className="page-gradient relative overflow-x-clip">
       <Navbar />
@@ -128,7 +86,21 @@ export default function HomePage() {
         <CategoryBar categories={categories} />
 
         <section className="mt-6">
-          <AuctionGrid auctions={featuredAuctions} />
+          {isLoadingAuctions ? (
+            <div className="rounded-xl border border-dashed border-border-strong px-5 py-7 text-sm text-text-muted">
+              Loading live auctions...
+            </div>
+          ) : loadError ? (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
+              {loadError}
+            </div>
+          ) : featuredAuctions.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border-strong px-5 py-7 text-sm text-text-muted">
+              No live auctions available.
+            </div>
+          ) : (
+            <AuctionGrid auctions={featuredAuctions} />
+          )}
           <div className="mt-8 mb-2 flex justify-center">
             <Link
               href="/auctions"
@@ -138,7 +110,6 @@ export default function HomePage() {
             </Link>
           </div>
         </section>
-
       </main>
 
       <Footer />
