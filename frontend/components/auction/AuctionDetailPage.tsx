@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import BidForm from "./BidForm";
 import BidHistory, { type Bid as BidHistoryItem } from "./BidHistory";
@@ -9,6 +9,7 @@ import { getBidsByAuction, placeBid } from "@/lib/api/bids";
 import type { Auction, AuctionContact } from "@/types/auction";
 import type { Bid } from "@/types/bid";
 import { useAuthStore } from "@/store/authStore";
+import { useSocket } from "@/hooks/useSocket";
 
 export interface AuctionDetailPageProps {
   auctionId: number;
@@ -56,6 +57,8 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
   const [isBidding, setIsBidding] = useState(false);
   const [contact, setContact] = useState<AuctionContact | null>(null);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string>("");
+  const { lastBid } = useSocket(auctionId);
+  const knownBidIdsRef = useRef(new Set<number>());
 
   const loadAuction = useCallback(async (showLoader = false) => {
     if (!auctionId) {
@@ -141,6 +144,39 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
     const firstGalleryImage = auction.images?.[0]?.url;
     setSelectedImageUrl(firstGalleryImage || auction.imageUrl || "/auction-images/abstract-oil-canvas.svg");
   }, [auction]);
+
+  useEffect(() => {
+    knownBidIdsRef.current = new Set(bids.map((bid) => bid.id));
+  }, [bids]);
+
+  useEffect(() => {
+    if (!lastBid || lastBid.auctionId !== auctionId) {
+      return;
+    }
+
+    const isNewBid = !knownBidIdsRef.current.has(lastBid.id);
+    knownBidIdsRef.current.add(lastBid.id);
+
+    setBids((currentBids) => {
+      const updatedBids = currentBids
+        .filter((bid) => bid.id !== lastBid.id)
+        .map((bid) => (bid.status === "Winning" ? { ...bid, status: "Outbid" as const } : bid));
+
+      return [lastBid, ...updatedBids].sort((left, right) => right.amount - left.amount);
+    });
+
+    setAuction((currentAuction) => {
+      if (!currentAuction || currentAuction.id !== lastBid.auctionId) {
+        return currentAuction;
+      }
+
+      return {
+        ...currentAuction,
+        currentPrice: Math.max(currentAuction.currentPrice, lastBid.amount),
+        bidCount: currentAuction.bidCount + (isNewBid ? 1 : 0),
+      };
+    });
+  }, [auctionId, lastBid]);
 
   const handlePlaceBid = useCallback(async (amount: number) => {
     if (!auction) {
