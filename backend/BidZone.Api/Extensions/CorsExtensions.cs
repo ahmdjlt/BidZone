@@ -8,10 +8,14 @@ public static class CorsExtensions
         {
             options.AddDefaultPolicy(policy =>
             {
-                policy.WithOrigins(
-                          Environment.GetEnvironmentVariable("FRONTEND_URL")
-                          ?? configuration.GetValue<string>("FrontendUrl")
-                          ?? "http://localhost:3000")
+                var origins = (Environment.GetEnvironmentVariable("CORS_ORIGINS")
+                              ?? configuration.GetValue<string>("CorsOrigins")
+                              ?? Environment.GetEnvironmentVariable("FRONTEND_URL")
+                              ?? configuration.GetValue<string>("FrontendUrl")
+                              ?? "http://localhost:3000")
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+                policy.WithOrigins(origins)
                       .AllowAnyHeader()
                       .AllowAnyMethod()
                       .AllowCredentials();
