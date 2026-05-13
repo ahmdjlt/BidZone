@@ -1,5 +1,6 @@
 using BidZone.BusinessLogic.Interface;
 using BidZone.Api.Extensions;
+using BidZone.Api.Services;
 using BidZone.Domains.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +13,13 @@ namespace BidZone.Api.Controllers;
 public class BidsController : ControllerBase
 {
     internal IBidLogic _bid;
+    private readonly AuctionSocketManager _socketManager;
 
-    public BidsController()
+    public BidsController(AuctionSocketManager socketManager)
     {
         var bl = new BusinessLogicFactory();
         _bid = bl.BidAction();
+        _socketManager = socketManager;
     }
 
     [HttpPost]
@@ -27,6 +30,7 @@ public class BidsController : ControllerBase
         var bid = await _bid.PlaceBidAsync(dto, bidderId);
         if (bid == null)
             return BadRequest(new { message = "Cannot place bid. Check auction status and bid amount." });
+        await _socketManager.BroadcastBidAsync(bid, HttpContext.RequestAborted);
         return Ok(bid);
     }
 

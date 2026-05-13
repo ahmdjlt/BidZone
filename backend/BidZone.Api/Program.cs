@@ -43,6 +43,7 @@ ApplyEnvironmentOverride(builder.Configuration, "Email:Password", "EMAIL_PASSWOR
 ApplyEnvironmentOverride(builder.Configuration, "Email:FromAddress", "EMAIL_FROM_ADDRESS");
 ApplyEnvironmentOverride(builder.Configuration, "Email:FromName", "EMAIL_FROM_NAME");
 ApplyEnvironmentOverride(builder.Configuration, "Email:ResendApiKey", "RESEND_API_KEY");
+ApplyEnvironmentOverride(builder.Configuration, "FrontendUrl", "FRONTEND_URL");
 
 var emailSection = builder.Configuration.GetSection("Email");
 EmailOptionsHolder.SmtpHost = emailSection["SmtpHost"] ?? EmailOptionsHolder.SmtpHost;
@@ -65,6 +66,7 @@ EmailOptionsHolder.FrontendUrl = builder.Configuration["FrontendUrl"] ?? EmailOp
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddSwaggerDocumentation();
 builder.Services.AddBidZoneCors(builder.Configuration);
+builder.Services.AddSingleton<AuctionSocketManager>();
 builder.Services.AddHostedService<AuctionFinalizationHostedService>();
 builder.Services.AddControllers();
 
@@ -79,6 +81,18 @@ if (app.Environment.IsDevelopment())
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseWebSockets();
+app.Map("/ws/auctions/{auctionId:int}", async (HttpContext context, int auctionId, AuctionSocketManager socketManager) =>
+{
+    if (!context.WebSockets.IsWebSocketRequest)
+    {
+        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+        return;
+    }
+
+    using var socket = await context.WebSockets.AcceptWebSocketAsync();
+    await socketManager.HandleConnectionAsync(auctionId, socket, context.RequestAborted);
+});
 app.MapControllers();
 
 app.Run();
