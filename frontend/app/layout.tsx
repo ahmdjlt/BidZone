@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, DM_Serif_Display } from "next/font/google";
 import AuthBootstrapper from "@/components/auth/AuthBootstrapper";
 import ThemeProvider from "@/components/ThemeProvider";
+import QueryProvider from "@/components/providers/QueryProvider";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import "./globals.css";
 
 const inter = Inter({
@@ -35,13 +37,15 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body
-        className={`${inter.variable} ${dmSerif.variable} antialiased`}
-      >
-        <ThemeProvider>
-          <AuthBootstrapper />
-          {children}
-        </ThemeProvider>
+      <body className={`${inter.variable} ${dmSerif.variable} antialiased`}>
+        <QueryProvider>
+          <ErrorBoundary>
+            <ThemeProvider>
+              <AuthBootstrapper />
+              {children}
+            </ThemeProvider>
+          </ErrorBoundary>
+        </QueryProvider>
       </body>
     </html>
   );
