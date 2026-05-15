@@ -14,6 +14,7 @@ public class AuctionExecution : AuctionLogic, IAuctionLogic
         => GetAllPagedExecution(search, category, sort, status, minPrice, maxPrice, pagination);
 
     public Task<AuctionDto?> GetByIdAsync(int id) => GetByIdExecution(id);
+    public Task<AuctionDto?> GetBySlugAsync(string slug) => GetBySlugExecution(slug);
     public Task<List<AuctionDto>> GetActiveAsync() => GetActiveExecution();
     public Task<List<AuctionDto>> GetByCategoryAsync(int categoryId) => GetByCategoryExecution(categoryId);
     public Task<List<AuctionDto>> GetBySellerAsync(int sellerId) => GetBySellerExecution(sellerId);

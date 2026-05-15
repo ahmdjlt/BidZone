@@ -1,3 +1,4 @@
+using BidZone.BusinessLogic.Helpers;
 using BidZone.DataAccess.Context;
 using BidZone.Domains.DTOs;
 using BidZone.Domains.Entities;
@@ -63,6 +64,18 @@ public class AuctionLogic
             .Include(a => a.Images)
             .Include(a => a.Bids).ThenInclude(b => b.Bidder)
             .FirstOrDefaultAsync(a => a.Id == id);
+        return auction == null ? null : Mappers.ToDto(auction);
+    }
+
+    internal async Task<AuctionDto?> GetBySlugExecution(string slug)
+    {
+        using var db = new AppDbContext();
+        var auction = await db.Auctions
+            .Include(a => a.Seller)
+            .Include(a => a.Category)
+            .Include(a => a.Images)
+            .Include(a => a.Bids).ThenInclude(b => b.Bidder)
+            .FirstOrDefaultAsync(a => a.Slug == slug);
         return auction == null ? null : Mappers.ToDto(auction);
     }
 
@@ -160,6 +173,7 @@ public class AuctionLogic
             StartTime = DateTime.UtcNow,
             EndTime = dto.EndTime.ToUniversalTime(),
             Status = "Active",
+            Slug = SlugHelper.GenerateSlug(dto.Title),
             SellerId = sellerId,
             CategoryId = dto.CategoryId
         };

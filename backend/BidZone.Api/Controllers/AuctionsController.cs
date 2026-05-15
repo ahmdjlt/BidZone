@@ -48,6 +48,15 @@ public class AuctionsController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("slug/{slug}")]
+    public async Task<IActionResult> GetBySlug(string slug)
+    {
+        var auction = await _auction.GetBySlugAsync(slug);
+        if (auction == null)
+            return NotFound();
+        return Ok(auction);
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {

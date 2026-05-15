@@ -8,6 +8,7 @@ public interface IAuctionLogic
     Task<List<AuctionDto>> GetAllAsync(string? search, string? category, string? sort, string? status, decimal? minPrice, decimal? maxPrice);
     Task<PaginatedResult<AuctionDto>> GetAllPagedAsync(string? search, string? category, string? sort, string? status, decimal? minPrice, decimal? maxPrice, PaginationParams pagination);
     Task<AuctionDto?> GetByIdAsync(int id);
+    Task<AuctionDto?> GetBySlugAsync(string slug);
     Task<List<AuctionDto>> GetActiveAsync();
     Task<List<AuctionDto>> GetByCategoryAsync(int categoryId);
     Task<List<AuctionDto>> GetBySellerAsync(int sellerId);
