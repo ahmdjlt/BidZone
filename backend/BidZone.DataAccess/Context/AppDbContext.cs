@@ -77,6 +77,7 @@ public class AppDbContext : IdentityUserContext<User, int>
         {
             e.HasOne(a => a.Seller).WithMany(u => u.Auctions).HasForeignKey(a => a.SellerId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne(a => a.Category).WithMany(c => c.Auctions).HasForeignKey(a => a.CategoryId);
+            e.HasIndex(a => a.Slug).IsUnique();
         });
 
         modelBuilder.Entity<AuctionImage>(e =>
