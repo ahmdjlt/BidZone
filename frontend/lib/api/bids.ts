@@ -16,6 +16,12 @@ export async function getMyBids(): Promise<Bid[]> {
   return apiFetch<Bid[]>("/api/bids/my");
 }
 
+export async function getRecentBids(limit = 15): Promise<Bid[]> {
+  const params = new URLSearchParams();
+  params.set("limit", String(limit));
+  return apiFetch<Bid[]>(`/api/bids/recent?${params.toString()}`);
+}
+
 export async function getHighestBid(auctionId: number | string): Promise<Bid | null> {
   try {
     return await apiFetch<Bid>(`/api/bids/auction/${auctionId}/highest`);
