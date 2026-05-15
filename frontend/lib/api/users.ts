@@ -71,13 +71,8 @@ export async function resendConfirmation(email: string): Promise<{ message: stri
   });
 }
 
-export async function refreshSession(): Promise<AuthResponse> {
-  const session = await refreshAccessToken();
-  if (!session) {
-    throw new Error("Session refresh failed.");
-  }
-
-  return session;
+export async function refreshSession(): Promise<AuthResponse | null> {
+  return refreshAccessToken();
 }
 
 export async function logout(): Promise<void> {
