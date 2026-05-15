@@ -83,7 +83,7 @@ public class AuctionsController : ControllerBase
     {
         var sellerId = User.GetRequiredUserId();
         var auction = await _auction.CreateAsync(dto, sellerId);
-        return CreatedAtAction(nameof(GetById), new { id = auction.Id }, auction);
+        return CreatedAtAction(nameof(GetBySlug), new { slug = auction.Slug }, auction);
     }
 
     [HttpPut("{id}")]

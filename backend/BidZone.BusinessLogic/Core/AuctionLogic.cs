@@ -69,6 +69,9 @@ public class AuctionLogic
 
     internal async Task<AuctionDto?> GetBySlugExecution(string slug)
     {
+        if (string.IsNullOrWhiteSpace(slug) || slug.Length > 255)
+            return null;
+
         using var db = new AppDbContext();
         var auction = await db.Auctions
             .Include(a => a.Seller)
@@ -181,7 +184,20 @@ public class AuctionLogic
         SetAuctionImages(auction, dto.ImageUrls, dto.ImageUrl);
 
         db.Auctions.Add(auction);
-        await db.SaveChangesAsync();
+
+        for (var attempt = 0; attempt < 5; attempt++)
+        {
+            try
+            {
+                await db.SaveChangesAsync();
+                break; // success
+            }
+            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("IX_Auctions_Slug") == true)
+            {
+                if (attempt == 4) throw new InvalidOperationException("Failed to generate a unique slug after 5 attempts.");
+                auction.Slug = SlugHelper.GenerateSlug(dto.Title);
+            }
+        }
 
         var full = await db.Auctions
             .Include(a => a.Seller)
