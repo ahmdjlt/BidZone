@@ -293,7 +293,7 @@ function AuctionHistoryTab({
           {recentBids.map((bid, index) => (
             <Link
               key={bid.id}
-              href={`/auctions/${bid.auctionId}`}
+              href={`/auctions/${bid.auctionSlug}`}
               className={`flex items-center justify-between px-5 py-4 transition-colors hover:bg-accent-soft/40 ${index > 0 ? "border-t border-border" : ""}`}
             >
               <div>
@@ -338,7 +338,7 @@ function AuctionHistoryTab({
       />
       <div className="overflow-hidden rounded-xl border border-border-strong">
         {recentAuctions.map((auction, index) => {
-          const href = `/auctions/${auction.id}`;
+          const href = `/auctions/${auction.slug}`;
           const categoryName = auction.categoryName;
           const price = auction.currentPrice;
           const date = auction.endTime;
@@ -393,7 +393,7 @@ function FavouritesTab({ items, isLoading }: { items: WatchlistItem[]; isLoading
         {items.map((item) => (
           <Link
             key={item.id}
-            href={`/auctions/${item.auctionId}`}
+            href={`/auctions/${item.auctionSlug}`}
             className="group overflow-hidden rounded-xl border border-border-strong transition-all hover:border-accent/30 hover:shadow-md"
           >
             <div className="relative aspect-[4/3] bg-accent-soft/40">
@@ -453,7 +453,7 @@ function BidsTab({ items, isLoading }: { items: Bid[]; isLoading: boolean }) {
         {sortedItems.map((item, index) => (
           <Link
             key={item.id}
-            href={`/auctions/${item.auctionId}`}
+            href={`/auctions/${item.auctionSlug}`}
             className={`flex items-center justify-between px-5 py-4 transition-colors hover:bg-accent-soft/40 ${index > 0 ? "border-t border-border" : ""}`}
           >
             <div>
@@ -494,7 +494,7 @@ function WatchlistTab({ items, isLoading }: { items: WatchlistItem[]; isLoading:
         {items.map((item, index) => (
           <Link
             key={item.id}
-            href={`/auctions/${item.auctionId}`}
+            href={`/auctions/${item.auctionSlug}`}
             className={`flex items-center justify-between px-5 py-4 transition-colors hover:bg-accent-soft/40 ${index > 0 ? "border-t border-border" : ""}`}
           >
             <div>
@@ -561,7 +561,7 @@ function SalesOverviewTab({
             return (
               <Link
                 key={auction.id}
-                href={`/auctions/${auction.id}`}
+                href={`/auctions/${auction.slug}`}
                 className={`flex items-center justify-between px-5 py-4 transition-colors hover:bg-accent-soft/40 ${index > 0 ? "border-t border-border" : ""}`}
               >
                 <div>
@@ -619,7 +619,7 @@ function InAuctionTab({
         {auctions.map((auction, index) => (
           <Link
             key={auction.id}
-            href={`/auctions/${auction.id}`}
+            href={`/auctions/${auction.slug}`}
             className={`flex items-center justify-between px-5 py-4 transition-colors hover:bg-accent-soft/40 ${index > 0 ? "border-t border-border" : ""}`}
           >
             <div>
@@ -675,7 +675,7 @@ function SoldTab({
         {auctions.map((auction, index) => (
           <Link
             key={auction.id}
-            href={`/auctions/${auction.id}`}
+            href={`/auctions/${auction.slug}`}
             className={`flex items-center justify-between px-5 py-4 transition-colors hover:bg-accent-soft/40 ${index > 0 ? "border-t border-border" : ""}`}
           >
             <div>
@@ -736,7 +736,7 @@ function NotSoldTab({
           return (
             <Link
               key={auction.id}
-              href={`/auctions/${auction.id}`}
+              href={`/auctions/${auction.slug}`}
               className={`flex items-start justify-between px-5 py-4 transition-colors hover:bg-accent-soft/40 ${index > 0 ? "border-t border-border" : ""}`}
             >
               <div>

@@ -2,17 +2,19 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import { useQueryClient } from "@tanstack/react-query";
 import BidForm from "./BidForm";
 import BidHistory, { type Bid as BidHistoryItem } from "./BidHistory";
-import { getAuctionById, getAuctionContact } from "@/lib/api/auctions";
+import { getAuctionContact } from "@/lib/api/auctions";
 import { getBidsByAuction, placeBid } from "@/lib/api/bids";
 import type { Auction, AuctionContact } from "@/types/auction";
 import type { Bid } from "@/types/bid";
 import { useAuthStore } from "@/store/authStore";
 import { useSocket } from "@/hooks/useSocket";
+import { useAuction } from "@/hooks/queries/useAuction";
 
 export interface AuctionDetailPageProps {
-  auctionId: number;
+  slug: string;
 }
 
 function formatCurrency(value: number): string {
@@ -25,10 +27,7 @@ function formatCurrency(value: number): string {
 
 function formatDateTime(value: string): string {
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return "Unknown";
-  }
-
+  if (Number.isNaN(date.getTime())) return "Unknown";
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
@@ -48,159 +47,104 @@ function toBidHistory(bids: Bid[]): BidHistoryItem[] {
   }));
 }
 
-export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps) {
+export default function AuctionDetailPage({ slug }: AuctionDetailPageProps) {
+  const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
-  const [auction, setAuction] = useState<Auction | null>(null);
+  const { data: auction, isLoading, error } = useAuction(slug);
   const [bids, setBids] = useState<Bid[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [isBidding, setIsBidding] = useState(false);
   const [contact, setContact] = useState<AuctionContact | null>(null);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string>("");
-  const { lastBid } = useSocket(auctionId);
+  const { lastBid, isConnecting } = useSocket(auction?.id);
   const knownBidIdsRef = useRef(new Set<number>());
 
-  const loadAuction = useCallback(async (showLoader = false) => {
-    if (!auctionId) {
-      setError("Invalid auction id.");
-      setIsLoading(false);
-      return;
-    }
-
-    if (showLoader) {
-      setIsLoading(true);
-      setError(null);
-    }
-
-    try {
-      const [auctionResponse, bidsResponse] = await Promise.all([
-        getAuctionById(auctionId),
-        getBidsByAuction(auctionId),
-      ]);
-      setAuction(auctionResponse);
-      setBids(bidsResponse);
-
-      if (user && auctionResponse.status === "Closed") {
-        try {
-          const contactResponse = await getAuctionContact(auctionId);
-          setContact(contactResponse);
-        } catch {
-          setContact(null);
-        }
-      } else {
-        setContact(null);
-      }
-    } catch (loadError) {
-      if (showLoader) {
-        setError(loadError instanceof Error ? loadError.message : "Could not load auction.");
-        setAuction(null);
-        setBids([]);
-        setContact(null);
-      }
-    } finally {
-      if (showLoader) {
-        setIsLoading(false);
-      }
-    }
-  }, [auctionId, user]);
-
+  // Load bids when auction id is available
   useEffect(() => {
+    if (!auction?.id) return;
     let cancelled = false;
 
-    async function runLoad() {
-      await loadAuction(true);
-      if (cancelled) {
-        return;
-      }
-    }
+    getBidsByAuction(auction.id)
+      .then((result) => { if (!cancelled) setBids(result); })
+      .catch(() => { /* bids will be empty; WS fills them in */ });
 
-    void runLoad();
+    return () => { cancelled = true; };
+  }, [auction?.id]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [loadAuction]);
-
+  // Load contact info for closed auctions
   useEffect(() => {
-    if (!auction || auction.status !== "Active") {
+    if (!auction || auction.status !== "Closed" || !user) {
+      setContact(null);
       return;
     }
+    let cancelled = false;
 
-    const intervalId = setInterval(() => {
-      void loadAuction();
-    }, 5000);
+    getAuctionContact(auction.id)
+      .then((c) => { if (!cancelled) setContact(c); })
+      .catch(() => { if (!cancelled) setContact(null); });
 
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [auction, loadAuction]);
+    return () => { cancelled = true; };
+  }, [auction?.id, auction?.status, user]);
 
+  // Set initial selected image when auction loads (only on auction id change)
   useEffect(() => {
-    if (!auction) {
-      setSelectedImageUrl("");
-      return;
-    }
+    if (!auction) { setSelectedImageUrl(""); return; }
+    const first = auction.images?.[0]?.url;
+    setSelectedImageUrl(first || auction.imageUrl || "/auction-images/abstract-oil-canvas.svg");
+  }, [auction?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const firstGalleryImage = auction.images?.[0]?.url;
-    setSelectedImageUrl(firstGalleryImage || auction.imageUrl || "/auction-images/abstract-oil-canvas.svg");
-  }, [auction]);
-
+  // Track known bid IDs for deduplication
   useEffect(() => {
-    knownBidIdsRef.current = new Set(bids.map((bid) => bid.id));
+    knownBidIdsRef.current = new Set(bids.map((b) => b.id));
   }, [bids]);
 
+  // Merge WebSocket bids into local state + update query cache
   useEffect(() => {
-    if (!lastBid || lastBid.auctionId !== auctionId) {
-      return;
-    }
+    if (!lastBid || !auction || lastBid.auctionId !== auction.id) return;
 
     const isNewBid = !knownBidIdsRef.current.has(lastBid.id);
     knownBidIdsRef.current.add(lastBid.id);
 
-    setBids((currentBids) => {
-      const updatedBids = currentBids
-        .filter((bid) => bid.id !== lastBid.id)
-        .map((bid) => (bid.status === "Winning" ? { ...bid, status: "Outbid" as const } : bid));
-
-      return [lastBid, ...updatedBids].sort((left, right) => right.amount - left.amount);
+    setBids((current) => {
+      const updated = current
+        .filter((b) => b.id !== lastBid.id)
+        .map((b) => (b.status === "Winning" ? { ...b, status: "Outbid" as const } : b));
+      return [lastBid, ...updated].sort((a, b) => b.amount - a.amount);
     });
 
-    setAuction((currentAuction) => {
-      if (!currentAuction || currentAuction.id !== lastBid.auctionId) {
-        return currentAuction;
-      }
-
+    queryClient.setQueryData(["auction", slug], (old: Auction | undefined) => {
+      if (!old || old.id !== lastBid.auctionId) return old;
       return {
-        ...currentAuction,
-        currentPrice: Math.max(currentAuction.currentPrice, lastBid.amount),
-        bidCount: currentAuction.bidCount + (isNewBid ? 1 : 0),
+        ...old,
+        currentPrice: Math.max(old.currentPrice, lastBid.amount),
+        bidCount: old.bidCount + (isNewBid ? 1 : 0),
       };
     });
-  }, [auctionId, lastBid]);
+  }, [lastBid, auction, slug, queryClient]);
 
-  const handlePlaceBid = useCallback(async (amount: number) => {
-    if (!auction) {
-      throw new Error("Auction is not available.");
-    }
-
-    setIsBidding(true);
-    try {
-      await placeBid(auction.id, amount);
-      await loadAuction();
-    } finally {
-      setIsBidding(false);
-    }
-  }, [auction, loadAuction]);
+  const handlePlaceBid = useCallback(
+    async (amount: number) => {
+      if (!auction) throw new Error("Auction not available.");
+      setIsBidding(true);
+      try {
+        await placeBid(auction.id, amount);
+        await queryClient.invalidateQueries({ queryKey: ["auction", slug] });
+        const freshBids = await getBidsByAuction(auction.id);
+        setBids(freshBids);
+      } finally {
+        setIsBidding(false);
+      }
+    },
+    [auction, slug, queryClient]
+  );
 
   const bidHistory = useMemo(() => toBidHistory(bids), [bids]);
   const myLatestBid = useMemo(() => {
-    if (!user) {
-      return null;
-    }
-
-    return bids
-      .filter((bid) => bid.bidderId == user.id)
-      .sort((left, right) => new Date(right.placedAt).getTime() - new Date(left.placedAt).getTime())[0] ?? null;
+    if (!user) return null;
+    return (
+      bids
+        .filter((b) => b.bidderId == user.id)
+        .sort((a, b) => new Date(b.placedAt).getTime() - new Date(a.placedAt).getTime())[0] ?? null
+    );
   }, [bids, user]);
 
   if (isLoading) {
@@ -220,7 +164,7 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
       <div className="min-h-screen page-gradient">
         <main className="mx-auto w-full max-w-[1440px] px-6 py-8 sm:px-8">
           <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
-            {error ?? "Auction not found."}
+            {error instanceof Error ? error.message : "Auction not found."}
           </div>
         </main>
       </div>
@@ -236,36 +180,27 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
   const isBidDisabled = isAuctionClosed || isBidding || isWinning || isOwner;
 
   let disabledLabel: string | undefined;
-  if (isBidding) {
-    disabledLabel = "Placing bid...";
-  } else if (isWinning) {
-    disabledLabel = "Winning";
-  } else if (isAuctionClosed) {
-    disabledLabel = "Auction closed";
-  }
+  if (isBidding) disabledLabel = "Placing bid...";
+  else if (isWinning) disabledLabel = "Winning";
+  else if (isAuctionClosed) disabledLabel = "Auction closed";
 
   let stateMessage: string | null = null;
   let stateTone: "success" | "warning" | "neutral" = "neutral";
 
-  if (isWinning) {
-    stateMessage = "You are currently the highest bidder.";
-    stateTone = "success";
-  } else if (isOutbid) {
-    stateMessage = "You were outbid. Increase your bid to take the lead.";
-    stateTone = "warning";
-  } else if (isWon) {
-    stateMessage = "Auction ended. You won this item.";
-    stateTone = "success";
-  } else if (isLost) {
-    stateMessage = "Auction ended. This item was won by another bidder.";
-    stateTone = "warning";
-  } else if (isAuctionClosed) {
-    stateMessage = "This auction has ended.";
-  }
+  if (isWinning) { stateMessage = "You are currently the highest bidder."; stateTone = "success"; }
+  else if (isOutbid) { stateMessage = "You were outbid. Increase your bid to take the lead."; stateTone = "warning"; }
+  else if (isWon) { stateMessage = "Auction ended. You won this item."; stateTone = "success"; }
+  else if (isLost) { stateMessage = "Auction ended. This item was won by another bidder."; stateTone = "warning"; }
+  else if (isAuctionClosed) stateMessage = "This auction has ended.";
 
   return (
     <div className="min-h-screen page-gradient">
       <main className="mx-auto w-full max-w-[1440px] px-6 py-8 sm:px-8">
+        {isConnecting && (
+          <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-700">
+            Reconnecting to live updates...
+          </div>
+        )}
         <div className="grid gap-6 lg:grid-cols-5 lg:gap-8">
           <div className="lg:col-span-3">
             <div className="relative aspect-[4/3] overflow-hidden rounded-sm bg-card-bg card-shadow">
@@ -301,16 +236,12 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
             )}
 
             <div className="mt-6 border-t border-border/40 pt-5">
-              <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.12em] text-text-muted">
-                Description
-              </p>
+              <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.12em] text-text-muted">Description</p>
               <p className="text-sm leading-relaxed text-text-body">{auction.description}</p>
             </div>
 
             <div className="mt-5 border-t border-border/40 pt-5">
-              <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.12em] text-text-muted">
-                Details
-              </p>
+              <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.12em] text-text-muted">Details</p>
               <div className="grid grid-cols-2 gap-x-8 gap-y-4">
                 <div>
                   <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-text-muted">Category</p>
@@ -343,9 +274,7 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
           </div>
 
           <div className="lg:col-span-2">
-            <h1 className="text-xl font-semibold tracking-tight text-text-heading sm:text-2xl">
-              {auction.title}
-            </h1>
+            <h1 className="text-xl font-semibold tracking-tight text-text-heading sm:text-2xl">{auction.title}</h1>
             <p className="mt-1 text-sm text-text-muted">Sold by @{auction.sellerUsername}</p>
 
             <div className="mt-4">
@@ -369,15 +298,11 @@ export default function AuctionDetailPage({ auctionId }: AuctionDetailPageProps)
 
             {contact && (
               <div className="mt-6 rounded-xl border border-border-strong bg-accent-soft/40 px-4 py-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">
-                  Contact details
-                </p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">Contact details</p>
                 <p className="mt-2 text-sm text-text-heading">
                   {contact.viewerRole === "Buyer" ? "Seller" : "Buyer"}: @{contact.counterpartyUsername}
                 </p>
-                <p className="mt-1 text-sm text-text-heading">
-                  Email: {contact.counterpartyEmail}
-                </p>
+                <p className="mt-1 text-sm text-text-heading">Email: {contact.counterpartyEmail}</p>
               </div>
             )}
           </div>

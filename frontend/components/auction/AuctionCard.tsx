@@ -4,6 +4,7 @@ import Link from "next/link";
 
 export interface AuctionPreview {
   id: number;
+  slug: string;
   title: string;
   description: string;
   location: string;
@@ -24,7 +25,7 @@ interface AuctionCardProps {
 export default function AuctionCard({ auction, priority = false }: AuctionCardProps) {
   return (
     <Link
-      href={`/auctions/${auction.id}`}
+      href={`/auctions/${auction.slug}`}
       aria-label={`View auction ${auction.title}`}
       className="group block overflow-hidden rounded-md border border-border bg-card-bg transition duration-300 hover:-translate-y-0.5 hover:border-border-strong focus:outline-none focus:ring-2 focus:ring-border-strong card-shadow"
     >

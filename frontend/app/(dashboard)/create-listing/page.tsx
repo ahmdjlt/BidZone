@@ -202,7 +202,7 @@ export default function CreateAuctionPage() {
         endTime,
         categoryId,
       });
-      router.push(`/auctions/${created.id}`);
+      router.push(`/auctions/${created.slug}`);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Could not create listing.");
     } finally {

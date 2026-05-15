@@ -32,6 +32,7 @@ export function formatAuctionEndsIn(value: string): string {
 export function toAuctionPreview(auction: AuctionSummary): AuctionPreview {
   return {
     id: auction.id,
+    slug: auction.slug,
     title: auction.title,
     description: `${auction.categoryName} auction`,
     location: "Online",
