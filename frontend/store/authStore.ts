@@ -109,6 +109,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ isLoading: true });
       try {
         const session = await api.refreshSession();
+        if (!session) {
+          set({ user: null, accessToken: null, isAuthenticated: false, hasBootstrapped: true });
+          return;
+        }
         const user = await api.getCurrentUser();
         set({
           user,
