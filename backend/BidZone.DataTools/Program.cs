@@ -1,3 +1,4 @@
+using BidZone.BusinessLogic.Helpers;
 using BidZone.DataAccess;
 using BidZone.DataAccess.Context;
 using BidZone.Domains.Entities;
@@ -270,6 +271,7 @@ static Auction CreateAuction(
     return new Auction
     {
         Title = title,
+        Slug = SlugHelper.GenerateSlug(title),
         Description = description,
         ImageUrl = imageUrls[0],
         StartingPrice = startingPrice,

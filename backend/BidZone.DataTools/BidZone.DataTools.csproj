@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BidZone.BusinessLogic\BidZone.BusinessLogic.csproj" />
     <ProjectReference Include="..\BidZone.DataAccess\BidZone.DataAccess.csproj" />
     <ProjectReference Include="..\BidZone.Domains\BidZone.Domains.csproj" />
   </ItemGroup>
