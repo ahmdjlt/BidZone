@@ -14,7 +14,7 @@ public static class AuctionSeeder
                 ImageUrl = "https://picsum.photos/seed/iphone15/860/600", StartingPrice = 999.99m, CurrentPrice = 999.99m,
                 StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
                 EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
-                Status = "Active", SellerId = 2, CategoryId = 1,
+                Status = "Active", SellerId = 2, CategoryId = 1, Slug = "iphone-15-pro-max-1",
                 ConcurrencyStamp = Guid.Parse("a1b2c3d4-0001-0000-0000-000000000001")
             },
             new Auction
@@ -23,7 +23,7 @@ public static class AuctionSeeder
                 ImageUrl = "https://picsum.photos/seed/rolex/860/600", StartingPrice = 15000m, CurrentPrice = 15000m,
                 StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
                 EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
-                Status = "Active", SellerId = 2, CategoryId = 4,
+                Status = "Active", SellerId = 2, CategoryId = 4, Slug = "vintage-rolex-submariner-2",
                 ConcurrencyStamp = Guid.Parse("a1b2c3d4-0002-0000-0000-000000000002")
             },
             new Auction
@@ -32,7 +32,7 @@ public static class AuctionSeeder
                 ImageUrl = "https://picsum.photos/seed/trek/860/600", StartingPrice = 800m, CurrentPrice = 800m,
                 StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
                 EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
-                Status = "Active", SellerId = 2, CategoryId = 1,
+                Status = "Active", SellerId = 2, CategoryId = 1, Slug = "mountain-bike-trek-3",
                 ConcurrencyStamp = Guid.Parse("a1b2c3d4-0003-0000-0000-000000000003")
             },
             new Auction
@@ -41,7 +41,7 @@ public static class AuctionSeeder
                 ImageUrl = "https://picsum.photos/seed/painting/860/600", StartingPrice = 250m, CurrentPrice = 250m,
                 StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
                 EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
-                Status = "Active", SellerId = 2, CategoryId = 1,
+                Status = "Active", SellerId = 2, CategoryId = 1, Slug = "oil-painting-sunset-4",
                 ConcurrencyStamp = Guid.Parse("a1b2c3d4-0004-0000-0000-000000000004")
             },
             new Auction
@@ -50,7 +50,7 @@ public static class AuctionSeeder
                 ImageUrl = "https://picsum.photos/seed/tesla/860/600", StartingPrice = 35000m, CurrentPrice = 35000m,
                 StartTime = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc),
                 EndTime = new DateTime(2026, 6, 30, 0, 0, 0, DateTimeKind.Utc),
-                Status = "Active", SellerId = 2, CategoryId = 8,
+                Status = "Active", SellerId = 2, CategoryId = 8, Slug = "tesla-model-3-2023-5",
                 ConcurrencyStamp = Guid.Parse("a1b2c3d4-0005-0000-0000-000000000005")
             }
         );
