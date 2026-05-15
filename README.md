@@ -1,52 +1,61 @@
-# BidZone 
+# BidZone
 
-## Description
+BidZone is a full-stack auction marketplace with a Next.js frontend and an ASP.NET Core API.
 
-BidZone is a web application that allows users to create and participate in auctions. It provides a platform for users to bid on items and track their bids in real-time.
+## Stack
 
-## Features
+- Frontend: Next.js, React, TypeScript, Tailwind CSS
+- Backend: ASP.NET Core Web API, EF Core, PostgreSQL
+- Auth: JWT access tokens with HTTP-only refresh cookies
+- Realtime: native WebSockets for auction bid updates
+- Media: Cloudinary uploads
 
-- User authentication
-- Auction creation
-- Bid placement
-- Real-time updates
+## Local Setup
 
-## Tech Stack
+1. Configure the backend:
 
-- Next.js
-- TypeScript
-- Tailwind CSS
-- PostgreSQL
-- Redis
+   ```powershell
+   Copy-Item backend\BidZone.Api\.env.example backend\BidZone.Api\.env
+   ```
 
-## Installation
+   Update `DATABASE_URL`, `JWT_KEY`, email, and Cloudinary values as needed.
 
-1. Clone the repository
-2. Install dependencies
-3. Run the development server
+2. Configure the frontend:
 
-```bash
-git clone https://github.com/jalil-dev/BidZone.git
-cd BidZone
-npm install
-npm run dev
+   ```powershell
+   Copy-Item frontend\.env.example frontend\.env.local
+   ```
+
+3. Apply migrations:
+
+   ```powershell
+   cd backend
+   dotnet ef database update --project BidZone.DataAccess --startup-project BidZone.Api
+   ```
+
+4. Run the API:
+
+   ```powershell
+   dotnet run --project BidZone.Api
+   ```
+
+5. Run the frontend:
+
+   ```powershell
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+## Verification
+
+```powershell
+cd backend
+dotnet test BidZone.Tests\BidZone.Tests.csproj
+
+cd ..\frontend
+npm run lint
+npm run build
 ```
 
-## Usage
-
-Open http://localhost:3000 in your browser to view the application.
-
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-
-## Acknowledgments
-
-- [Next.js](https://nextjs.org/)
-- [TypeScript](https://www.typescriptlansg.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [PostgreSQL](https://www.postgresql.org/)
-- [Redis](https://redis.io/)
-
+See [backend/README.md](backend/README.md) and [frontend/README.md](frontend/README.md) for endpoint details and connected flows.

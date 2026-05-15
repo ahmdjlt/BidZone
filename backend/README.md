@@ -26,14 +26,15 @@ BidZone.Api  →  BidZone.BusinessLogic  →  BidZone.DataAccess  →  BidZone.D
 
 ## Setup
 
-1. **Configure environment values** (recommended via `BidZone.Api/.env`):
+1. **Configure environment values** (copy `BidZone.Api/.env.example` to `BidZone.Api/.env` for local development):
 
    ```env
    DATABASE_URL=Host=localhost;Port=5432;Database=bidzone;Username=postgres;Password=postgres
    FRONTEND_URL=http://localhost:3000
+   CORS_ORIGINS=http://localhost:3000
    JWT_ISSUER=BidZone.Api
    JWT_AUDIENCE=BidZone.Frontend
-   JWT_KEY=BidZone.Dev.Jwt.Key.2026.Change.This.To.A.Real.Secret
+   JWT_KEY=replace-with-a-long-random-production-secret
    JWT_ACCESS_TOKEN_MINUTES=15
    JWT_REFRESH_TOKEN_DAYS=7
    JWT_REFRESH_COOKIE_NAME=bidzone.refresh
@@ -108,6 +109,7 @@ Authorization: Bearer <jwt>
 | Method | Route | Description |
 |--------|-------|-------------|
 | POST | `/` | Place a bid (Buyer/Admin) |
+| GET | `/recent` | Get recent bid activity |
 | GET | `/auction/{id}` | Get bids for an auction |
 | GET | `/my` | Get current user's bids (auth required) |
 | GET | `/auction/{id}/highest` | Get highest bid for an auction |
@@ -138,6 +140,19 @@ Authorization: Bearer <jwt>
 |--------|-------|-------------|
 | GET | `/dashboard` | Dashboard stats (Admin) |
 | GET | `/bid-activity` | Bid activity over time (Admin, query: days) |
+
+### Health
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/health` | Liveness check |
+
+## Production Notes
+
+- Set `ASPNETCORE_ENVIRONMENT=Production`.
+- Set `JWT_KEY` in the environment; the API refuses to start in non-development environments with the development signing key.
+- Set `DATABASE_URL`, `FRONTEND_URL`, and `CORS_ORIGINS` for the deployed services.
+- Run migrations before serving traffic.
+- Keep real `.env` files out of git; commit only `.env.example` files.
 
 ## Project Structure
 
