@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import RequireAuth from "@/components/auth/RequireAuth";
 import Navbar from "@/components/layout/Navbar";
@@ -395,7 +396,14 @@ function FavouritesTab({ items, isLoading }: { items: WatchlistItem[]; isLoading
             href={`/auctions/${item.auctionId}`}
             className="group overflow-hidden rounded-xl border border-border-strong transition-all hover:border-accent/30 hover:shadow-md"
           >
-            <div className="aspect-[4/3] bg-accent-soft/40" />
+            <div className="relative aspect-[4/3] bg-accent-soft/40">
+              <Image
+                src={item.auctionImageUrl || "/auction-images/abstract-oil-canvas.svg"}
+                alt={item.auctionTitle}
+                fill
+                className="object-cover transition duration-500 group-hover:scale-[1.04]"
+              />
+            </div>
             <div className="p-4">
               <h3 className="text-sm font-semibold text-text-heading group-hover:text-accent">{item.auctionTitle}</h3>
               <div className="mt-2 flex items-center justify-between">
