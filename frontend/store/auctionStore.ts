@@ -7,6 +7,7 @@ interface AuctionState {
   selectedAuction: Auction | null;
   filters: AuctionFilters;
   isLoading: boolean;
+  error: string | null;
 
   setAuctions: (auctions: AuctionSummary[]) => void;
   setSelectedAuction: (auction: Auction | null) => void;
@@ -20,6 +21,7 @@ export const useAuctionStore = create<AuctionState>((set, get) => ({
   selectedAuction: null,
   filters: {},
   isLoading: false,
+  error: null,
 
   setAuctions: (auctions) => set({ auctions }),
 
@@ -28,21 +30,25 @@ export const useAuctionStore = create<AuctionState>((set, get) => ({
   setFilters: (filters) => set({ filters }),
 
   fetchAuctions: async (filters) => {
-    set({ isLoading: true });
+    set({ isLoading: true, error: null });
     try {
       const f = filters ?? get().filters;
       const auctions = await getAuctions(f);
       set({ auctions, filters: f });
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : "Failed to load auctions." });
     } finally {
       set({ isLoading: false });
     }
   },
 
   fetchAuction: async (id) => {
-    set({ isLoading: true });
+    set({ isLoading: true, error: null });
     try {
       const auction = await getAuctionById(id);
       set({ selectedAuction: auction });
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : "Failed to load auction." });
     } finally {
       set({ isLoading: false });
     }

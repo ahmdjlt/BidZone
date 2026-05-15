@@ -116,7 +116,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           isAuthenticated: true,
           hasBootstrapped: true,
         });
-      } catch {
+      } catch (err) {
+        console.error("Bootstrap auth failed:", err);
         api.clearAuthToken();
         set({
           user: null,
