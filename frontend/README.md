@@ -6,36 +6,43 @@ Next.js frontend for BidZone auctions.
 
 The following pages are now connected to the backend API:
 
+- `/`:
+  - Loads featured active auctions from `GET /api/auctions`
+  - Footer bid ticker loads recent bids from `GET /api/bids/recent`
 - `/auctions`:
   - Loads auctions from `GET /api/auctions`
-  - Uses category + price filters and backend sort params
+  - Uses navbar `q` search params, category filters, price filters, and backend sort params
   - Shows loading/error/empty states from real API responses
 - `/auctions/[id]`:
   - Loads auction details from `GET /api/auctions/{id}`
   - Loads bid history from `GET /api/bids/auction/{id}`
   - Places bids through `POST /api/bids`
+  - Receives bid updates over `/ws/auctions/{id}` with polling as a fallback
 - `/create-listing`:
   - Loads categories from `GET /api/categories`
+  - Uploads selected images through `POST /api/uploads/image`
   - Creates listings with `POST /api/auctions`
   - Redirects to the created auction detail page
+- `/profile`:
+  - Loads watchlist, bids, seller auctions, and admin reports from the API
+- `/settings`:
+  - Loads the current user from session state
+  - Saves account details through `PUT /api/users/{id}`
 
 ## Realtime Behavior
 
-- Auction detail uses polling every 5 seconds while an auction is `Active`.
-- Polling refreshes both auction details and bid history.
-- Websocket-based realtime is intentionally deferred in this pass.
-- Existing socket utilities are currently not wired to backend realtime events.
+- Auction detail opens a native WebSocket at `/ws/auctions/{id}`.
+- Successful bids are broadcast from the API and merged into the open auction page.
+- Auction detail also polls every 5 seconds while an auction is `Active` as a fallback.
 
 ## Environment
 
-Create `.env.local` in `frontend/`:
+Copy `frontend/.env.example` to `frontend/.env.local`:
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5171
 NEXT_PUBLIC_SOCKET_URL=http://localhost:5171
 ```
-
-`NEXT_PUBLIC_SOCKET_URL` is kept for future websocket integration.
 
 ## Local Run
 
