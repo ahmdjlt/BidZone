@@ -69,6 +69,14 @@ BidZone.Api  →  BidZone.BusinessLogic  →  BidZone.DataAccess  →  BidZone.D
    dotnet test BidZone.Tests/BidZone.Tests.csproj
    ```
 
+## Data Tools
+
+To clear all bids/listings and seed the marketplace with real product-style listings owned by BidZone Admin (`@bidzone`):
+
+```bash
+dotnet run --project BidZone.DataTools -- seed-real-products
+```
+
 ## Seed Data
 
 The database is seeded with:
