@@ -118,10 +118,11 @@ export async function apiFetch<T>(url: string, options: ApiFetchOptions = {}): P
 
 async function getErrorMessage(res: Response): Promise<string> {
   const contentType = res.headers.get("content-type") ?? "";
-  if (contentType.includes("application/json")) {
+  if (contentType.includes("application/json") || contentType.includes("application/problem+json")) {
     const body = await res.json().catch(() => null);
     return (
       body?.message
+      ?? body?.title
       ?? (Array.isArray(body?.errors) ? body.errors.join(" ") : null)
       ?? `Request failed: ${res.status}`
     );
