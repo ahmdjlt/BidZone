@@ -36,14 +36,10 @@ public class BidLogic
             .FirstOrDefaultAsync();
 
         if (previousHighest != null && previousHighest.BidderId == bidderId)
-        {
             return null;
-        }
 
         if (previousHighest != null)
-        {
             previousHighest.Status = "Outbid";
-        }
 
         var bid = new Bid
         {
@@ -54,27 +50,28 @@ public class BidLogic
             BidderId = bidderId
         };
         db.Bids.Add(bid);
-
         auction.CurrentPrice = dto.Amount;
+        await db.SaveChangesAsync(); // Save bid + price atomically — always succeeds or throws
 
+        // Add to watchlist separately so a race condition doesn't lose the bid
         var alreadyWatching = await db.WatchlistItems.AnyAsync(w => w.UserId == bidderId && w.AuctionId == dto.AuctionId);
-        if (!alreadyWatching)
-        {
-            db.WatchlistItems.Add(new WatchlistItem
-            {
-                UserId = bidderId,
-                AuctionId = dto.AuctionId,
-                AddedAt = DateTime.UtcNow
-            });
-        }
-
         try
         {
-            await db.SaveChangesAsync();
+            if (!alreadyWatching)
+            {
+                using var watchlistDb = new AppDbContext();
+                watchlistDb.WatchlistItems.Add(new WatchlistItem
+                {
+                    UserId = bidderId,
+                    AuctionId = dto.AuctionId,
+                    AddedAt = DateTime.UtcNow
+                });
+                await watchlistDb.SaveChangesAsync();
+            }
         }
         catch (DbUpdateException)
         {
-            // Race condition on watchlist unique index — safe to swallow
+            // Race condition: watchlist item inserted concurrently — bid was already saved above
         }
 
         var created = await db.Bids
