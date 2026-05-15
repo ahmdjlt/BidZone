@@ -37,6 +37,15 @@ if (int.TryParse(jwtSection["RefreshTokenDays"], out var refreshDays))
 }
 JwtOptionsHolder.RefreshCookieName = jwtSection["RefreshCookieName"] ?? JwtOptionsHolder.RefreshCookieName;
 
+if (!builder.Environment.IsDevelopment()
+    && string.Equals(
+        JwtOptionsHolder.Key,
+        "BidZone.Dev.Jwt.Key.2026.Change.This.To.A.Real.Secret",
+        StringComparison.Ordinal))
+{
+    throw new InvalidOperationException("Configure JWT_KEY before running BidZone.Api outside Development.");
+}
+
 // Email — same static-holder pattern, allow env overrides for credentials
 ApplyEnvironmentOverride(builder.Configuration, "Email:Username", "EMAIL_USERNAME");
 ApplyEnvironmentOverride(builder.Configuration, "Email:Password", "EMAIL_PASSWORD");
@@ -93,6 +102,7 @@ app.Map("/ws/auctions/{auctionId:int}", async (HttpContext context, int auctionI
     using var socket = await context.WebSockets.AcceptWebSocketAsync();
     await socketManager.HandleConnectionAsync(auctionId, socket, context.RequestAborted);
 });
+app.MapGet("/api/health", () => Results.Ok(new { status = "ok", utc = DateTime.UtcNow }));
 app.MapControllers();
 
 app.Run();
