@@ -10,6 +10,7 @@ export interface Auction {
   startTime: string;
   endTime: string;
   status: "Active" | "Closed" | "Cancelled" | "Draft";
+  slug: string;
   sellerId: number;
   sellerUsername: string;
   categoryId: number;
@@ -31,6 +32,7 @@ export interface AuctionSummary {
   currentPrice: number;
   endTime: string;
   status: string;
+  slug: string;
   categoryName: string;
   categorySlug: string;
   bidCount: number;
@@ -73,6 +75,7 @@ export interface WatchlistItem {
   id: number;
   auctionId: number;
   auctionTitle: string;
+  auctionSlug: string;
   auctionImageUrl: string | null;
   currentPrice: number;
   endTime: string;

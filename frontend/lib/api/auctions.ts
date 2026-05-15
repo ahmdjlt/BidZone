@@ -26,6 +26,10 @@ export async function getAuctionById(id: string | number): Promise<Auction> {
   return apiFetch<Auction>(`/api/auctions/${id}`);
 }
 
+export async function getAuctionBySlug(slug: string): Promise<Auction> {
+  return apiFetch<Auction>(`/api/auctions/slug/${encodeURIComponent(slug)}`);
+}
+
 export async function getAuctionContact(id: string | number): Promise<AuctionContact> {
   return apiFetch<AuctionContact>(`/api/auctions/${id}/contact`);
 }

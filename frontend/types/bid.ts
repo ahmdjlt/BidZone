@@ -5,6 +5,7 @@ export interface Bid {
   status: "Active" | "Winning" | "Outbid" | "Won" | "Lost";
   auctionId: number;
   auctionTitle: string;
+  auctionSlug: string;
   bidderId: number;
   bidderUsername: string;
 }
