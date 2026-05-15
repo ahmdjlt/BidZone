@@ -1,7 +1,9 @@
 import type { Bid } from "@/types/bid";
-import { getApiBase } from "@/lib/api/client";
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || getApiBase();
+const SOCKET_URL =
+  process.env.NEXT_PUBLIC_SOCKET_URL ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  "http://localhost:5171";
 
 type SocketEvent = "connect" | "disconnect" | "connecting" | "connection_failed" | "new-bid";
 
