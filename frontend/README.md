@@ -40,9 +40,12 @@ The following pages are now connected to the backend API:
 Copy `frontend/.env.example` to `frontend/.env.local`:
 
 ```env
+BACKEND_INTERNAL_URL=http://localhost:5171
 NEXT_PUBLIC_API_URL=http://localhost:5171
 NEXT_PUBLIC_SOCKET_URL=http://localhost:5171
 ```
+
+Browser API calls are proxied through Next.js at `/api/*`; `BACKEND_INTERNAL_URL` controls the backend target for that proxy. `NEXT_PUBLIC_SOCKET_URL` is still used directly for WebSocket auction updates.
 
 ## Local Run
 

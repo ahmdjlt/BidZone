@@ -1,6 +1,7 @@
 import type { AuthResponse } from "@/types/user";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5171";
+const SERVER_API_BASE = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:5171";
+const API_BASE = typeof window === "undefined" ? SERVER_API_BASE : "";
 
 let accessToken: string | null = null;
 let refreshPromise: Promise<AuthResponse | null> | null = null;
