@@ -159,16 +159,19 @@ export default function BidForm({
             </span>
             <input
               type="text"
-              inputMode="numeric"
+              inputMode="decimal"
               value={amountInput}
               onChange={(e) => {
-                const digitsOnly = e.target.value.replace(/\D/g, "");
-                if (digitsOnly === "") {
+                const normalized = e.target.value.replace(/[^\d.]/g, "");
+                const [whole, ...fractionParts] = normalized.split(".");
+                const fraction = fractionParts.join("").slice(0, 2);
+                const nextValue = fractionParts.length > 0 ? `${whole}.${fraction}` : whole;
+                if (nextValue === "") {
                   setAmountInput("");
                   setError("");
                   return;
                 }
-                setAmountInput(String(Number(digitsOnly)));
+                setAmountInput(nextValue);
                 setError("");
               }}
               disabled={disabled || isSubmitting}
@@ -239,14 +242,6 @@ export default function BidForm({
           </button>
         )}
 
-        {showBidButton && (
-          <button
-            type="button"
-            className="w-full rounded-lg bg-accent-soft/50 py-2.5 text-sm font-semibold text-accent transition hover:bg-accent-soft"
-          >
-            Make an offer
-          </button>
-        )}
       </form>
     </div>
   );

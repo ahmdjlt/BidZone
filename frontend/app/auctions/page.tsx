@@ -45,11 +45,11 @@ const filterSections = [
   { label: "Condition", key: "condition" },
 ] as const;
 
-const sortOptions = ["Price: Low → High", "Price: High → Low"] as const;
+const sortOptions = ["Price: Low to High", "Price: High to Low"] as const;
 type SortOption = (typeof sortOptions)[number];
 
 function mapSortToBackend(sort: SortOption): "price_asc" | "price_desc" {
-  return sort === "Price: High → Low" ? "price_desc" : "price_asc";
+  return sort === "Price: High to Low" ? "price_desc" : "price_asc";
 }
 
 export default function AuctionsPage() {
@@ -59,7 +59,7 @@ export default function AuctionsPage() {
   const [apiAuctions, setApiAuctions] = useState<AuctionSummary[]>([]);
   const [isLoadingAuctions, setIsLoadingAuctions] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [activeSort, setActiveSort] = useState<SortOption>("Price: Low → High");
+  const [activeSort, setActiveSort] = useState<SortOption>("Price: Low to High");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -68,6 +68,7 @@ export default function AuctionsPage() {
   const categoriesRef = useRef<HTMLDivElement>(null);
   const priceRef = useRef<HTMLDivElement>(null);
   const activeCategorySlug = searchParams.get("category");
+  const searchQuery = searchParams.get("q")?.trim() || "";
 
   const activeCategory = categories.find((c) => c.slug === activeCategorySlug);
 
@@ -122,6 +123,7 @@ export default function AuctionsPage() {
         const category = !isSpecialCategory ? activeCategorySlug ?? undefined : undefined;
 
         const auctions = await getAuctions({
+          search: searchQuery || undefined,
           category,
           sort: mapSortToBackend(activeSort),
           minPrice: minPrice ? Number(minPrice) : undefined,
@@ -148,7 +150,7 @@ export default function AuctionsPage() {
     return () => {
       cancelled = true;
     };
-  }, [activeCategorySlug, activeSort, minPrice, maxPrice]);
+  }, [activeCategorySlug, activeSort, minPrice, maxPrice, searchQuery]);
 
   const handleCategoryChange = (slug: string | null) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -268,7 +270,7 @@ export default function AuctionsPage() {
               }`}
             >
               {minPrice || maxPrice
-                ? `$${minPrice || "0"} – $${maxPrice || "∞"}`
+                ? `$${minPrice || "0"} - $${maxPrice || "any"}`
                 : "Price"}
               <svg
                 className={`h-3.5 w-3.5 transition-transform ${isPriceOpen ? "rotate-180" : ""}`}
@@ -292,7 +294,7 @@ export default function AuctionsPage() {
                       className="w-full rounded-lg border border-border-strong bg-surface-alt py-2 pl-7 pr-3 text-sm text-text-heading placeholder:text-text-muted focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
                     />
                   </div>
-                  <span className="text-text-muted">–</span>
+                  <span className="text-text-muted">-</span>
                   <div className="relative flex-1">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-text-muted">$</span>
                     <input
@@ -317,7 +319,7 @@ export default function AuctionsPage() {
                           : "bg-accent-soft/50 text-text-heading hover:bg-accent-soft"
                       }`}
                     >
-                      {option === "Price: Low → High" ? "Low → High" : "High → Low"}
+                      {option === "Price: Low to High" ? "Low to High" : "High to Low"}
                     </button>
                   ))}
                 </div>
@@ -339,6 +341,11 @@ export default function AuctionsPage() {
         {/* Results count */}
         <p className="mt-4 mb-4 text-sm text-text-muted">
           Showing <span className="font-semibold text-text-heading">{sortedAuctions.length}</span> auctions
+          {searchQuery ? (
+            <span>
+              {" "}for <span className="font-semibold text-text-heading">&quot;{searchQuery}&quot;</span>
+            </span>
+          ) : null}
         </p>
 
         {isLoadingAuctions ? (
