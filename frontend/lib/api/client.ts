@@ -63,7 +63,7 @@ export async function refreshAccessToken(): Promise<AuthResponse | null> {
 }
 
 export async function apiFetch<T>(url: string, options: ApiFetchOptions = {}): Promise<T> {
-  const { retryOnAuthFailure = true, skipAuth = false, headers: initialHeaders, ...requestInit } = options;
+  const { retryOnAuthFailure = true, skipAuth = false, headers: initialHeaders, signal: externalSignal, ...requestInit } = options;
   const headers = new Headers(initialHeaders);
 
   if (requestInit.body && !(requestInit.body instanceof FormData) && !headers.has("Content-Type")) {
@@ -74,11 +74,29 @@ export async function apiFetch<T>(url: string, options: ApiFetchOptions = {}): P
     headers.set("Authorization", `Bearer ${accessToken}`);
   }
 
-  const res = await fetch(`${API_BASE}${url}`, {
-    credentials: "include",
-    headers,
-    ...requestInit,
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30_000);
+
+  if (externalSignal) {
+    externalSignal.addEventListener("abort", () => controller.abort());
+  }
+
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${url}`, {
+      credentials: "include",
+      headers,
+      signal: controller.signal,
+      ...requestInit,
+    });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      throw new Error("Request timed out.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (res.status === 401 && !skipAuth && retryOnAuthFailure) {
     const session = await refreshAccessToken();
