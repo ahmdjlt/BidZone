@@ -50,6 +50,13 @@ public class BidsController : ControllerBase
         return Ok(bids);
     }
 
+    [HttpGet("recent")]
+    public async Task<IActionResult> GetRecent([FromQuery] int limit = 15)
+    {
+        var bids = await _bid.GetRecentAsync(limit);
+        return Ok(bids);
+    }
+
     [HttpGet("auction/{auctionId}/highest")]
     public async Task<IActionResult> GetHighestBid(int auctionId)
     {

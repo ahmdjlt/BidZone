@@ -108,6 +108,19 @@ public class BidLogic
         return Mappers.ToDtoList(bids);
     }
 
+    internal async Task<List<BidDto>> GetRecentExecution(int limit)
+    {
+        using var db = new AppDbContext();
+        var take = Math.Clamp(limit, 1, 30);
+        var bids = await db.Bids
+            .Include(b => b.Bidder)
+            .Include(b => b.Auction)
+            .OrderByDescending(b => b.PlacedAt)
+            .Take(take)
+            .ToListAsync();
+        return Mappers.ToDtoList(bids);
+    }
+
     internal async Task<BidDto?> GetHighestBidExecution(int auctionId)
     {
         using var db = new AppDbContext();
