@@ -7,6 +7,7 @@ import type { Bid } from "@/types/bid";
 
 export function useSocket(auctionId?: string | number) {
   const [isConnected, setIsConnected] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [lastBid, setLastBid] = useState<Bid | null>(null);
   const addBid = useBidStore((s) => s.addBid);
 
@@ -17,11 +18,15 @@ export function useSocket(auctionId?: string | number) {
 
     function onConnect() {
       setIsConnected(true);
-      subscribeToAuction(auctionId!);
+      setIsConnecting(false);
     }
 
     function onDisconnect() {
       setIsConnected(false);
+    }
+
+    function onConnecting() {
+      setIsConnecting(true);
     }
 
     function onNewBid(bid: Bid) {
@@ -31,6 +36,7 @@ export function useSocket(auctionId?: string | number) {
 
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
+    socket.on("connecting", onConnecting);
     socket.on("new-bid", onNewBid);
 
     subscribeToAuction(auctionId);
@@ -41,13 +47,14 @@ export function useSocket(auctionId?: string | number) {
     }
 
     return () => {
-      unsubscribeFromAuction(auctionId!);
+      unsubscribeFromAuction(auctionId);
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
+      socket.off("connecting", onConnecting);
       socket.off("new-bid", onNewBid);
       disconnectSocket();
     };
   }, [auctionId, addBid]);
 
-  return { isConnected, lastBid };
+  return { isConnected, isConnecting, lastBid };
 }
