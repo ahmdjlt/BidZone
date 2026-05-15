@@ -37,6 +37,7 @@ internal static class Mappers
         StartTime = a.StartTime,
         EndTime = a.EndTime,
         Status = a.Status,
+        Slug = a.Slug,
         SellerId = a.SellerId,
         SellerUsername = a.Seller?.UserName ?? string.Empty,
         CategoryId = a.CategoryId,
@@ -53,6 +54,7 @@ internal static class Mappers
         Status = b.Status,
         AuctionId = b.AuctionId,
         AuctionTitle = b.Auction?.Title ?? string.Empty,
+        AuctionSlug = b.Auction?.Slug ?? string.Empty,
         BidderId = b.BidderId,
         BidderUsername = b.Bidder?.UserName ?? string.Empty
     };
@@ -70,6 +72,7 @@ internal static class Mappers
         Id = w.Id,
         AuctionId = w.AuctionId,
         AuctionTitle = w.Auction?.Title ?? string.Empty,
+        AuctionSlug = w.Auction?.Slug ?? string.Empty,
         AuctionImageUrl = w.Auction?.ImageUrl,
         CurrentPrice = w.Auction?.CurrentPrice ?? 0,
         EndTime = w.Auction?.EndTime ?? DateTime.MinValue,

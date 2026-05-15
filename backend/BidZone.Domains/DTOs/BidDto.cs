@@ -8,6 +8,7 @@ public class BidDto
     public string Status { get; set; } = string.Empty;
     public int AuctionId { get; set; }
     public string AuctionTitle { get; set; } = string.Empty;
+    public string AuctionSlug { get; set; } = string.Empty;
     public int BidderId { get; set; }
     public string BidderUsername { get; set; } = string.Empty;
 }

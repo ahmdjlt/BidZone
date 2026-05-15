@@ -5,6 +5,7 @@ public class WatchlistDto
     public int Id { get; set; }
     public int AuctionId { get; set; }
     public string AuctionTitle { get; set; } = string.Empty;
+    public string AuctionSlug { get; set; } = string.Empty;
     public string? AuctionImageUrl { get; set; }
     public decimal CurrentPrice { get; set; }
     public DateTime EndTime { get; set; }

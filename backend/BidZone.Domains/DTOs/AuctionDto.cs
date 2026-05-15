@@ -13,6 +13,7 @@ public class AuctionDto
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public string Status { get; set; } = string.Empty;
+    public string Slug { get; set; } = string.Empty;
     public int SellerId { get; set; }
     public string SellerUsername { get; set; } = string.Empty;
     public int CategoryId { get; set; }

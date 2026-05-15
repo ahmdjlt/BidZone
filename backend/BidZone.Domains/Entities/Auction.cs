@@ -32,6 +32,9 @@ public class Auction
     [Required, MaxLength(20)]
     public string Status { get; set; } = "Active"; // Active, Closed, Cancelled, Draft
 
+    [MaxLength(255)]
+    public string Slug { get; set; } = string.Empty;
+
     public int SellerId { get; set; }
     public User Seller { get; set; } = null!;
 
