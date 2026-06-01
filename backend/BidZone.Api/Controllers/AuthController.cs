@@ -12,9 +12,11 @@ namespace BidZone.Api.Controllers;
 public class AuthController : ControllerBase
 {
     internal IAuthLogic _auth;
+    private readonly IWebHostEnvironment _environment;
 
-    public AuthController()
+    public AuthController(IWebHostEnvironment environment)
     {
+        _environment = environment;
         var bl = new BusinessLogicFactory();
         _auth = bl.AuthAction();
     }
@@ -144,7 +146,7 @@ public class AuthController : ControllerBase
                 HttpOnly = true,
                 IsEssential = true,
                 SameSite = SameSiteMode.Lax,
-                Secure = Request.IsHttps,
+                Secure = ShouldUseSecureRefreshCookie(),
                 Path = "/api/auth",
                 Expires = DateTimeOffset.UtcNow.AddDays(BidZone.BusinessLogic.Security.JwtOptionsHolder.RefreshTokenDays)
             });
@@ -159,8 +161,10 @@ public class AuthController : ControllerBase
                 HttpOnly = true,
                 IsEssential = true,
                 SameSite = SameSiteMode.Lax,
-                Secure = Request.IsHttps,
+                Secure = ShouldUseSecureRefreshCookie(),
                 Path = "/api/auth"
             });
     }
+
+    private bool ShouldUseSecureRefreshCookie() => !_environment.IsDevelopment() || Request.IsHttps;
 }

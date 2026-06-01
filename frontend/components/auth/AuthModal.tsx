@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { getSafeRedirectPath } from "@/lib/redirect";
 import { useAuthStore } from "@/store/authStore";
 
 interface AuthModalProps {
@@ -18,6 +19,7 @@ export default function AuthModal({
   initialView = "login",
   redirectTo = "/profile",
 }: AuthModalProps) {
+  const safeRedirectTo = getSafeRedirectPath(redirectTo);
   const [view, setView] = useState<"login" | "register">(initialView);
   const [rememberMe, setRememberMe] = useState(false);
   const [fullName, setFullName] = useState("");
@@ -39,9 +41,9 @@ export default function AuthModal({
     }
 
     if (isAuthenticated) {
-      router.replace(redirectTo);
+      router.replace(safeRedirectTo);
     }
-  }, [bootstrapAuth, hasBootstrapped, isAuthenticated, redirectTo, router]);
+  }, [bootstrapAuth, hasBootstrapped, isAuthenticated, safeRedirectTo, router]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -73,7 +75,7 @@ export default function AuthModal({
       if (closeOnSuccess) {
         onClose();
       }
-      router.push(redirectTo);
+      router.push(safeRedirectTo);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Authentication failed.");
     }

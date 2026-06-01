@@ -3,12 +3,13 @@
 import { useEffect } from "react";
 import AuthModal from "@/components/auth/AuthModal";
 import { useAuthStore } from "@/store/authStore";
+import { getSafeRedirectPath } from "@/lib/redirect";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function RegisterPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("next") ?? "/profile";
+  const redirectTo = getSafeRedirectPath(searchParams.get("next"));
   const { bootstrapAuth, hasBootstrapped, isAuthenticated } = useAuthStore();
 
   useEffect(() => {
