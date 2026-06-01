@@ -24,7 +24,7 @@ public class AuctionBidIntegrationTests : IClassFixture<SqliteAuthFixture>
             {
                 Title = "Integration Test Listing",
                 Description = "Created from integration test.",
-                ImageUrl = "https://example.com/listing.jpg",
+                ImageUrl = "https://picsum.photos/seed/integration-test-listing/860/600",
                 StartingPrice = 150m,
                 ReservePrice = 300m,
                 EndTime = DateTime.UtcNow.AddDays(5),
@@ -121,6 +121,41 @@ public class AuctionBidIntegrationTests : IClassFixture<SqliteAuthFixture>
         Assert.NotNull(auction);
         Assert.Equal(1200m, auction!.CurrentPrice);
         Assert.Equal(1, auction.BidCount);
+    }
+
+    [Fact]
+    public async Task PlaceBidAsync_ConcurrentBidsKeepHighestBidWinning()
+    {
+        _fixture.ResetDatabase();
+        var bl = new BusinessLogicFactory();
+        var bids = bl.BidAction();
+        var auctions = bl.AuctionAction();
+
+        var results = await Task.WhenAll(
+            bids.PlaceBidAsync(
+                new PlaceBidDto
+                {
+                    AuctionId = 1,
+                    Amount = 1200m
+                },
+                bidderId: 3),
+            bids.PlaceBidAsync(
+                new PlaceBidDto
+                {
+                    AuctionId = 1,
+                    Amount = 1300m
+                },
+                bidderId: 1));
+
+        Assert.Contains(results, bid => bid?.Amount == 1300m);
+
+        var auction = await auctions.GetByIdAsync(1);
+        Assert.NotNull(auction);
+        Assert.Equal(1300m, auction!.CurrentPrice);
+
+        var allBids = await bids.GetByAuctionAsync(1);
+        var winningBid = Assert.Single(allBids, bid => bid.Status == "Winning");
+        Assert.Equal(1300m, winningBid.Amount);
     }
 
     [Fact]
