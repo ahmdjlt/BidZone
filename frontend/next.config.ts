@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const backendUrl = process.env.BACKEND_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:5171";
+const imageHostnames = (process.env.NEXT_PUBLIC_ALLOWED_IMAGE_HOSTS ?? "res.cloudinary.com,picsum.photos,images.unsplash.com")
+  .split(",")
+  .map((host) => host.trim())
+  .filter(Boolean);
 
 const nextConfig: NextConfig = {
   turbopack: {
@@ -15,23 +19,11 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "picsum.photos",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "res.cloudinary.com",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "**",
-        pathname: "/**",
-      },
-    ],
+    remotePatterns: imageHostnames.map((hostname) => ({
+      protocol: "https",
+      hostname,
+      pathname: "/**",
+    })),
   },
 };
 
