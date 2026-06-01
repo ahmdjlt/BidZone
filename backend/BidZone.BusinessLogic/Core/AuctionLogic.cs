@@ -9,6 +9,9 @@ namespace BidZone.BusinessLogic.Core;
 
 public class AuctionLogic
 {
+    private const int MaxAuctionImages = 10;
+    private static readonly string[] DefaultAllowedImageHosts = ["res.cloudinary.com", "picsum.photos", "images.unsplash.com"];
+
     public AuctionLogic() { }
 
     internal async Task<List<AuctionDto>> GetAllExecution(string? search, string? category, string? sort, string? status, decimal? minPrice, decimal? maxPrice)
@@ -169,7 +172,7 @@ public class AuctionLogic
         {
             Title = dto.Title,
             Description = dto.Description,
-            ImageUrl = dto.ImageUrl,
+            ImageUrl = null,
             StartingPrice = dto.StartingPrice,
             CurrentPrice = dto.StartingPrice,
             ReservePrice = dto.ReservePrice,
@@ -219,8 +222,14 @@ public class AuctionLogic
 
         if (dto.Title != null) auction.Title = dto.Title;
         if (dto.Description != null) auction.Description = dto.Description;
-        if (dto.ImageUrl != null) auction.ImageUrl = dto.ImageUrl;
-        if (dto.ImageUrls != null) SetAuctionImages(auction, dto.ImageUrls, dto.ImageUrl);
+        if (dto.ImageUrls != null)
+        {
+            SetAuctionImages(auction, dto.ImageUrls, dto.ImageUrl);
+        }
+        else if (dto.ImageUrl != null)
+        {
+            auction.ImageUrl = NormalizeAuctionImageUrl(dto.ImageUrl);
+        }
         if (dto.ReservePrice.HasValue) auction.ReservePrice = dto.ReservePrice;
         if (dto.EndTime.HasValue) auction.EndTime = dto.EndTime.Value.ToUniversalTime();
         if (dto.CategoryId.HasValue) auction.CategoryId = dto.CategoryId.Value;
@@ -300,6 +309,13 @@ public class AuctionLogic
             cleaned.Add(fallbackImageUrl.Trim());
         }
 
+        if (cleaned.Count > MaxAuctionImages)
+        {
+            throw new ArgumentException($"Auctions can have at most {MaxAuctionImages} images.");
+        }
+
+        cleaned = cleaned.Select(NormalizeAuctionImageUrl).Where(url => url != null).Cast<string>().ToList();
+
         auction.Images.Clear();
         for (var i = 0; i < cleaned.Count; i++)
         {
@@ -311,5 +327,37 @@ public class AuctionLogic
         }
 
         auction.ImageUrl = cleaned.FirstOrDefault();
+    }
+
+    private static string? NormalizeAuctionImageUrl(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            return null;
+        }
+
+        var trimmed = url.Trim();
+        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out var uri) ||
+            !string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase) ||
+            !GetAllowedImageHosts().Contains(uri.IdnHost.ToLowerInvariant()))
+        {
+            throw new ArgumentException("Auction images must use HTTPS URLs from an approved image host.");
+        }
+
+        return uri.ToString();
+    }
+
+    private static HashSet<string> GetAllowedImageHosts()
+    {
+        var configuredHosts = Environment.GetEnvironmentVariable("ALLOWED_IMAGE_HOSTS")
+            ?? Environment.GetEnvironmentVariable("NEXT_PUBLIC_ALLOWED_IMAGE_HOSTS");
+
+        var hosts = string.IsNullOrWhiteSpace(configuredHosts)
+            ? DefaultAllowedImageHosts
+            : configuredHosts.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        return hosts
+            .Select(host => host.ToLowerInvariant())
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
 }

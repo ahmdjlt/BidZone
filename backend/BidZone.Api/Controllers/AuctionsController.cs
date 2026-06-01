@@ -82,8 +82,15 @@ public class AuctionsController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreateAuctionDto dto)
     {
         var sellerId = User.GetRequiredUserId();
-        var auction = await _auction.CreateAsync(dto, sellerId);
-        return CreatedAtAction(nameof(GetBySlug), new { slug = auction.Slug }, auction);
+        try
+        {
+            var auction = await _auction.CreateAsync(dto, sellerId);
+            return CreatedAtAction(nameof(GetBySlug), new { slug = auction.Slug }, auction);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPut("{id}")]
@@ -91,7 +98,16 @@ public class AuctionsController : ControllerBase
     public async Task<IActionResult> Update(int id, [FromBody] UpdateAuctionDto dto)
     {
         var sellerId = User.GetRequiredUserId();
-        var auction = await _auction.UpdateAsync(id, dto, sellerId);
+        AuctionDto? auction;
+        try
+        {
+            auction = await _auction.UpdateAsync(id, dto, sellerId);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+
         if (auction == null)
             return NotFound();
         return Ok(auction);
