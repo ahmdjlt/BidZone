@@ -51,6 +51,8 @@ export default function AuctionDetailPage({ slug }: AuctionDetailPageProps) {
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
   const { data: auction, isLoading, error } = useAuction(slug);
+  const firstImageUrl = auction?.images?.[0]?.url;
+  const primaryImageUrl = auction?.imageUrl;
   const [bids, setBids] = useState<Bid[]>([]);
   const [isBidding, setIsBidding] = useState(false);
   const [contact, setContact] = useState<AuctionContact | null>(null);
@@ -83,14 +85,13 @@ export default function AuctionDetailPage({ slug }: AuctionDetailPageProps) {
       .catch(() => { if (!cancelled) setContact(null); });
 
     return () => { cancelled = true; };
-  }, [auction?.id, auction?.status, user]);
+  }, [auction, user]);
 
   // Set initial selected image when auction loads (only on auction id change)
   useEffect(() => {
-    if (!auction) { setSelectedImageUrl(""); return; }
-    const first = auction.images?.[0]?.url;
-    setSelectedImageUrl(first || auction.imageUrl || "/auction-images/abstract-oil-canvas.svg");
-  }, [auction?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!auction?.id) { setSelectedImageUrl(""); return; }
+    setSelectedImageUrl(firstImageUrl || primaryImageUrl || "/auction-images/abstract-oil-canvas.svg");
+  }, [auction?.id, firstImageUrl, primaryImageUrl]);
 
   // Track known bid IDs for deduplication
   useEffect(() => {
