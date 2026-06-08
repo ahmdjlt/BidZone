@@ -24,4 +24,5 @@ public class User : IdentityUser<int>
     public ICollection<Bid> Bids { get; set; } = new List<Bid>();
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     public ICollection<WatchlistItem> WatchlistItems { get; set; } = new List<WatchlistItem>();
+    public ICollection<BrowsingEvent> BrowsingEvents { get; set; } = new List<BrowsingEvent>();
 }

@@ -13,4 +13,5 @@ public class Category
     public string Slug { get; set; } = string.Empty;
 
     public ICollection<Auction> Auctions { get; set; } = new List<Auction>();
+    public ICollection<BrowsingEvent> BrowsingEvents { get; set; } = new List<BrowsingEvent>();
 }

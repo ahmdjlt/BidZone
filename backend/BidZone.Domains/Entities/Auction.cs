@@ -47,4 +47,5 @@ public class Auction
     public ICollection<Bid> Bids { get; set; } = new List<Bid>();
     public ICollection<AuctionImage> Images { get; set; } = new List<AuctionImage>();
     public ICollection<WatchlistItem> WatchlistItems { get; set; } = new List<WatchlistItem>();
+    public ICollection<BrowsingEvent> BrowsingEvents { get; set; } = new List<BrowsingEvent>();
 }
