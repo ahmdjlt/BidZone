@@ -14,6 +14,7 @@ public class AppDbContext : IdentityUserContext<User, int>
     public DbSet<Auction> Auctions => Set<Auction>();
     public DbSet<AuctionImage> AuctionImages => Set<AuctionImage>();
     public DbSet<Bid> Bids => Set<Bid>();
+    public DbSet<BrowsingEvent> BrowsingEvents => Set<BrowsingEvent>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<WatchlistItem> WatchlistItems => Set<WatchlistItem>();
@@ -92,6 +93,27 @@ public class AppDbContext : IdentityUserContext<User, int>
         {
             e.HasOne(b => b.Auction).WithMany(a => a.Bids).HasForeignKey(b => b.AuctionId);
             e.HasOne(b => b.Bidder).WithMany(u => u.Bids).HasForeignKey(b => b.BidderId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<BrowsingEvent>(e =>
+        {
+            e.Property(b => b.EventType).HasMaxLength(32).IsRequired();
+            e.Property(b => b.SearchTerm).HasMaxLength(200);
+            e.HasIndex(b => new { b.UserId, b.CreatedAt });
+            e.HasIndex(b => b.AuctionId);
+            e.HasIndex(b => b.CategoryId);
+            e.HasOne(b => b.User)
+                .WithMany(u => u.BrowsingEvents)
+                .HasForeignKey(b => b.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(b => b.Auction)
+                .WithMany(a => a.BrowsingEvents)
+                .HasForeignKey(b => b.AuctionId)
+                .OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(b => b.Category)
+                .WithMany(c => c.BrowsingEvents)
+                .HasForeignKey(b => b.CategoryId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<WatchlistItem>(e =>
