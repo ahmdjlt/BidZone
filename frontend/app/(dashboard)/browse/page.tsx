@@ -3,8 +3,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import AuctionGrid from "@/components/auction/AuctionGrid";
-import { getAuctions } from "@/lib/api/auctions";
+import { getAuctions, recordBrowsingEvent } from "@/lib/api/auctions";
 import { toAuctionPreview } from "@/lib/auctionPreview";
+import { useAuthStore } from "@/store/authStore";
 import type { AuctionSummary } from "@/types/auction";
 
 const categories = ["All", "Art", "Interiors", "Jewellery", "Watches", "Fashion", "Coins & Stamps", "Comics", "Cars & Bikes", "Wine & Spirits", "Electronics", "Collectibles", "Sports", "Books", "Toys", "Photography", "Musical"] as const;
@@ -26,6 +27,7 @@ function slugifyCategory(category: Category): string | undefined {
 }
 
 export default function DashboardBrowsePage() {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [activeSort, setActiveSort] = useState<SortOption>("Ending Soon");
   const [searchTerm, setSearchTerm] = useState("");
@@ -87,6 +89,38 @@ export default function DashboardBrowsePage() {
       window.clearTimeout(timeoutId);
     };
   }, [activeCategory, activeSort, searchTerm]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
+
+    const categorySlug = slugifyCategory(activeCategory);
+    if (!categorySlug) {
+      return;
+    }
+
+    void recordBrowsingEvent({
+      eventType: "CategoryView",
+      categorySlug,
+    }).catch(() => undefined);
+  }, [activeCategory, isAuthenticated]);
+
+  useEffect(() => {
+    const trimmedSearch = searchTerm.trim();
+    if (!isAuthenticated || trimmedSearch.length < 2) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      void recordBrowsingEvent({
+        eventType: "Search",
+        searchTerm: trimmedSearch,
+      }).catch(() => undefined);
+    }, 500);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [isAuthenticated, searchTerm]);
 
   const sortedAuctions = useMemo(() => {
     const previews = auctions.map(toAuctionPreview);

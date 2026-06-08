@@ -7,9 +7,10 @@ import AuctionGrid from "@/components/auction/AuctionGrid";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { toAuctionPreview } from "@/lib/auctionPreview";
-import { getAuctions } from "@/lib/api/auctions";
+import { getAuctions, recordBrowsingEvent } from "@/lib/api/auctions";
 import { useCategories } from "@/hooks/queries/useCategories";
 import { CATEGORY_ICONS, GENERIC_ICON } from "@/lib/categoryIcons";
+import { useAuthStore } from "@/store/authStore";
 import type { AuctionSummary } from "@/types/auction";
 
 const filterSections = [
@@ -37,6 +38,7 @@ export default function AuctionsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: apiCategories = [] } = useCategories();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [apiAuctions, setApiAuctions] = useState<AuctionSummary[]>([]);
   const [isLoadingAuctions, setIsLoadingAuctions] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -139,6 +141,36 @@ export default function AuctionsPage() {
       cancelled = true;
     };
   }, [activeCategorySlug, activeSort, minPrice, maxPrice, searchQuery]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !activeCategorySlug) {
+      return;
+    }
+
+    if (activeCategorySlug === "this-week" || activeCategorySlug === "trending") {
+      return;
+    }
+
+    void recordBrowsingEvent({
+      eventType: "CategoryView",
+      categorySlug: activeCategorySlug,
+    }).catch(() => undefined);
+  }, [activeCategorySlug, isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated || searchQuery.length < 2) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      void recordBrowsingEvent({
+        eventType: "Search",
+        searchTerm: searchQuery,
+      }).catch(() => undefined);
+    }, 500);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [isAuthenticated, searchQuery]);
 
   const handleCategoryChange = (slug: string | null) => {
     const params = new URLSearchParams(searchParams.toString());

@@ -5,7 +5,8 @@ import Image from "next/image";
 import { useQueryClient } from "@tanstack/react-query";
 import BidForm from "./BidForm";
 import BidHistory, { type Bid as BidHistoryItem } from "./BidHistory";
-import { getAuctionContact } from "@/lib/api/auctions";
+import RecommendedAuctions from "@/components/auction/RecommendedAuctions";
+import { getAuctionContact, recordBrowsingEvent } from "@/lib/api/auctions";
 import { getBidsByAuction, placeBid } from "@/lib/api/bids";
 import type { Auction, AuctionContact } from "@/types/auction";
 import type { Bid } from "@/types/bid";
@@ -50,6 +51,7 @@ function toBidHistory(bids: Bid[]): BidHistoryItem[] {
 export default function AuctionDetailPage({ slug }: AuctionDetailPageProps) {
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { data: auction, isLoading, error } = useAuction(slug);
   const firstImageUrl = auction?.images?.[0]?.url;
   const primaryImageUrl = auction?.imageUrl;
@@ -92,6 +94,11 @@ export default function AuctionDetailPage({ slug }: AuctionDetailPageProps) {
     if (!auction?.id) { setSelectedImageUrl(""); return; }
     setSelectedImageUrl(firstImageUrl || primaryImageUrl || "/auction-images/abstract-oil-canvas.svg");
   }, [auction?.id, firstImageUrl, primaryImageUrl]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !auction?.id) return;
+    void recordBrowsingEvent({ eventType: "AuctionView", auctionId: auction.id }).catch(() => undefined);
+  }, [auction?.id, isAuthenticated]);
 
   // Track known bid IDs for deduplication
   useEffect(() => {
@@ -308,6 +315,13 @@ export default function AuctionDetailPage({ slug }: AuctionDetailPageProps) {
             )}
           </div>
         </div>
+
+        <RecommendedAuctions
+          className="mt-10"
+          title="More auctions you may like"
+          limit={4}
+          excludeAuctionId={auction.id}
+        />
       </main>
     </div>
   );
