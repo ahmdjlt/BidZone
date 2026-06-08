@@ -48,6 +48,34 @@ public class AuctionsController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("recommendations")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetRecommendations([FromQuery] int limit = 8)
+    {
+        int? userId = User.Identity?.IsAuthenticated == true ? User.GetRequiredUserId() : null;
+        var recommendations = await _auction.GetRecommendationsAsync(userId, limit);
+        return Ok(recommendations);
+    }
+
+    [HttpPost("browsing-events")]
+    [Authorize]
+    public async Task<IActionResult> RecordBrowsingEvent([FromBody] RecordBrowsingEventDto dto)
+    {
+        if (dto == null)
+            return BadRequest(new { message = "Browsing event payload is required." });
+
+        var userId = User.GetRequiredUserId();
+        try
+        {
+            await _auction.RecordBrowsingEventAsync(dto, userId);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpGet("slug/{slug}")]
     public async Task<IActionResult> GetBySlug(string slug)
     {
