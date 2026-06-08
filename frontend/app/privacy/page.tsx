@@ -5,7 +5,7 @@ const sections = [
   {
     title: "1. Information We Collect",
     content:
-      "We collect information you provide when registering, such as your name, email address, and payment details. We also automatically collect data about your activity on the platform, including bids placed, listings viewed, device information, IP address, and browser type.",
+      "We collect information you provide when registering, such as your name, email address, and payment details. We also automatically collect data about your activity on the platform, including bids placed, listings viewed, category views, searches, device information, IP address, and browser type.",
   },
   {
     title: "2. How We Use Your Information",
@@ -25,7 +25,7 @@ const sections = [
   {
     title: "5. Data Retention",
     content:
-      "We retain your personal data for as long as your account is active or as needed to provide our services. After account closure, we may retain certain data for up to 7 years to comply with legal, tax, and regulatory requirements. You may request deletion of your data subject to these obligations.",
+      "We retain your personal data for as long as your account is active or as needed to provide our services. Browsing events used for recommendations are kept in a limited rolling window. After account closure, we may retain certain data for up to 7 years to comply with legal, tax, and regulatory requirements. You may request deletion of your data subject to these obligations.",
   },
   {
     title: "6. Your Rights",
@@ -69,7 +69,7 @@ export default function PrivacyPage() {
             Privacy Policy
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-text-body">
-            Last updated: March 2026. Your privacy matters to us — here is how we handle your data.
+            Last updated: June 2026. Your privacy matters to us - here is how we handle your data.
           </p>
         </div>
 
