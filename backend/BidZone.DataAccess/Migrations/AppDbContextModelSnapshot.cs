@@ -232,6 +232,46 @@ namespace BidZone.DataAccess.Migrations
                     b.ToTable("Bids");
                 });
 
+            modelBuilder.Entity("BidZone.Domains.Entities.BrowsingEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AuctionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("SearchTerm")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuctionId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("UserId", "CreatedAt");
+
+                    b.ToTable("BrowsingEvents");
+                });
+
             modelBuilder.Entity("BidZone.Domains.Entities.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -718,6 +758,31 @@ namespace BidZone.DataAccess.Migrations
                     b.Navigation("Bidder");
                 });
 
+            modelBuilder.Entity("BidZone.Domains.Entities.BrowsingEvent", b =>
+                {
+                    b.HasOne("BidZone.Domains.Entities.Auction", "Auction")
+                        .WithMany("BrowsingEvents")
+                        .HasForeignKey("AuctionId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("BidZone.Domains.Entities.Category", "Category")
+                        .WithMany("BrowsingEvents")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("BidZone.Domains.Entities.User", "User")
+                        .WithMany("BrowsingEvents")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Auction");
+
+                    b.Navigation("Category");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("BidZone.Domains.Entities.RefreshToken", b =>
                 {
                     b.HasOne("BidZone.Domains.Entities.User", "User")
@@ -779,6 +844,8 @@ namespace BidZone.DataAccess.Migrations
                 {
                     b.Navigation("Bids");
 
+                    b.Navigation("BrowsingEvents");
+
                     b.Navigation("Images");
 
                     b.Navigation("WatchlistItems");
@@ -787,6 +854,8 @@ namespace BidZone.DataAccess.Migrations
             modelBuilder.Entity("BidZone.Domains.Entities.Category", b =>
                 {
                     b.Navigation("Auctions");
+
+                    b.Navigation("BrowsingEvents");
                 });
 
             modelBuilder.Entity("BidZone.Domains.Entities.User", b =>
@@ -794,6 +863,8 @@ namespace BidZone.DataAccess.Migrations
                     b.Navigation("Auctions");
 
                     b.Navigation("Bids");
+
+                    b.Navigation("BrowsingEvents");
 
                     b.Navigation("RefreshTokens");
 
