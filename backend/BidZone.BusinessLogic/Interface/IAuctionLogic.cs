@@ -10,9 +10,11 @@ public interface IAuctionLogic
     Task<AuctionDto?> GetByIdAsync(int id);
     Task<AuctionDto?> GetBySlugAsync(string slug);
     Task<List<AuctionDto>> GetActiveAsync();
+    Task<List<AuctionDto>> GetRecommendationsAsync(int? userId, int limit);
     Task<List<AuctionDto>> GetByCategoryAsync(int categoryId);
     Task<List<AuctionDto>> GetBySellerAsync(int sellerId);
     Task<AuctionContactDto?> GetContactForUserAsync(int auctionId, int userId);
+    Task RecordBrowsingEventAsync(RecordBrowsingEventDto dto, int userId);
     Task<AuctionDto> CreateAsync(CreateAuctionDto dto, int sellerId);
     Task<AuctionDto?> UpdateAsync(int id, UpdateAuctionDto dto, int sellerId);
     Task<ActionResponse> DeleteAsync(int id, int sellerId);
