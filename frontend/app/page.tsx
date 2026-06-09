@@ -4,7 +4,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import AuctionGrid from "@/components/auction/AuctionGrid";
-import RecommendedAuctions from "@/components/auction/RecommendedAuctions";
 import type { AuctionPreview } from "@/components/auction/AuctionCard";
 import Footer from "@/components/layout/Footer";
 import CategoryBar from "@/components/ui/CategoryBar";
@@ -119,7 +118,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        <RecommendedAuctions className="mt-8" limit={8} />
       </main>
 
       <Footer />

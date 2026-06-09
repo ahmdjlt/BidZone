@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useQueryClient } from "@tanstack/react-query";
 import BidForm from "./BidForm";
 import BidHistory, { type Bid as BidHistoryItem } from "./BidHistory";
-import RecommendedAuctions from "@/components/auction/RecommendedAuctions";
 import { getAuctionContact, recordBrowsingEvent } from "@/lib/api/auctions";
 import { getBidsByAuction, placeBid } from "@/lib/api/bids";
 import type { Auction, AuctionContact } from "@/types/auction";
@@ -315,13 +314,6 @@ export default function AuctionDetailPage({ slug }: AuctionDetailPageProps) {
             )}
           </div>
         </div>
-
-        <RecommendedAuctions
-          className="mt-10"
-          title="More auctions you may like"
-          limit={4}
-          excludeAuctionId={auction.id}
-        />
       </main>
     </div>
   );
