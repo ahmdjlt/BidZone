@@ -77,6 +77,14 @@ To clear all bids/listings and seed the marketplace with real product-style list
 dotnet run --project BidZone.DataTools -- seed-real-products
 ```
 
+To import public marketplace lots into the local database, keeping more active auctions than closed ones:
+
+```bash
+dotnet run --project BidZone.DataTools -- scrape-marketplaces
+```
+
+The scraper only uses public pages, does not log in or bypass anti-bot challenges, and replaces only previous marketplace imports by default. Use `--keep-imported` to append instead.
+
 ## Seed Data
 
 The database is seeded with:

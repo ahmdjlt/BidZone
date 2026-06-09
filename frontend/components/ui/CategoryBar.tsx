@@ -10,13 +10,21 @@ interface Category {
   icon: string;
 }
 
-export default function CategoryBar({ categories }: { categories: Category[] }) {
+interface CategoryBarProps {
+  categories: Category[];
+  onSelect?: (slug: string | null) => void;
+  selectedSlug?: string | null;
+}
+
+export default function CategoryBar({ categories, onSelect, selectedSlug }: CategoryBarProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
-  const activeSlug = pathname === "/auctions" ? searchParams.get("category") : null;
+  const activeSlug = onSelect !== undefined
+    ? (selectedSlug ?? null)
+    : pathname === "/auctions" ? searchParams.get("category") : null;
 
   const updateArrows = useCallback(() => {
     const el = scrollRef.current;
@@ -64,20 +72,37 @@ export default function CategoryBar({ categories }: { categories: Category[] }) 
         {categories.map((cat, i) => {
           const isActive = cat.slug ? cat.slug === activeSlug : !activeSlug && i === 0;
 
-          return (
-            <Link
-              key={cat.label}
-              href={cat.slug ? `/auctions?category=${cat.slug}` : `/auctions`}
-              aria-current={isActive ? "page" : undefined}
-              className={`group flex shrink-0 flex-col items-center gap-2 ${
-                isActive ? "text-accent" : "text-text-muted hover:text-text-heading"
-              } transition-colors`}
-            >
+          const className = `group flex shrink-0 flex-col items-center gap-2 ${
+            isActive ? "text-accent" : "text-text-muted hover:text-text-heading"
+          } transition-colors`;
+          const inner = (
+            <>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-7">
                 <path strokeLinecap="round" strokeLinejoin="round" d={cat.icon} />
               </svg>
               <span className="whitespace-nowrap text-xs font-semibold">{cat.label}</span>
               {isActive && <span className="h-[2px] w-full rounded-full bg-accent" />}
+            </>
+          );
+
+          return onSelect ? (
+            <button
+              key={cat.label}
+              type="button"
+              aria-current={isActive ? "page" : undefined}
+              className={className}
+              onClick={() => onSelect(cat.slug ?? null)}
+            >
+              {inner}
+            </button>
+          ) : (
+            <Link
+              key={cat.label}
+              href={cat.slug ? `/auctions?category=${cat.slug}` : `/auctions`}
+              aria-current={isActive ? "page" : undefined}
+              className={className}
+            >
+              {inner}
             </Link>
           );
         })}

@@ -35,6 +35,13 @@ public class AuctionLogic
 
         var query = BuildFilteredQuery(db, new AuctionFilterParams { Search = search, Sort = sort, Status = status, MinPrice = minPrice, MaxPrice = maxPrice }, categoryId);
         var auctions = await query.ToListAsync();
+
+        if (string.Equals(sort, "trending", StringComparison.OrdinalIgnoreCase))
+        {
+            var now = DateTime.UtcNow;
+            auctions = [.. auctions.OrderByDescending(a => ScoreTrending(a, now))];
+        }
+
         return Mappers.ToDtoList(auctions);
     }
 
@@ -51,11 +58,25 @@ public class AuctionLogic
 
         var query = BuildFilteredQuery(db, new AuctionFilterParams { Search = search, Sort = sort, Status = status, MinPrice = minPrice, MaxPrice = maxPrice }, categoryId);
 
-        var totalCount = await query.CountAsync();
-        var items = await query
-            .Skip((pagination.Page - 1) * pagination.PageSize)
-            .Take(pagination.PageSize)
-            .ToListAsync();
+        List<Auction> items;
+        int totalCount;
+
+        if (string.Equals(sort, "trending", StringComparison.OrdinalIgnoreCase))
+        {
+            var now = DateTime.UtcNow;
+            var all = await query.ToListAsync();
+            var sorted = all.OrderByDescending(a => ScoreTrending(a, now)).ToList();
+            totalCount = sorted.Count;
+            items = sorted.Skip((pagination.Page - 1) * pagination.PageSize).Take(pagination.PageSize).ToList();
+        }
+        else
+        {
+            totalCount = await query.CountAsync();
+            items = await query
+                .Skip((pagination.Page - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
+                .ToListAsync();
+        }
 
         return new PaginatedResult<AuctionDto>
         {
@@ -463,6 +484,7 @@ public class AuctionLogic
             .Include(a => a.Category)
             .Include(a => a.Images)
             .Include(a => a.Bids)
+            .Include(a => a.WatchlistItems)
             .AsQueryable();
 
         if (!string.IsNullOrEmpty(filters.Search))
@@ -486,6 +508,7 @@ public class AuctionLogic
             "price_desc" => query.OrderByDescending(a => a.CurrentPrice),
             "ending_soon" => query.OrderBy(a => a.EndTime),
             "newest" => query.OrderByDescending(a => a.StartTime),
+            "trending" => query.OrderByDescending(a => a.Bids.Count),
             _ => query.OrderByDescending(a => a.StartTime)
         };
 
@@ -514,6 +537,34 @@ public class AuctionLogic
         return hasEnoughPersonalData
             ? personalScore + popularityScore + urgencyScore
             : personalScore * 0.4 + popularityScore + urgencyScore;
+    }
+
+    private static double ScoreTrending(Auction auction, DateTime now)
+    {
+        var hoursActive = Math.Max(1, (now - auction.StartTime).TotalHours);
+        var hoursUntilClose = Math.Max(0, (auction.EndTime - now).TotalHours);
+
+        // Bid velocity: bids per day of activity, capped at 10
+        var bidVelocity = Math.Min(auction.Bids.Count / hoursActive * 24, 10);
+
+        // Recent bid momentum: bids placed in the last 24 hours
+        var recentBids = auction.Bids.Count(b => (now - b.PlacedAt).TotalHours <= 24);
+        var recentMomentum = Math.Min(recentBids, 8) * 1.5;
+
+        // Price heat: how far the price has climbed from the starting price
+        var priceHeat = auction.StartingPrice > 0
+            ? Math.Min((double)((auction.CurrentPrice - auction.StartingPrice) / auction.StartingPrice), 2.0) * 3.0
+            : 0;
+
+        // Watchlist interest
+        var watchlistScore = Math.Min(auction.WatchlistItems.Count, 15) * 0.4;
+
+        // Urgency: auctions ending within 72 hours get a boost; peaks at 0 hours remaining
+        var urgencyBoost = hoursUntilClose is > 0 and <= 72
+            ? (72 - hoursUntilClose) / 72 * 2.0
+            : 0;
+
+        return bidVelocity * 4.0 + recentMomentum + priceHeat + watchlistScore + urgencyBoost;
     }
 
     private static bool AuctionMatchesSearchTerm(Auction auction, string term)

@@ -23,7 +23,8 @@ public static class CategorySeeder
             new Category { Id = 13, Name = "Books", Slug = "books" },
             new Category { Id = 14, Name = "Toys", Slug = "toys" },
             new Category { Id = 15, Name = "Photography", Slug = "photography" },
-            new Category { Id = 16, Name = "Musical", Slug = "musical" }
+            new Category { Id = 16, Name = "Musical", Slug = "musical" },
+            new Category { Id = 17, Name = "Other Items", Slug = "other-items" }
         );
     }
 }

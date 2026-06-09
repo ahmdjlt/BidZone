@@ -4,9 +4,21 @@ using BidZone.DataAccess.Context;
 using BidZone.Domains.Entities;
 using Microsoft.EntityFrameworkCore;
 
+if (args.Length > 0 && string.Equals(args[0], "scrape-marketplaces", StringComparison.OrdinalIgnoreCase))
+{
+    LoadEnvironmentFile();
+
+    DbSession.ConnectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
+        ?? throw new InvalidOperationException("DATABASE_URL is required.");
+
+    return await MarketplaceImporter.RunAsync(MarketplaceImportOptions.Parse(args[1..]));
+}
+
 if (args.Length == 0 || !string.Equals(args[0], "seed-real-products", StringComparison.OrdinalIgnoreCase))
 {
-    Console.WriteLine("Usage: dotnet run --project BidZone.DataTools -- seed-real-products");
+    Console.WriteLine("Usage:");
+    Console.WriteLine("  dotnet run --project BidZone.DataTools -- seed-real-products");
+    Console.WriteLine("  dotnet run --project BidZone.DataTools -- scrape-marketplaces [--active 24] [--closed 4] [--keep-imported]");
     return 1;
 }
 
