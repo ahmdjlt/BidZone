@@ -23,7 +23,7 @@ public class BidsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Buyer,Admin")]
+    [Authorize]
     public async Task<IActionResult> PlaceBid([FromBody] PlaceBidDto dto)
     {
         var bidderId = User.GetRequiredUserId();
