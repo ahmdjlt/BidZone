@@ -77,6 +77,13 @@ export async function getMyAuctions(): Promise<Auction[]> {
   return apiFetch<Auction[]>("/api/auctions/my");
 }
 
+export async function reopenAuction(id: number, newEndTime: Date): Promise<Auction> {
+  return apiFetch<Auction>(`/api/auctions/${id}/reopen`, {
+    method: "PUT",
+    body: JSON.stringify({ newEndTime: newEndTime.toISOString() }),
+  });
+}
+
 export async function getCategories(): Promise<Category[]> {
   return apiFetch<Category[]>("/api/categories");
 }

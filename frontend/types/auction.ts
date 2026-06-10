@@ -90,6 +90,16 @@ export interface DashboardStats {
   totalBids: number;
   totalRevenue: number;
   recentBidActivity: BidActivity[];
+  recentSales: RecentSale[];
+}
+
+export interface RecentSale {
+  id: number;
+  title: string;
+  slug: string;
+  currentPrice: number;
+  endTime: string;
+  sellerUsername: string;
 }
 
 export interface BidActivity {
