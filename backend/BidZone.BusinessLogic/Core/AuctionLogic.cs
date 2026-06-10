@@ -200,6 +200,61 @@ public class AuctionLogic
             personalSignalCount = bidSignals.Count + watchlistSignals.Count + browsingSignals.Count;
         }
 
+        // Item-Based Collaborative Filtering: find auctions co-interacted by similar users
+        var cfScores = new Dictionary<int, double>();
+        if (userId.HasValue && interactedAuctionIds.Count > 0)
+        {
+            var interactedIds = interactedAuctionIds.ToList();
+
+            var coUserBids = await db.Bids
+                .AsNoTracking()
+                .Where(b => interactedIds.Contains(b.AuctionId) && b.BidderId != userId.Value)
+                .Select(b => new { b.BidderId, b.AuctionId })
+                .ToListAsync();
+
+            var coUserWatchlist = await db.WatchlistItems
+                .AsNoTracking()
+                .Where(w => interactedIds.Contains(w.AuctionId) && w.UserId != userId.Value)
+                .Select(w => new { UserId = w.UserId, w.AuctionId })
+                .ToListAsync();
+
+            var coUserSimilarity = new Dictionary<int, int>();
+            foreach (var b in coUserBids)
+                coUserSimilarity[b.BidderId] = coUserSimilarity.GetValueOrDefault(b.BidderId) + 1;
+            foreach (var w in coUserWatchlist)
+                coUserSimilarity[w.UserId] = coUserSimilarity.GetValueOrDefault(w.UserId) + 1;
+
+            if (coUserSimilarity.Count > 0)
+            {
+                var coUserIds = coUserSimilarity.Keys.ToList();
+
+                var otherBids = await db.Bids
+                    .AsNoTracking()
+                    .Where(b => coUserIds.Contains(b.BidderId) && !interactedIds.Contains(b.AuctionId))
+                    .Select(b => new { b.BidderId, b.AuctionId })
+                    .Take(2000)
+                    .ToListAsync();
+
+                var otherWatchlist = await db.WatchlistItems
+                    .AsNoTracking()
+                    .Where(w => coUserIds.Contains(w.UserId) && !interactedIds.Contains(w.AuctionId))
+                    .Select(w => new { UserId = w.UserId, w.AuctionId })
+                    .Take(2000)
+                    .ToListAsync();
+
+                foreach (var b in otherBids)
+                {
+                    var sim = Math.Min(coUserSimilarity.GetValueOrDefault(b.BidderId), 5);
+                    cfScores[b.AuctionId] = cfScores.GetValueOrDefault(b.AuctionId) + sim * 1.5;
+                }
+                foreach (var w in otherWatchlist)
+                {
+                    var sim = Math.Min(coUserSimilarity.GetValueOrDefault(w.UserId), 5);
+                    cfScores[w.AuctionId] = cfScores.GetValueOrDefault(w.AuctionId) + sim * 1.0;
+                }
+            }
+        }
+
         var candidates = await db.Auctions
             .Include(a => a.Seller)
             .Include(a => a.Category)
@@ -224,7 +279,7 @@ public class AuctionLogic
             .Select(auction => new
             {
                 Auction = auction,
-                Score = ScoreRecommendation(auction, categoryScores, searchTerms, hasEnoughPersonalData, now)
+                Score = ScoreRecommendation(auction, categoryScores, searchTerms, cfScores, hasEnoughPersonalData, now)
             })
             .OrderByDescending(item => item.Score)
             .ThenBy(item => item.Auction.EndTime)
@@ -541,15 +596,17 @@ public class AuctionLogic
         Auction auction,
         Dictionary<int, double> categoryScores,
         List<string> searchTerms,
+        Dictionary<int, double> cfScores,
         bool hasEnoughPersonalData,
         DateTime now)
     {
         var categoryScore = categoryScores.GetValueOrDefault(auction.CategoryId);
         var searchScore = searchTerms.Count(term => AuctionMatchesSearchTerm(auction, term)) * 3.0;
+        var cfScore = Math.Min(cfScores.GetValueOrDefault(auction.Id), 10.0) * 0.5;
         var popularityScore = Math.Min(auction.Bids.Count, 20) * 0.6 + Math.Min(auction.WatchlistItems.Count, 20) * 0.45;
         var daysUntilClose = Math.Max(0, (auction.EndTime - now).TotalDays);
         var urgencyScore = Math.Max(0, 7 - daysUntilClose) * 0.1;
-        var personalScore = categoryScore + searchScore;
+        var personalScore = categoryScore + searchScore + cfScore;
 
         return hasEnoughPersonalData
             ? personalScore + popularityScore + urgencyScore
@@ -594,9 +651,7 @@ public class AuctionLogic
     private static double GetRecencyWeight(DateTime value, DateTime now)
     {
         var ageDays = Math.Max(0, (now - value).TotalDays);
-        if (ageDays <= 7) return 1.0;
-        if (ageDays <= 30) return 0.7;
-        return 0.45;
+        return Math.Exp(-ageDays / 30.0);
     }
 
     private static string? NormalizeEventType(string? eventType)
