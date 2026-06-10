@@ -47,9 +47,7 @@ public class AuthActions
 
     internal async Task<AuthResultDto> RegisterExecution(RegisterRequestDto request, string? ipAddress)
     {
-        var role = RoleConstants.Normalize(request.Role);
-        if (role == null)
-            return AuthResultDto.Failure("Role must be Buyer or Seller.");
+        var role = RoleConstants.User;
 
         using var db = new AppDbContext();
 
