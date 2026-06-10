@@ -4,10 +4,13 @@ using BidZone.DataAccess.Context;
 using BidZone.Domains.Entities;
 using Microsoft.EntityFrameworkCore;
 
-if (args.Length == 0 || !string.Equals(args[0], "seed-real-products", StringComparison.OrdinalIgnoreCase))
+var command = args.Length > 0 ? args[0].ToLowerInvariant() : "";
+
+if (command != "seed-real-products" && command != "reassign-all")
 {
     Console.WriteLine("Usage:");
     Console.WriteLine("  dotnet run --project BidZone.DataTools -- seed-real-products");
+    Console.WriteLine("  dotnet run --project BidZone.DataTools -- reassign-all");
     return 1;
 }
 
@@ -17,15 +20,35 @@ DbSession.ConnectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
     ?? throw new InvalidOperationException("DATABASE_URL is required.");
 
 await using var db = new AppDbContext();
-await using var transaction = await db.Database.BeginTransactionAsync();
 
 var seller = await db.Users.FirstOrDefaultAsync(user =>
     user.Id == 1000 || user.NormalizedUserName == "BIDZONE");
 
 if (seller == null)
 {
-    throw new InvalidOperationException("BidZone Admin user was not found.");
+    throw new InvalidOperationException("BidZone user (id=1000 / @bidzone) was not found.");
 }
+
+if (command == "reassign-all")
+{
+    var utcNow = DateTime.UtcNow;
+    var auctions = await db.Auctions.ToListAsync();
+
+    foreach (var auction in auctions)
+    {
+        auction.SellerId = seller.Id;
+        auction.Status = auction.EndTime < utcNow ? "Closed" : "Active";
+    }
+
+    await db.SaveChangesAsync();
+    var active = auctions.Count(a => a.Status == "Active");
+    var closed = auctions.Count(a => a.Status == "Closed");
+    Console.WriteLine($"Reassigned {auctions.Count} auctions to @{seller.UserName}: {active} active, {closed} closed.");
+    return 0;
+}
+
+// seed-real-products
+await using var transaction = await db.Database.BeginTransactionAsync();
 
 db.WatchlistItems.RemoveRange(db.WatchlistItems);
 db.Bids.RemoveRange(db.Bids);
