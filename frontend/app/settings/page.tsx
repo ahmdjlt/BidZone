@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import RequireAuth from "@/components/auth/RequireAuth";
 import { useTheme } from "@/components/ThemeProvider";
 import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
-import { updateUserProfile } from "@/lib/api/users";
+import { deleteUserProfile, updateUserProfile } from "@/lib/api/users";
+import { uploadAuctionImage } from "@/lib/api/uploads";
 import { useAuthStore } from "@/store/authStore";
 import type { User } from "@/types/user";
 
@@ -42,19 +44,85 @@ function ReadOnlyRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 function AccountTab({ user, onSaved }: { user: User; onSaved: (user: User) => void }) {
+  const router = useRouter();
+  const logout = useAuthStore((state) => state.logout);
+
   const [fullName, setFullName] = useState(user.fullName);
   const [username, setUsername] = useState(user.username);
   const [email, setEmail] = useState(user.email);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(user.avatarUrl ?? null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setFullName(user.fullName);
     setUsername(user.username);
     setEmail(user.email);
+    setAvatarUrl(user.avatarUrl ?? null);
   }, [user]);
+
+  async function handleAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    setError(null);
+    setMessage(null);
+    setIsUploading(true);
+    try {
+      const url = await uploadAuctionImage(file);
+      const updated = await updateUserProfile(user.id, { ...user, avatarUrl: url });
+      setAvatarUrl(updated.avatarUrl ?? null);
+      onSaved(updated);
+      setMessage("Profile photo updated.");
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : "Could not upload the photo.");
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
+  async function handleRemoveAvatar() {
+    setError(null);
+    setMessage(null);
+    setIsUploading(true);
+    try {
+      const updated = await updateUserProfile(user.id, { ...user, avatarUrl: null });
+      setAvatarUrl(updated.avatarUrl ?? null);
+      onSaved(updated);
+      setMessage("Profile photo removed.");
+    } catch (removeError) {
+      setError(removeError instanceof Error ? removeError.message : "Could not remove the photo.");
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
+  async function handleDelete() {
+    setError(null);
+    setIsDeleting(true);
+    try {
+      await deleteUserProfile(user.id);
+      await logout();
+      router.replace("/");
+    } catch (deleteError) {
+      setError(deleteError instanceof Error ? deleteError.message : "Could not delete your account.");
+      setIsDeleting(false);
+    }
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -77,6 +145,7 @@ function AccountTab({ user, onSaved }: { user: User; onSaved: (user: User) => vo
         fullName: nextFullName,
         username: nextUsername,
         email: nextEmail,
+        avatarUrl,
       });
       onSaved(updated);
       setMessage("Account settings saved.");
@@ -90,9 +159,47 @@ function AccountTab({ user, onSaved }: { user: User; onSaved: (user: User) => vo
   return (
     <div>
       <SectionTitle>Account</SectionTitle>
-      <p className="mt-2 text-sm text-text-muted">
-        These details are loaded from your BidZone account and saved through the API.
-      </p>
+
+      <div className="mt-6 flex items-center gap-5">
+        <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[linear-gradient(135deg,#1a4fa0,#3b7dd8)] text-xl font-black tracking-wide text-white">
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={avatarUrl} alt="Profile photo" className="h-full w-full object-cover" />
+          ) : (
+            getInitials(fullName || username)
+          )}
+        </div>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="rounded-lg border border-border-strong px-4 py-2 text-sm font-medium text-text-heading transition-colors hover:bg-accent-soft disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {isUploading ? "Uploading..." : avatarUrl ? "Change photo" : "Upload photo"}
+            </button>
+            {avatarUrl ? (
+              <button
+                type="button"
+                onClick={handleRemoveAvatar}
+                disabled={isUploading}
+                className="rounded-lg px-3 py-2 text-sm font-medium text-text-muted transition-colors hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                Remove
+              </button>
+            ) : null}
+          </div>
+          <p className="text-xs text-text-muted">JPG, PNG, WEBP or GIF, up to 5MB.</p>
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          className="hidden"
+          onChange={handleAvatarChange}
+        />
+      </div>
 
       <form className="mt-6 max-w-2xl space-y-5" onSubmit={handleSubmit}>
         <div>
@@ -153,6 +260,42 @@ function AccountTab({ user, onSaved }: { user: User; onSaved: (user: User) => vo
         <ReadOnlyRow label="Role" value={user.role} />
         <ReadOnlyRow label="Account status" value={user.isActive ? "Active" : "Inactive"} />
         <ReadOnlyRow label="Member since" value={formatJoinDate(user.createdAt)} />
+      </div>
+
+      <div className="mt-10 max-w-2xl rounded-xl border border-red-500/30 bg-red-500/5 p-5">
+        <h3 className="text-sm font-semibold text-text-heading">Delete account</h3>
+        <p className="mt-1 text-sm text-text-muted">
+          Permanently deactivate your account and sign out. This cannot be undone.
+        </p>
+        {confirmingDelete ? (
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <span className="text-sm font-medium text-text-heading">Are you sure?</span>
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {isDeleting ? "Deleting..." : "Yes, delete my account"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmingDelete(false)}
+              disabled={isDeleting}
+              className="rounded-lg px-3 py-2 text-sm font-medium text-text-muted transition-colors hover:text-text-heading"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setConfirmingDelete(true)}
+            className="mt-4 rounded-lg border border-red-500/50 px-4 py-2 text-sm font-semibold text-red-500 transition-colors hover:bg-red-500 hover:text-white"
+          >
+            Delete account
+          </button>
+        )}
       </div>
     </div>
   );

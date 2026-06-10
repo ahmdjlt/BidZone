@@ -99,6 +99,12 @@ export async function updateUserProfile(userId: number | string, data: Partial<U
   });
 }
 
+export async function deleteUserProfile(userId: number | string): Promise<void> {
+  return apiFetch<void>(`/api/users/${userId}`, {
+    method: "DELETE",
+  });
+}
+
 // Watchlist
 export async function getWatchlist(): Promise<WatchlistItem[]> {
   return apiFetch<WatchlistItem[]>("/api/watchlist");

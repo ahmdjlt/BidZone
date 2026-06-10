@@ -146,8 +146,13 @@ export default function Navbar() {
                     {personOpen && (
                       <div className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-lg border border-border-strong bg-card-bg shadow-[0_20px_60px_-20px_var(--card-shadow)]">
                         <div className="flex items-center gap-3 border-b border-border px-4 py-3">
-                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#1a4fa0,#3b7dd8)] text-xs font-black tracking-wide text-white">
-                            {initials}
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[linear-gradient(135deg,#1a4fa0,#3b7dd8)] text-xs font-black tracking-wide text-white">
+                            {user?.avatarUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={user.avatarUrl} alt={displayName} className="h-full w-full object-cover" />
+                            ) : (
+                              initials
+                            )}
                           </span>
                           <div className="min-w-0">
                             <p className="truncate text-sm font-semibold text-text-heading">{displayName}</p>

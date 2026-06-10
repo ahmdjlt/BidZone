@@ -3,7 +3,8 @@ export interface User {
   username: string;
   fullName: string;
   email: string;
-  role: "Buyer" | "Seller" | "Admin";
+  role: "User" | "Buyer" | "Seller" | "Admin";
+  avatarUrl?: string | null;
   createdAt: string;
   isActive: boolean;
 }
@@ -18,7 +19,6 @@ export interface RegisterRequest {
   fullName: string;
   email: string;
   password: string;
-  role: "Buyer" | "Seller";
 }
 
 export interface AuthResponse {
