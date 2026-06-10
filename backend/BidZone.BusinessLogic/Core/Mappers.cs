@@ -12,6 +12,7 @@ internal static class Mappers
         Email = u.Email ?? string.Empty,
         FullName = u.FullName,
         Role = u.Role,
+        AvatarUrl = u.AvatarUrl,
         CreatedAt = u.CreatedAt,
         IsActive = u.IsActive
     };

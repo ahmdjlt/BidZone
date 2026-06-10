@@ -11,6 +11,9 @@ public class User : IdentityUser<int>
     [Required, MaxLength(20)]
     public string Role { get; set; } = "Buyer"; // Buyer, Seller, Admin
 
+    [MaxLength(500)]
+    public string? AvatarUrl { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public bool IsActive { get; set; } = true;
