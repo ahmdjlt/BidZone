@@ -8,6 +8,17 @@ public class DashboardStatsDto
     public int TotalBids { get; set; }
     public decimal TotalRevenue { get; set; }
     public List<BidActivityDto> RecentBidActivity { get; set; } = new();
+    public List<RecentSaleDto> RecentSales { get; set; } = new();
+}
+
+public class RecentSaleDto
+{
+    public int Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Slug { get; set; } = string.Empty;
+    public decimal CurrentPrice { get; set; }
+    public string EndTime { get; set; } = string.Empty;
+    public string SellerUsername { get; set; } = string.Empty;
 }
 
 public class BidActivityDto
