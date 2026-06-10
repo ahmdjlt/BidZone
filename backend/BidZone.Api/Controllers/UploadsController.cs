@@ -10,7 +10,7 @@ namespace BidZone.Api.Controllers;
 public class UploadsController : ControllerBase
 {
     [HttpPost("image")]
-    [Authorize(Roles = "Seller,Admin")]
+    [Authorize]
     [RequestSizeLimit(5 * 1024 * 1024)]
     public async Task<IActionResult> UploadImage(IFormFile? file)
     {
