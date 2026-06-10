@@ -11,7 +11,7 @@ interface AuthState {
   hasBootstrapped: boolean;
 
   login: (email: string, password: string) => Promise<void>;
-  register: (data: { username: string; fullName: string; email: string; password: string; role: "Buyer" | "Seller" }) => Promise<{ pending: boolean; message?: string }>;
+  register: (data: { username: string; fullName: string; email: string; password: string }) => Promise<{ pending: boolean; message?: string }>;
   logout: () => Promise<void>;
   bootstrapAuth: () => Promise<void>;
   setUser: (user: User | null) => void;

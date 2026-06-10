@@ -28,7 +28,6 @@ export default function AuthModal({
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState<"Buyer" | "Seller">("Buyer");
   const [error, setError] = useState<string | null>(null);
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const router = useRouter();
@@ -63,7 +62,6 @@ export default function AuthModal({
           fullName,
           email,
           password,
-          role,
         });
 
         if (result.pending) {
@@ -141,22 +139,6 @@ export default function AuthModal({
                 className="w-full rounded-lg border border-border-strong bg-surface-alt px-3 py-2 text-sm text-text-heading placeholder:text-text-muted transition focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
                 required
               />
-              <div className="grid grid-cols-2 gap-2">
-                {(["Buyer", "Seller"] as const).map((option) => (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => setRole(option)}
-                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                      role === option
-                        ? "border-accent bg-accent-soft text-accent"
-                        : "border-border-strong bg-surface-alt text-text-heading hover:bg-accent-soft/40"
-                    }`}
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
             </>
           )}
 
