@@ -45,6 +45,7 @@ public class UserLogic
         user.Email = newEmail;
         user.NormalizedEmail = normalizedEmail;
         user.FullName = dto.FullName.Trim();
+        user.AvatarUrl = string.IsNullOrWhiteSpace(dto.AvatarUrl) ? null : dto.AvatarUrl.Trim();
         user.ConcurrencyStamp = Guid.NewGuid().ToString();
 
         try

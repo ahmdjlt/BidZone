@@ -60,9 +60,15 @@ public class UsersController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public async Task<IActionResult> Delete(int id)
     {
+        var userId = User.GetRequiredUserId();
+        var isAdmin = User.IsInRole("Admin");
+
+        if (userId != id && !isAdmin)
+            return Forbid();
+
         var result = await _user.DeleteAsync(id);
         if (!result.IsSuccess)
             return NotFound(result);
