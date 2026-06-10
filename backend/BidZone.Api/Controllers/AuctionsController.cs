@@ -106,7 +106,7 @@ public class AuctionsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Seller,Admin")]
+    [Authorize]
     public async Task<IActionResult> Create([FromBody] CreateAuctionDto dto)
     {
         var sellerId = User.GetRequiredUserId();
@@ -122,7 +122,7 @@ public class AuctionsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = "Seller,Admin")]
+    [Authorize]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateAuctionDto dto)
     {
         var sellerId = User.GetRequiredUserId();
@@ -142,7 +142,7 @@ public class AuctionsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Seller,Admin")]
+    [Authorize]
     public async Task<IActionResult> Delete(int id)
     {
         var sellerId = User.GetRequiredUserId();
@@ -154,11 +154,22 @@ public class AuctionsController : ControllerBase
     }
 
     [HttpGet("my")]
-    [Authorize(Roles = "Seller,Admin")]
+    [Authorize]
     public async Task<IActionResult> GetMyAuctions()
     {
         var sellerId = User.GetRequiredUserId();
         var auctions = await _auction.GetBySellerAsync(sellerId);
         return Ok(auctions);
+    }
+
+    [HttpPut("{id}/reopen")]
+    [Authorize]
+    public async Task<IActionResult> Reopen(int id, [FromBody] ReopenAuctionDto dto)
+    {
+        var sellerId = User.GetRequiredUserId();
+        var auction = await _auction.ReopenAsync(id, dto.NewEndTime, sellerId);
+        if (auction == null)
+            return NotFound(new { message = "Auction not found, not closed, or does not belong to you." });
+        return Ok(auction);
     }
 }

@@ -462,15 +462,32 @@ public class AuctionLogic
         return Mappers.ToDto(updated);
     }
 
+    internal async Task<AuctionDto?> ReopenExecution(int id, DateTime newEndTime, int sellerId)
+    {
+        using var db = new AppDbContext();
+        var auction = await db.Auctions.FirstOrDefaultAsync(a => a.Id == id);
+        if (auction == null || auction.Status != "Closed" || auction.SellerId != sellerId)
+            return null;
+
+        auction.Status = "Active";
+        auction.EndTime = newEndTime.ToUniversalTime();
+        await db.SaveChangesAsync();
+
+        var updated = await db.Auctions
+            .Include(a => a.Seller)
+            .Include(a => a.Category)
+            .Include(a => a.Images)
+            .Include(a => a.Bids)
+            .FirstAsync(a => a.Id == id);
+        return Mappers.ToDto(updated);
+    }
+
     internal async Task<ActionResponse> DeleteExecution(int id, int sellerId)
     {
         using var db = new AppDbContext();
         var auction = await db.Auctions.Include(a => a.Bids).FirstOrDefaultAsync(a => a.Id == id);
         if (auction == null || auction.SellerId != sellerId)
             return ActionResponse.Failure("Auction was not found or does not belong to the current seller.");
-
-        if (auction.Bids.Any())
-            return ActionResponse.Failure("Cannot delete auction with existing bids.");
 
         db.Auctions.Remove(auction);
         await db.SaveChangesAsync();

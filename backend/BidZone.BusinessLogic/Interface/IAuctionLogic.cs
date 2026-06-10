@@ -18,4 +18,5 @@ public interface IAuctionLogic
     Task<AuctionDto> CreateAsync(CreateAuctionDto dto, int sellerId);
     Task<AuctionDto?> UpdateAsync(int id, UpdateAuctionDto dto, int sellerId);
     Task<ActionResponse> DeleteAsync(int id, int sellerId);
+    Task<AuctionDto?> ReopenAsync(int id, DateTime newEndTime, int sellerId);
 }

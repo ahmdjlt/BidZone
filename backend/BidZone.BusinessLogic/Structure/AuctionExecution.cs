@@ -24,4 +24,5 @@ public class AuctionExecution : AuctionLogic, IAuctionLogic
     public Task<AuctionDto> CreateAsync(CreateAuctionDto dto, int sellerId) => CreateExecution(dto, sellerId);
     public Task<AuctionDto?> UpdateAsync(int id, UpdateAuctionDto dto, int sellerId) => UpdateExecution(id, dto, sellerId);
     public Task<ActionResponse> DeleteAsync(int id, int sellerId) => DeleteExecution(id, sellerId);
+    public Task<AuctionDto?> ReopenAsync(int id, DateTime newEndTime, int sellerId) => ReopenExecution(id, newEndTime, sellerId);
 }
