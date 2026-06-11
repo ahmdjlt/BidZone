@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface BidFormProps {
   currentBid: number;
@@ -58,7 +58,7 @@ export default function BidForm({
   showBidButton = true,
   bidLabel,
 }: BidFormProps) {
-  const minimumBid = Number((currentBid + 0.01).toFixed(2));
+  const minimumBid = useMemo(() => Number((currentBid + 0.01).toFixed(2)), [currentBid]);
   const [amountInput, setAmountInput] = useState(minimumBid.toString());
   const [incrementInput, setIncrementInput] = useState(minIncrement.toString());
   const [error, setError] = useState("");
@@ -69,6 +69,21 @@ export default function BidForm({
   useEffect(() => {
     setAmountInput(minimumBid.toString());
   }, [minimumBid]);
+
+  // Memoized so the input's onChange identity stays stable across renders.
+  const handleAmountChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const normalized = e.target.value.replace(/[^\d.]/g, "");
+    const [whole, ...fractionParts] = normalized.split(".");
+    const fraction = fractionParts.join("").slice(0, 2);
+    const nextValue = fractionParts.length > 0 ? `${whole}.${fraction}` : whole;
+    if (nextValue === "") {
+      setAmountInput("");
+      setError("");
+      return;
+    }
+    setAmountInput(nextValue);
+    setError("");
+  }, []);
 
   function getCurrentAmount() {
     const parsed = Number(amountInput);
@@ -163,19 +178,7 @@ export default function BidForm({
               type="text"
               inputMode="decimal"
               value={amountInput}
-              onChange={(e) => {
-                const normalized = e.target.value.replace(/[^\d.]/g, "");
-                const [whole, ...fractionParts] = normalized.split(".");
-                const fraction = fractionParts.join("").slice(0, 2);
-                const nextValue = fractionParts.length > 0 ? `${whole}.${fraction}` : whole;
-                if (nextValue === "") {
-                  setAmountInput("");
-                  setError("");
-                  return;
-                }
-                setAmountInput(nextValue);
-                setError("");
-              }}
+              onChange={handleAmountChange}
               disabled={disabled || isSubmitting}
               className="w-full rounded-lg bg-accent-soft/50 py-2.5 pl-7 pr-3 text-sm font-semibold tabular-nums text-text-heading outline-none transition-colors placeholder:text-text-muted focus:ring-2 focus:ring-accent/20"
               placeholder={minimumBid.toString()}

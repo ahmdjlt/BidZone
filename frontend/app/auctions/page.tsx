@@ -8,9 +8,12 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { toAuctionPreview } from "@/lib/auctionPreview";
 import { getAuctions, recordBrowsingEvent } from "@/lib/api/auctions";
-import { getMyBids } from "@/lib/api/bids";
 import { useCategories } from "@/hooks/queries/useCategories";
-import { CATEGORY_ICONS, GENERIC_ICON } from "@/lib/categoryIcons";
+import { useMyBids } from "@/hooks/queries/useMyBids";
+import { useDebounce } from "@/hooks/useDebounce";
+import CategoryFilter from "@/components/auction/filters/CategoryFilter";
+import PriceFilter from "@/components/auction/filters/PriceFilter";
+import ClosingDateFilter from "@/components/auction/filters/ClosingDateFilter";
 import { useAuthStore } from "@/store/authStore";
 import type { AuctionSummary } from "@/types/auction";
 
@@ -43,7 +46,13 @@ export default function AuctionsPage() {
   const [apiAuctions, setApiAuctions] = useState<AuctionSummary[]>([]);
   const [isLoadingAuctions, setIsLoadingAuctions] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [myBidAuctionIds, setMyBidAuctionIds] = useState<Set<number>>(new Set());
+
+  // User's bids (TanStack Query, gated on auth)
+  const { data: myBids = [] } = useMyBids(isAuthenticated);
+  const myBidAuctionIds = useMemo(
+    () => new Set(myBids.map((b) => b.auctionId)),
+    [myBids],
+  );
 
   // Filter bar dropdowns
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
@@ -66,6 +75,10 @@ export default function AuctionsPage() {
   const [draftMax, setDraftMax] = useState("");
   const [draftClosing, setDraftClosing] = useState<ClosingValue>("any");
   const [draftSort, setDraftSort] = useState<SortValue>("ending_soon");
+
+  // Debounce price inputs so the API isn't hit on every keystroke
+  const debouncedMinPrice = useDebounce(minPrice, 350);
+  const debouncedMaxPrice = useDebounce(maxPrice, 350);
 
   const activeCategorySlug = searchParams.get("category");
   const searchQuery = searchParams.get("q")?.trim() || "";
@@ -140,8 +153,8 @@ export default function AuctionsPage() {
           category,
           sort: activeSort,
           status: "Active",
-          minPrice: minPrice ? Number(minPrice) : undefined,
-          maxPrice: maxPrice ? Number(maxPrice) : undefined,
+          minPrice: debouncedMinPrice ? Number(debouncedMinPrice) : undefined,
+          maxPrice: debouncedMaxPrice ? Number(debouncedMaxPrice) : undefined,
         });
 
         if (!cancelled) setApiAuctions(auctions);
@@ -157,34 +170,23 @@ export default function AuctionsPage() {
 
     void loadAuctions();
     return () => { cancelled = true; };
-  }, [activeCategorySlug, activeSort, minPrice, maxPrice, searchQuery]);
-
-  // Fetch user's bid auction IDs
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setMyBidAuctionIds(new Set());
-      return;
-    }
-    let cancelled = false;
-    getMyBids()
-      .then((bids) => {
-        if (!cancelled) setMyBidAuctionIds(new Set(bids.map((b) => b.auctionId)));
-      })
-      .catch(() => undefined);
-    return () => { cancelled = true; };
-  }, [isAuthenticated]);
+  }, [activeCategorySlug, activeSort, debouncedMinPrice, debouncedMaxPrice, searchQuery]);
 
   // Browsing signals
   useEffect(() => {
     if (!isAuthenticated || !activeCategorySlug) return;
     if (activeCategorySlug === "this-week" || activeCategorySlug === "trending") return;
-    void recordBrowsingEvent({ eventType: "CategoryView", categorySlug: activeCategorySlug }).catch(() => undefined);
+    void recordBrowsingEvent({ eventType: "CategoryView", categorySlug: activeCategorySlug }).catch((error) => {
+      console.error("Failed to record CategoryView browsing event", error);
+    });
   }, [activeCategorySlug, isAuthenticated]);
 
   useEffect(() => {
     if (!isAuthenticated || searchQuery.length < 2) return;
     const id = window.setTimeout(() => {
-      void recordBrowsingEvent({ eventType: "Search", searchTerm: searchQuery }).catch(() => undefined);
+      void recordBrowsingEvent({ eventType: "Search", searchTerm: searchQuery }).catch((error) => {
+        console.error("Failed to record Search browsing event", error);
+      });
     }, 500);
     return () => window.clearTimeout(id);
   }, [isAuthenticated, searchQuery]);
@@ -289,6 +291,9 @@ export default function AuctionsPage() {
             <button
               type="button"
               onClick={() => { setIsCategoriesOpen((v) => !v); setIsPriceOpen(false); }}
+              aria-label="Filter by category"
+              aria-expanded={isCategoriesOpen}
+              aria-haspopup="true"
               className={`flex items-center gap-1.5 rounded-lg border px-4 py-2.5 text-sm font-medium transition ${
                 isCategoriesOpen || activeCategorySlug
                   ? "border-accent bg-accent-soft/50 text-accent"
@@ -303,25 +308,11 @@ export default function AuctionsPage() {
 
             {isCategoriesOpen && (
               <div className="absolute left-0 z-30 mt-1 max-h-80 w-56 overflow-y-auto rounded-xl border border-border-strong bg-card-bg p-1 shadow-xl">
-                {categories.map((cat) => (
-                  <button
-                    key={cat.slug ?? "all"}
-                    type="button"
-                    onClick={() => { handleCategoryChange(cat.slug); setIsCategoriesOpen(false); }}
-                    className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm ${
-                      activeCategorySlug === cat.slug
-                        ? "bg-accent font-medium text-white"
-                        : "text-text-heading hover:bg-accent-soft"
-                    }`}
-                  >
-                    {cat.slug && (
-                      <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d={CATEGORY_ICONS[cat.slug] ?? GENERIC_ICON} />
-                      </svg>
-                    )}
-                    {cat.label}
-                  </button>
-                ))}
+                <CategoryFilter
+                  categories={categories}
+                  activeSlug={activeCategorySlug}
+                  onSelect={(slug) => { handleCategoryChange(slug); setIsCategoriesOpen(false); }}
+                />
               </div>
             )}
           </div>
@@ -331,6 +322,9 @@ export default function AuctionsPage() {
             <button
               type="button"
               onClick={() => { setIsPriceOpen((v) => !v); setIsCategoriesOpen(false); }}
+              aria-label="Filter by price"
+              aria-expanded={isPriceOpen}
+              aria-haspopup="true"
               className={`flex items-center gap-1.5 rounded-lg border px-4 py-2.5 text-sm font-medium transition ${
                 isPriceOpen || minPrice || maxPrice
                   ? "border-accent bg-accent-soft/50 text-accent"
@@ -346,38 +340,13 @@ export default function AuctionsPage() {
             {isPriceOpen && (
               <div className="absolute left-0 z-30 mt-1 w-64 rounded-xl border border-border-strong bg-card-bg p-4 shadow-xl">
                 <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-muted">Price range</p>
-                <div className="flex items-center gap-2">
-                  <div className="relative flex-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-text-muted">$</span>
-                    <input
-                      type="number"
-                      placeholder="Min"
-                      value={minPrice}
-                      onChange={(e) => setMinPrice(e.target.value)}
-                      className="w-full rounded-lg border border-border-strong bg-surface-alt py-2 pl-7 pr-3 text-sm text-text-heading placeholder:text-text-muted focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-                    />
-                  </div>
-                  <span className="text-text-muted">–</span>
-                  <div className="relative flex-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-text-muted">$</span>
-                    <input
-                      type="number"
-                      placeholder="Max"
-                      value={maxPrice}
-                      onChange={(e) => setMaxPrice(e.target.value)}
-                      className="w-full rounded-lg border border-border-strong bg-surface-alt py-2 pl-7 pr-3 text-sm text-text-heading placeholder:text-text-muted focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-                    />
-                  </div>
-                </div>
-                {(minPrice || maxPrice) && (
-                  <button
-                    type="button"
-                    onClick={() => { setMinPrice(""); setMaxPrice(""); }}
-                    className="mt-3 w-full text-center text-xs font-medium text-accent transition hover:text-accent/80"
-                  >
-                    Clear
-                  </button>
-                )}
+                <PriceFilter
+                  min={minPrice}
+                  max={maxPrice}
+                  onMinChange={setMinPrice}
+                  onMaxChange={setMaxPrice}
+                  onClear={() => { setMinPrice(""); setMaxPrice(""); }}
+                />
               </div>
             )}
           </div>
@@ -459,6 +428,8 @@ export default function AuctionsPage() {
                 <button
                   type="button"
                   onClick={() => toggleSection("category")}
+                  aria-label="Filter by category"
+                  aria-expanded={expandedFilter === "category"}
                   className="flex w-full items-center justify-between px-6 py-4 text-left transition hover:bg-accent-soft/40"
                 >
                   <span className="text-sm font-medium text-text-heading">
@@ -475,25 +446,11 @@ export default function AuctionsPage() {
                 </button>
                 {expandedFilter === "category" && (
                   <div className="max-h-60 overflow-y-auto px-4 pb-4">
-                    {categories.map((cat) => (
-                      <button
-                        key={cat.slug ?? "all"}
-                        type="button"
-                        onClick={() => { handleCategoryChange(cat.slug); }}
-                        className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm ${
-                          activeCategorySlug === cat.slug
-                            ? "bg-accent font-medium text-white"
-                            : "text-text-heading hover:bg-accent-soft"
-                        }`}
-                      >
-                        {cat.slug && (
-                          <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d={CATEGORY_ICONS[cat.slug] ?? GENERIC_ICON} />
-                          </svg>
-                        )}
-                        {cat.label}
-                      </button>
-                    ))}
+                    <CategoryFilter
+                      categories={categories}
+                      activeSlug={activeCategorySlug}
+                      onSelect={handleCategoryChange}
+                    />
                   </div>
                 )}
               </div>
@@ -503,6 +460,8 @@ export default function AuctionsPage() {
                 <button
                   type="button"
                   onClick={() => toggleSection("budget")}
+                  aria-label="Filter by price"
+                  aria-expanded={expandedFilter === "budget"}
                   className="flex w-full items-center justify-between px-6 py-4 text-left transition hover:bg-accent-soft/40"
                 >
                   <span className="text-sm font-medium text-text-heading">
@@ -519,34 +478,13 @@ export default function AuctionsPage() {
                 </button>
                 {expandedFilter === "budget" && (
                   <div className="px-6 pb-4">
-                    <div className="flex items-center gap-2">
-                      <div className="relative flex-1">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-text-muted">$</span>
-                        <input
-                          type="number"
-                          placeholder="Min"
-                          value={draftMin}
-                          onChange={(e) => setDraftMin(e.target.value)}
-                          className="w-full rounded-lg border border-border-strong bg-surface-alt py-2 pl-7 pr-3 text-sm text-text-heading placeholder:text-text-muted focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-                        />
-                      </div>
-                      <span className="text-text-muted">–</span>
-                      <div className="relative flex-1">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-text-muted">$</span>
-                        <input
-                          type="number"
-                          placeholder="Max"
-                          value={draftMax}
-                          onChange={(e) => setDraftMax(e.target.value)}
-                          className="w-full rounded-lg border border-border-strong bg-surface-alt py-2 pl-7 pr-3 text-sm text-text-heading placeholder:text-text-muted focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-                        />
-                      </div>
-                    </div>
-                    {(draftMin || draftMax) && (
-                      <button type="button" onClick={() => { setDraftMin(""); setDraftMax(""); }} className="mt-2 text-xs text-accent transition hover:text-accent/70">
-                        Clear
-                      </button>
-                    )}
+                    <PriceFilter
+                      min={draftMin}
+                      max={draftMax}
+                      onMinChange={setDraftMin}
+                      onMaxChange={setDraftMax}
+                      onClear={() => { setDraftMin(""); setDraftMax(""); }}
+                    />
                   </div>
                 )}
               </div>
@@ -556,6 +494,8 @@ export default function AuctionsPage() {
                 <button
                   type="button"
                   onClick={() => toggleSection("closing")}
+                  aria-label="Filter by closing date"
+                  aria-expanded={expandedFilter === "closing"}
                   className="flex w-full items-center justify-between px-6 py-4 text-left transition hover:bg-accent-soft/40"
                 >
                   <span className="text-sm font-medium text-text-heading">
@@ -571,24 +511,12 @@ export default function AuctionsPage() {
                   </svg>
                 </button>
                 {expandedFilter === "closing" && (
-                  <div className="px-6 pb-4 flex flex-col gap-1">
-                    {CLOSING_OPTIONS.map((opt) => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => setDraftClosing(opt.value)}
-                        className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition ${
-                          draftClosing === opt.value
-                            ? "bg-accent font-medium text-white"
-                            : "text-text-heading hover:bg-accent-soft"
-                        }`}
-                      >
-                        <span className={`h-4 w-4 shrink-0 rounded-full border-2 flex items-center justify-center ${draftClosing === opt.value ? "border-white" : "border-border-strong"}`}>
-                          {draftClosing === opt.value && <span className="h-2 w-2 rounded-full bg-white" />}
-                        </span>
-                        {opt.label}
-                      </button>
-                    ))}
+                  <div className="px-6 pb-4">
+                    <ClosingDateFilter
+                      options={CLOSING_OPTIONS}
+                      value={draftClosing}
+                      onChange={setDraftClosing}
+                    />
                   </div>
                 )}
               </div>
@@ -598,6 +526,8 @@ export default function AuctionsPage() {
                 <button
                   type="button"
                   onClick={() => toggleSection("sort")}
+                  aria-label="Sort auctions"
+                  aria-expanded={expandedFilter === "sort"}
                   className="flex w-full items-center justify-between px-6 py-4 text-left transition hover:bg-accent-soft/40"
                 >
                   <span className="text-sm font-medium text-text-heading">

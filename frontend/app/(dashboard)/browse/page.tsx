@@ -7,6 +7,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { getAuctions, recordBrowsingEvent } from "@/lib/api/auctions";
 import { toAuctionPreview } from "@/lib/auctionPreview";
+import { useDebounce } from "@/hooks/useDebounce";
 import { useAuthStore } from "@/store/authStore";
 import type { AuctionSummary } from "@/types/auction";
 
@@ -39,6 +40,9 @@ export default function DashboardBrowsePage() {
   const [isSortOpen, setIsSortOpen] = useState(false);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Debounce search so the API isn't hit on every keystroke
+  const debouncedSearch = useDebounce(searchTerm.trim(), 350);
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -62,7 +66,7 @@ export default function DashboardBrowsePage() {
 
       try {
         const result = await getAuctions({
-          search: searchTerm.trim() || undefined,
+          search: debouncedSearch || undefined,
           category: slugifyCategory(activeCategory),
           sort: mapSortToBackend(activeSort),
         });
@@ -82,15 +86,12 @@ export default function DashboardBrowsePage() {
       }
     }
 
-    const timeoutId = window.setTimeout(() => {
-      void loadAuctions();
-    }, 250);
+    void loadAuctions();
 
     return () => {
       cancelled = true;
-      window.clearTimeout(timeoutId);
     };
-  }, [activeCategory, activeSort, searchTerm]);
+  }, [activeCategory, activeSort, debouncedSearch]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -105,24 +106,23 @@ export default function DashboardBrowsePage() {
     void recordBrowsingEvent({
       eventType: "CategoryView",
       categorySlug,
-    }).catch(() => undefined);
+    }).catch((error) => {
+      console.error("Failed to record CategoryView browsing event", error);
+    });
   }, [activeCategory, isAuthenticated]);
 
   useEffect(() => {
-    const trimmedSearch = searchTerm.trim();
-    if (!isAuthenticated || trimmedSearch.length < 2) {
+    if (!isAuthenticated || debouncedSearch.length < 2) {
       return;
     }
 
-    const timeoutId = window.setTimeout(() => {
-      void recordBrowsingEvent({
-        eventType: "Search",
-        searchTerm: trimmedSearch,
-      }).catch(() => undefined);
-    }, 500);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [isAuthenticated, searchTerm]);
+    void recordBrowsingEvent({
+      eventType: "Search",
+      searchTerm: debouncedSearch,
+    }).catch((error) => {
+      console.error("Failed to record Search browsing event", error);
+    });
+  }, [isAuthenticated, debouncedSearch]);
 
   const sortedAuctions = useMemo(() => {
     const previews = auctions.map(toAuctionPreview);
@@ -168,12 +168,14 @@ export default function DashboardBrowsePage() {
       </div>
 
       {/* Category pills */}
-      <div className="mb-8 flex flex-wrap gap-2">
+      <div className="mb-8 flex flex-wrap gap-2" role="group" aria-label="Filter by category">
         {categories.map((cat) => (
           <button
             key={cat}
             type="button"
             onClick={() => setActiveCategory(cat)}
+            aria-label={`Filter by category: ${cat}`}
+            aria-pressed={activeCategory === cat}
             className={`rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
               activeCategory === cat
                 ? "bg-accent text-white shadow-[0_12px_28px_-18px_rgba(8,72,184,0.95)]"
@@ -194,6 +196,9 @@ export default function DashboardBrowsePage() {
           <button
             type="button"
             onClick={() => setIsSortOpen((prev) => !prev)}
+            aria-label="Sort auctions"
+            aria-expanded={isSortOpen}
+            aria-haspopup="true"
             className="flex w-full items-center justify-between gap-2 rounded-xl border border-border-strong bg-input-bg px-4 py-2.5 text-left text-sm font-medium text-text-heading focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 sm:min-w-[190px]"
           >
             <span>{activeSort}</span>

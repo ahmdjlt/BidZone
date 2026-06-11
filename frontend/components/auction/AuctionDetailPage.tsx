@@ -114,10 +114,21 @@ export default function AuctionDetailPage({ slug }: AuctionDetailPageProps) {
     knownBidIdsRef.current.add(lastBid.id);
 
     setBids((current) => {
-      const updated = current
-        .filter((b) => b.id !== lastBid.id)
-        .map((b) => (b.status === "Winning" ? { ...b, status: "Outbid" as const } : b));
-      return [lastBid, ...updated].sort((a, b) => b.amount - a.amount);
+      // `current` is already sorted by amount desc. Rebuild in a single pass:
+      // drop any prior copy of this bid, demote the previous winner, and splice the
+      // incoming bid into its sorted position instead of re-sorting the whole array.
+      const next: Bid[] = [];
+      let inserted = false;
+      for (const b of current) {
+        if (b.id === lastBid.id) continue; // dedup existing copy
+        if (!inserted && lastBid.amount >= b.amount) {
+          next.push(lastBid);
+          inserted = true;
+        }
+        next.push(b.status === "Winning" ? { ...b, status: "Outbid" as const } : b);
+      }
+      if (!inserted) next.push(lastBid);
+      return next;
     });
 
     queryClient.setQueryData(["auction", slug], (old: Auction | undefined) => {

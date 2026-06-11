@@ -20,10 +20,19 @@ export interface AuctionPreview {
 
 interface AuctionCardProps {
   auction: AuctionPreview;
+  /** Index of the card in its list; only the first card eagerly loads its image. */
+  index?: number;
+  /**
+   * Explicitly opt this card's image into eager loading. Prefer `index`; this is
+   * kept for backward compatibility with callers that compute priority themselves.
+   */
   priority?: boolean;
 }
 
-export default function AuctionCard({ auction, priority = false }: AuctionCardProps) {
+export default function AuctionCard({ auction, index, priority }: AuctionCardProps) {
+  // Eager-load only the very first card's image; all others lazy-load (next/image default).
+  // When `index` is provided it wins; otherwise fall back to an explicit `priority` flag.
+  const shouldPrioritize = index != null ? index === 0 : priority === true;
   return (
     <Link
       href={`/auctions/${auction.slug}`}
@@ -33,10 +42,10 @@ export default function AuctionCard({ auction, priority = false }: AuctionCardPr
       <div className="relative overflow-hidden">
         <Image
           src={auction.imageUrl}
-          alt={auction.title}
+          alt={`Auction listing: ${auction.title} in ${auction.category}, current bid ${auction.currentBid}`}
           width={860}
           height={600}
-          priority={priority}
+          priority={shouldPrioritize}
           className="h-52 w-full object-cover transition duration-500 group-hover:scale-[1.04]"
         />
         {auction.myBid && (
