@@ -14,6 +14,7 @@ interface BidFormProps {
   stateMessage?: string | null;
   stateTone?: "success" | "warning" | "neutral";
   showBidButton?: boolean;
+  bidLabel?: string;
 }
 
 function useCountdown(endTime?: string) {
@@ -55,6 +56,7 @@ export default function BidForm({
   stateMessage = null,
   stateTone = "neutral",
   showBidButton = true,
+  bidLabel,
 }: BidFormProps) {
   const minimumBid = Number((currentBid + 0.01).toFixed(2));
   const [amountInput, setAmountInput] = useState(minimumBid.toString());
@@ -229,7 +231,7 @@ export default function BidForm({
                   : "bg-accent hover:brightness-110 active:scale-[0.98]"
             }`}
           >
-            {success ? "Bid placed!" : disabled ? disabledLabel : isSubmitting ? "Placing bid..." : "Bid now"}
+            {success ? "Bid placed!" : disabled ? disabledLabel : isSubmitting ? "Placing bid..." : (bidLabel ?? "Bid now")}
           </button>
         )}
 

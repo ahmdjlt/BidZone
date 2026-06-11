@@ -3,6 +3,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import AuctionGrid from "@/components/auction/AuctionGrid";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import { getAuctions, recordBrowsingEvent } from "@/lib/api/auctions";
 import { toAuctionPreview } from "@/lib/auctionPreview";
 import { useAuthStore } from "@/store/authStore";
@@ -134,6 +136,8 @@ export default function DashboardBrowsePage() {
 
   return (
     <>
+      <Navbar />
+
       {/* Header */}
       <div className="mb-8">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-label">
@@ -249,6 +253,11 @@ export default function DashboardBrowsePage() {
       ) : (
         <AuctionGrid auctions={sortedAuctions} />
       )}
+
+      {/* Full-bleed footer (breaks out of the dashboard layout's centered container) */}
+      <div className="mx-[calc(50%-50vw)] mt-12 w-screen">
+        <Footer />
+      </div>
     </>
   );
 }

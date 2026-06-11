@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import AuthModal from "@/components/auth/AuthModal";
+import BrandLogo from "@/components/ui/BrandLogo";
 import LiveBidTicker from "@/components/ui/LiveBidTicker";
 
 export default function Footer() {
@@ -18,7 +19,10 @@ export default function Footer() {
 
           {/* Brand blurb */}
           <div className="space-y-3">
-            <p className="text-lg font-semibold tracking-tight text-text-heading">BidZone</p>
+            <div className="flex items-center gap-2">
+              <BrandLogo className="h-7 w-7" />
+              <p className="text-lg font-semibold tracking-tight text-text-heading">BidZone</p>
+            </div>
             <p className="text-sm leading-relaxed text-text-body">
               A live marketplace where buyers compete and sellers maximize item value in real time.
             </p>

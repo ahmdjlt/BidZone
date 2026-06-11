@@ -33,7 +33,7 @@ public class AuthActions
         if (verify == PasswordVerificationResult.Failed)
             return AuthResultDto.Failure("Invalid email or password.");
 
-        if (!user.EmailConfirmed)
+        if (!user.EmailConfirmed && EmailOptionsHolder.IsConfigured)
             return AuthResultDto.Failure("Please confirm your email before signing in.");
 
         if (verify == PasswordVerificationResult.SuccessRehashNeeded)
@@ -58,6 +58,10 @@ public class AuthActions
         if (existing)
             return AuthResultDto.Failure("Email or username is already in use.");
 
+        // When no email provider is configured, skip the confirmation step so accounts
+        // can be used immediately instead of waiting on an email that will never arrive.
+        var requireConfirmation = EmailOptionsHolder.IsConfigured;
+
         var user = new User
         {
             UserName = request.Username.Trim(),
@@ -65,9 +69,11 @@ public class AuthActions
             FullName = request.FullName.Trim(),
             Email = request.Email.Trim(),
             NormalizedEmail = normalizedEmail,
-            EmailConfirmed = false,
-            EmailConfirmationToken = GenerateConfirmationToken(),
-            EmailConfirmationTokenExpiresAt = DateTime.UtcNow.AddHours(EmailOptionsHolder.ConfirmationTokenHours),
+            EmailConfirmed = !requireConfirmation,
+            EmailConfirmationToken = requireConfirmation ? GenerateConfirmationToken() : null,
+            EmailConfirmationTokenExpiresAt = requireConfirmation
+                ? DateTime.UtcNow.AddHours(EmailOptionsHolder.ConfirmationTokenHours)
+                : null,
             Role = role,
             CreatedAt = DateTime.UtcNow,
             IsActive = true,
@@ -86,6 +92,11 @@ public class AuthActions
         catch (DbUpdateException)
         {
             return AuthResultDto.Failure("Email or username is already in use.");
+        }
+
+        if (!requireConfirmation)
+        {
+            return await CreateAuthResultAsync(db, user, ipAddress);
         }
 
         await SendConfirmationEmailAsync(user);

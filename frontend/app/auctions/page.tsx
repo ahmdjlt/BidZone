@@ -8,6 +8,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { toAuctionPreview } from "@/lib/auctionPreview";
 import { getAuctions, recordBrowsingEvent } from "@/lib/api/auctions";
+import { getMyBids } from "@/lib/api/bids";
 import { useCategories } from "@/hooks/queries/useCategories";
 import { CATEGORY_ICONS, GENERIC_ICON } from "@/lib/categoryIcons";
 import { useAuthStore } from "@/store/authStore";
@@ -42,6 +43,7 @@ export default function AuctionsPage() {
   const [apiAuctions, setApiAuctions] = useState<AuctionSummary[]>([]);
   const [isLoadingAuctions, setIsLoadingAuctions] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [myBidAuctionIds, setMyBidAuctionIds] = useState<Set<number>>(new Set());
 
   // Filter bar dropdowns
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
@@ -157,6 +159,21 @@ export default function AuctionsPage() {
     return () => { cancelled = true; };
   }, [activeCategorySlug, activeSort, minPrice, maxPrice, searchQuery]);
 
+  // Fetch user's bid auction IDs
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setMyBidAuctionIds(new Set());
+      return;
+    }
+    let cancelled = false;
+    getMyBids()
+      .then((bids) => {
+        if (!cancelled) setMyBidAuctionIds(new Set(bids.map((b) => b.auctionId)));
+      })
+      .catch(() => undefined);
+    return () => { cancelled = true; };
+  }, [isAuthenticated]);
+
   // Browsing signals
   useEffect(() => {
     if (!isAuthenticated || !activeCategorySlug) return;
@@ -227,8 +244,11 @@ export default function AuctionsPage() {
       });
     }
 
-    return Array.from(new Map(auctions.map((a) => [a.id, a])).values()).map(toAuctionPreview);
-  }, [apiAuctions, activeCategorySlug, closingDate]);
+    return Array.from(new Map(auctions.map((a) => [a.id, a])).values()).map((a) => ({
+      ...toAuctionPreview(a),
+      myBid: myBidAuctionIds.has(a.id),
+    }));
+  }, [apiAuctions, activeCategorySlug, closingDate, myBidAuctionIds]);
 
   const toggleSection = (key: string) => setExpandedFilter((prev) => (prev === key ? null : key));
 

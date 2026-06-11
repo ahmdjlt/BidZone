@@ -9,5 +9,6 @@ public static class DatabaseSeeder
         CategorySeeder.Seed(modelBuilder);
         UserSeeder.Seed(modelBuilder);
         AuctionSeeder.Seed(modelBuilder);
+        BidSeeder.Seed(modelBuilder);
     }
 }

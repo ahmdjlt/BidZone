@@ -15,6 +15,7 @@ export interface AuctionPreview {
   watchers: number;
   imageUrl: string;
   imageAccent: string;
+  myBid?: boolean;
 }
 
 interface AuctionCardProps {
@@ -38,6 +39,11 @@ export default function AuctionCard({ auction, priority = false }: AuctionCardPr
           priority={priority}
           className="h-52 w-full object-cover transition duration-500 group-hover:scale-[1.04]"
         />
+        {auction.myBid && (
+          <div className="absolute left-2 top-2 rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-white shadow">
+            Your bid
+          </div>
+        )}
         <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-black/60 px-3 py-2 backdrop-blur-sm">
           <span className="flex items-center gap-1.5 text-xs font-medium text-white/90">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-3.5">

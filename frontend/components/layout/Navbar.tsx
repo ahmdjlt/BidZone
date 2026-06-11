@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import AuthModal from "@/components/auth/AuthModal";
+import BrandLogo from "@/components/ui/BrandLogo";
 import { useAuthStore } from "@/store/authStore";
 
 const navLinks = [
@@ -93,7 +94,8 @@ export default function Navbar() {
           <div className="mx-auto flex w-full max-w-[1440px] items-center gap-4 px-6 py-2.5 sm:px-10">
 
             {/* Logo */}
-            <Link href="/" className="flex shrink-0 items-center">
+            <Link href="/" className="flex shrink-0 items-center gap-2">
+              <BrandLogo className="h-7 w-7" />
               <span className="text-base font-semibold tracking-tight text-text-heading">
                 BidZone
               </span>

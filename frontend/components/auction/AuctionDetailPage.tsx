@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useQueryClient } from "@tanstack/react-query";
 import BidForm from "./BidForm";
 import BidHistory, { type Bid as BidHistoryItem } from "./BidHistory";
+import AuthModal from "@/components/auth/AuthModal";
 import { getAuctionContact, recordBrowsingEvent } from "@/lib/api/auctions";
 import { getBidsByAuction, placeBid } from "@/lib/api/bids";
 import type { Auction, AuctionContact } from "@/types/auction";
@@ -56,6 +57,7 @@ export default function AuctionDetailPage({ slug }: AuctionDetailPageProps) {
   const primaryImageUrl = auction?.imageUrl;
   const [bids, setBids] = useState<Bid[]>([]);
   const [isBidding, setIsBidding] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [contact, setContact] = useState<AuctionContact | null>(null);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string>("");
   const { lastBid, isConnecting } = useSocket(auction?.id);
@@ -130,6 +132,10 @@ export default function AuctionDetailPage({ slug }: AuctionDetailPageProps) {
 
   const handlePlaceBid = useCallback(
     async (amount: number) => {
+      if (!isAuthenticated) {
+        setShowAuthModal(true);
+        return;
+      }
       if (!auction) throw new Error("Auction not available.");
       setIsBidding(true);
       try {
@@ -141,7 +147,7 @@ export default function AuctionDetailPage({ slug }: AuctionDetailPageProps) {
         setIsBidding(false);
       }
     },
-    [auction, slug, queryClient]
+    [isAuthenticated, auction, slug, queryClient]
   );
 
   const bidHistory = useMemo(() => toBidHistory(bids), [bids]);
@@ -190,11 +196,13 @@ export default function AuctionDetailPage({ slug }: AuctionDetailPageProps) {
   if (isBidding) disabledLabel = "Placing bid...";
   else if (isWinning) disabledLabel = "Winning";
   else if (isAuctionClosed) disabledLabel = "Auction closed";
+  else if (isOwner) disabledLabel = "Your listing";
 
   let stateMessage: string | null = null;
   let stateTone: "success" | "warning" | "neutral" = "neutral";
 
-  if (isWinning) { stateMessage = "You are currently the highest bidder."; stateTone = "success"; }
+  if (isOwner) { stateMessage = "You can't bid on your own listing."; stateTone = "neutral"; }
+  else if (isWinning) { stateMessage = "You are currently the highest bidder."; stateTone = "success"; }
   else if (isOutbid) { stateMessage = "You were outbid. Increase your bid to take the lead."; stateTone = "warning"; }
   else if (isWon) { stateMessage = "Auction ended. You won this item."; stateTone = "success"; }
   else if (isLost) { stateMessage = "Auction ended. This item was won by another bidder."; stateTone = "warning"; }
@@ -295,7 +303,8 @@ export default function AuctionDetailPage({ slug }: AuctionDetailPageProps) {
                 disabledLabel={disabledLabel}
                 stateMessage={stateMessage}
                 stateTone={stateTone}
-                showBidButton={!isOwner}
+                showBidButton={true}
+                bidLabel={!isAuthenticated ? "Sign in to bid" : undefined}
               />
             </div>
 
@@ -315,6 +324,13 @@ export default function AuctionDetailPage({ slug }: AuctionDetailPageProps) {
           </div>
         </div>
       </main>
+
+      {showAuthModal && (
+        <AuthModal
+          onClose={() => setShowAuthModal(false)}
+          redirectTo={`/auctions/${slug}`}
+        />
+      )}
     </div>
   );
 }

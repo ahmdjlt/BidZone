@@ -95,7 +95,7 @@ namespace BidZone.DataAccess.Migrations
                             Id = 1,
                             CategoryId = 1,
                             ConcurrencyStamp = new Guid("a1b2c3d4-0001-0000-0000-000000000001"),
-                            CurrentPrice = 999.99m,
+                            CurrentPrice = 1100.00m,
                             Description = "Brand new iPhone 15 Pro Max 256GB",
                             EndTime = new DateTime(2026, 6, 30, 0, 0, 0, 0, DateTimeKind.Utc),
                             ImageUrl = "https://picsum.photos/seed/iphone15/860/600",
@@ -111,7 +111,7 @@ namespace BidZone.DataAccess.Migrations
                             Id = 2,
                             CategoryId = 4,
                             ConcurrencyStamp = new Guid("a1b2c3d4-0002-0000-0000-000000000002"),
-                            CurrentPrice = 15000m,
+                            CurrentPrice = 16200.00m,
                             Description = "1960s Rolex Submariner in excellent condition",
                             EndTime = new DateTime(2026, 6, 30, 0, 0, 0, 0, DateTimeKind.Utc),
                             ImageUrl = "https://picsum.photos/seed/rolex/860/600",
@@ -127,7 +127,7 @@ namespace BidZone.DataAccess.Migrations
                             Id = 3,
                             CategoryId = 1,
                             ConcurrencyStamp = new Guid("a1b2c3d4-0003-0000-0000-000000000003"),
-                            CurrentPrice = 800m,
+                            CurrentPrice = 850.00m,
                             Description = "Trek X-Caliber 8, barely used",
                             EndTime = new DateTime(2026, 6, 30, 0, 0, 0, 0, DateTimeKind.Utc),
                             ImageUrl = "https://picsum.photos/seed/trek/860/600",
@@ -169,6 +169,22 @@ namespace BidZone.DataAccess.Migrations
                             StartingPrice = 35000m,
                             Status = "Active",
                             Title = "Tesla Model 3 2023"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CategoryId = 1,
+                            ConcurrencyStamp = new Guid("a1b2c3d4-0006-0000-0000-000000000006"),
+                            CurrentPrice = 520.00m,
+                            Description = "PS5 Digital Edition, like new, includes two controllers",
+                            EndTime = new DateTime(2026, 6, 30, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ImageUrl = "https://picsum.photos/seed/ps5/860/600",
+                            SellerId = 2,
+                            Slug = "sony-playstation-5-6",
+                            StartTime = new DateTime(2026, 3, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            StartingPrice = 400m,
+                            Status = "Active",
+                            Title = "Sony PlayStation 5"
                         });
                 });
 
@@ -230,6 +246,71 @@ namespace BidZone.DataAccess.Migrations
                     b.HasIndex("BidderId");
 
                     b.ToTable("Bids");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Amount = 1020.00m,
+                            AuctionId = 1,
+                            BidderId = 3,
+                            PlacedAt = new DateTime(2026, 6, 1, 10, 0, 0, 0, DateTimeKind.Utc),
+                            Status = "Outbid"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Amount = 1100.00m,
+                            AuctionId = 1,
+                            BidderId = 3,
+                            PlacedAt = new DateTime(2026, 6, 5, 14, 30, 0, 0, DateTimeKind.Utc),
+                            Status = "Winning"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Amount = 15500.00m,
+                            AuctionId = 2,
+                            BidderId = 2,
+                            PlacedAt = new DateTime(2026, 6, 2, 9, 0, 0, 0, DateTimeKind.Utc),
+                            Status = "Outbid"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Amount = 16200.00m,
+                            AuctionId = 2,
+                            BidderId = 3,
+                            PlacedAt = new DateTime(2026, 6, 4, 11, 0, 0, 0, DateTimeKind.Utc),
+                            Status = "Winning"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Amount = 850.00m,
+                            AuctionId = 3,
+                            BidderId = 3,
+                            PlacedAt = new DateTime(2026, 6, 3, 16, 0, 0, 0, DateTimeKind.Utc),
+                            Status = "Winning"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Amount = 480.00m,
+                            AuctionId = 6,
+                            BidderId = 1000,
+                            PlacedAt = new DateTime(2026, 6, 6, 10, 0, 0, 0, DateTimeKind.Utc),
+                            Status = "Outbid"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Amount = 520.00m,
+                            AuctionId = 6,
+                            BidderId = 1000,
+                            PlacedAt = new DateTime(2026, 6, 8, 15, 0, 0, 0, DateTimeKind.Utc),
+                            Status = "Winning"
+                        });
                 });
 
             modelBuilder.Entity("BidZone.Domains.Entities.BrowsingEvent", b =>
