@@ -3,7 +3,9 @@ using BidZone.Api.Services;
 using BidZone.BusinessLogic.Email;
 using BidZone.BusinessLogic.Security;
 using BidZone.DataAccess;
+using BidZone.DataAccess.Context;
 using DotNetEnv;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,6 +82,11 @@ builder.Services.AddHostedService<AuctionFinalizationHostedService>();
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+await using (var migrationDb = new AppDbContext())
+{
+    await migrationDb.Database.MigrateAsync();
+}
 
 app.UseMiddleware<BidZone.Api.Middleware.ExceptionMiddleware>();
 
