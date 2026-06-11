@@ -1,10 +1,17 @@
+using System.Threading.RateLimiting;
 using BidZone.Api.Extensions;
 using BidZone.Api.Services;
+using BidZone.BusinessLogic.Core;
+using BidZone.BusinessLogic.Core.Auth;
 using BidZone.BusinessLogic.Email;
+using BidZone.BusinessLogic.Functions.Auth;
+using BidZone.BusinessLogic.Interface;
 using BidZone.BusinessLogic.Security;
+using BidZone.BusinessLogic.Structure;
 using BidZone.DataAccess;
 using BidZone.DataAccess.Context;
 using DotNetEnv;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +25,11 @@ DbSession.ConnectionString = connectionString
     ?? throw new InvalidOperationException("A database connection string must be configured.");
 
 // JWT — opțiuni stocate într-un holder static, nu DI
+// TODO: prefer the IOptions<JwtOptions>/IOptions<EmailOptions> pattern bound from configuration
+//       (builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"))).
+//       JwtOptionsHolder/EmailOptionsHolder and their consumers (JwtTokenService,
+//       EmailSenderFactory) live outside this change set, so the static-holder wiring is kept
+//       here to preserve behavior. Migrate the holders to IOptions when those files can change.
 ApplyEnvironmentOverride(builder.Configuration, "Jwt:Issuer", "JWT_ISSUER");
 ApplyEnvironmentOverride(builder.Configuration, "Jwt:Audience", "JWT_AUDIENCE");
 ApplyEnvironmentOverride(builder.Configuration, "Jwt:Key", "JWT_KEY");
@@ -79,12 +91,55 @@ builder.Services.AddSwaggerDocumentation();
 builder.Services.AddBidZoneCors(builder.Configuration);
 builder.Services.AddSingleton<AuctionSocketManager>();
 builder.Services.AddHostedService<AuctionFinalizationHostedService>();
+
+// AppDbContext is now provided via DI (scoped). OnConfiguring still falls back to
+// DbSession.ConnectionString when options are not supplied (e.g. design-time / factory path).
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    if (DbSession.IsSqliteConnectionString(DbSession.ConnectionString))
+    {
+        options.UseSqlite(DbSession.ConnectionString);
+    }
+    else
+    {
+        options.UseNpgsql(DbSession.ConnectionString);
+    }
+});
+
+// Business-logic services receive the scoped AppDbContext + ILogger via constructor injection.
+builder.Services.AddScoped<AuthActions>();
+builder.Services.AddScoped<AuctionLogic>();
+builder.Services.AddScoped<BidLogic>();
+
+// Logic interfaces consumed by controllers.
+// NOTE: AuthFlow/AuctionExecution/BidExecution (the IAuthLogic/IAuctionLogic/IBidLogic
+// implementations) live outside this change set and only expose a parameterless constructor,
+// so they currently self-create their AppDbContext via the fallback path. Once those classes
+// can accept the injected AppDbContext/ILogger, register them with the scoped context instead.
+builder.Services.AddScoped<IAuthLogic, AuthFlow>();
+builder.Services.AddScoped<IAuctionLogic, AuctionExecution>();
+builder.Services.AddScoped<IBidLogic, BidExecution>();
+
+// Built-in fixed-window rate limiting for the auth endpoints (.NET 7+).
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddFixedWindowLimiter("auth", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 10;
+        limiterOptions.Window = TimeSpan.FromMinutes(1);
+        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        limiterOptions.QueueLimit = 0;
+    });
+});
+
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
-await using (var migrationDb = new AppDbContext())
+using (var scope = app.Services.CreateScope())
 {
+    var migrationDb = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await migrationDb.Database.MigrateAsync();
 }
 
@@ -97,6 +152,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseWebSockets();

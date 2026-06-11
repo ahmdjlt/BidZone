@@ -1,13 +1,16 @@
+using System.Data;
 using BidZone.BusinessLogic.Helpers;
 using BidZone.DataAccess.Context;
 using BidZone.Domains.DTOs;
 using BidZone.Domains.Entities;
 using BidZone.Domains.Responses;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace BidZone.BusinessLogic.Core;
 
-public class AuctionLogic
+public class AuctionLogic : IDisposable
 {
     private const int MaxAuctionImages = 10;
     private const int MaxRecommendationLimit = 24;
@@ -20,16 +23,45 @@ public class AuctionLogic
     private const string SearchEvent = "Search";
     private static readonly string[] DefaultAllowedImageHosts = ["res.cloudinary.com", "picsum.photos", "images.unsplash.com"];
 
-    public AuctionLogic() { }
+    private readonly AppDbContext _db;
+    private readonly bool _ownsDb;
+    private readonly ILogger _logger;
+
+    // Preferred constructor: AppDbContext (scoped) and ILogger are supplied via DI.
+    public AuctionLogic(AppDbContext db, ILogger<AuctionLogic> logger)
+    {
+        _db = db;
+        _ownsDb = false;
+        _logger = logger;
+    }
+
+    // Fallback for the factory/inheritance path (BusinessLogic.AuctionAction -> new AuctionExecution()).
+    // TODO: once AuctionExecution/BusinessLogic factory can move to DI, drop this and require the
+    //       injected context/logger instead of self-creating a context.
+    public AuctionLogic()
+    {
+        _db = new AppDbContext();
+        _ownsDb = true;
+        _logger = NullLogger<AuctionLogic>.Instance;
+    }
+
+    public void Dispose()
+    {
+        if (_ownsDb)
+        {
+            _db.Dispose();
+        }
+        GC.SuppressFinalize(this);
+    }
 
     internal async Task<List<AuctionDto>> GetAllExecution(string? search, string? category, string? sort, string? status, decimal? minPrice, decimal? maxPrice)
     {
-        using var db = new AppDbContext();
+        var db = _db;
 
         int? categoryId = null;
         if (!string.IsNullOrEmpty(category))
         {
-            var cat = await db.Categories.FirstOrDefaultAsync(c => c.Slug == category);
+            var cat = await db.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.Slug == category);
             categoryId = cat?.Id;
         }
 
@@ -47,12 +79,12 @@ public class AuctionLogic
 
     internal async Task<PaginatedResult<AuctionDto>> GetAllPagedExecution(string? search, string? category, string? sort, string? status, decimal? minPrice, decimal? maxPrice, PaginationParams pagination)
     {
-        using var db = new AppDbContext();
+        var db = _db;
 
         int? categoryId = null;
         if (!string.IsNullOrEmpty(category))
         {
-            var cat = await db.Categories.FirstOrDefaultAsync(c => c.Slug == category);
+            var cat = await db.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.Slug == category);
             categoryId = cat?.Id;
         }
 
@@ -89,8 +121,9 @@ public class AuctionLogic
 
     internal async Task<AuctionDto?> GetByIdExecution(int id)
     {
-        using var db = new AppDbContext();
+        var db = _db;
         var auction = await db.Auctions
+            .AsNoTracking()
             .Include(a => a.Seller)
             .Include(a => a.Category)
             .Include(a => a.Images)
@@ -104,8 +137,9 @@ public class AuctionLogic
         if (string.IsNullOrWhiteSpace(slug) || slug.Length > 255)
             return null;
 
-        using var db = new AppDbContext();
+        var db = _db;
         var auction = await db.Auctions
+            .AsNoTracking()
             .Include(a => a.Seller)
             .Include(a => a.Category)
             .Include(a => a.Images)
@@ -116,8 +150,9 @@ public class AuctionLogic
 
     internal async Task<List<AuctionDto>> GetActiveExecution()
     {
-        using var db = new AppDbContext();
+        var db = _db;
         var auctions = await db.Auctions
+            .AsNoTracking()
             .Include(a => a.Seller)
             .Include(a => a.Category)
             .Include(a => a.Images)
@@ -129,7 +164,7 @@ public class AuctionLogic
 
     internal async Task<List<AuctionDto>> GetRecommendationsExecution(int? userId, int limit)
     {
-        using var db = new AppDbContext();
+        var db = _db;
         var take = Math.Clamp(limit, 1, MaxRecommendationLimit);
         var now = DateTime.UtcNow;
         var categoryScores = new Dictionary<int, double>();
@@ -256,6 +291,7 @@ public class AuctionLogic
         }
 
         var candidates = await db.Auctions
+            .AsNoTracking()
             .Include(a => a.Seller)
             .Include(a => a.Category)
             .Include(a => a.Images)
@@ -300,7 +336,7 @@ public class AuctionLogic
             throw new ArgumentException("Unsupported browsing event type.");
         }
 
-        using var db = new AppDbContext();
+        var db = _db;
         int? auctionId = null;
         int? categoryId = null;
         string? searchTerm = null;
@@ -366,14 +402,18 @@ public class AuctionLogic
             CreatedAt = DateTime.UtcNow
         });
 
+        // Persist the new event and prune stale/overflow events atomically.
+        await using var transaction = await db.Database.BeginTransactionAsync();
         await db.SaveChangesAsync();
         await TrimBrowsingEventsAsync(db, userId);
+        await transaction.CommitAsync();
     }
 
     internal async Task<List<AuctionDto>> GetByCategoryExecution(int categoryId)
     {
-        using var db = new AppDbContext();
+        var db = _db;
         var auctions = await db.Auctions
+            .AsNoTracking()
             .Include(a => a.Seller)
             .Include(a => a.Category)
             .Include(a => a.Images)
@@ -385,8 +425,9 @@ public class AuctionLogic
 
     internal async Task<List<AuctionDto>> GetBySellerExecution(int sellerId)
     {
-        using var db = new AppDbContext();
+        var db = _db;
         var auctions = await db.Auctions
+            .AsNoTracking()
             .Include(a => a.Seller)
             .Include(a => a.Category)
             .Include(a => a.Images)
@@ -398,9 +439,10 @@ public class AuctionLogic
 
     internal async Task<AuctionContactDto?> GetContactForUserExecution(int auctionId, int userId)
     {
-        using var db = new AppDbContext();
+        var db = _db;
 
         var auction = await db.Auctions
+            .AsNoTracking()
             .Include(a => a.Seller)
             .Include(a => a.Bids)
                 .ThenInclude(b => b.Bidder)
@@ -438,7 +480,7 @@ public class AuctionLogic
 
     internal async Task<AuctionDto> CreateExecution(CreateAuctionDto dto, int sellerId)
     {
-        using var db = new AppDbContext();
+        var db = _db;
 
         var auction = new Auction
         {
@@ -485,7 +527,7 @@ public class AuctionLogic
 
     internal async Task<AuctionDto?> UpdateExecution(int id, UpdateAuctionDto dto, int sellerId)
     {
-        using var db = new AppDbContext();
+        var db = _db;
         var auction = await db.Auctions
             .Include(a => a.Images)
             .FirstOrDefaultAsync(a => a.Id == id);
@@ -519,7 +561,7 @@ public class AuctionLogic
 
     internal async Task<AuctionDto?> ReopenExecution(int id, DateTime newEndTime, int sellerId)
     {
-        using var db = new AppDbContext();
+        var db = _db;
         var auction = await db.Auctions.FirstOrDefaultAsync(a => a.Id == id);
         if (auction == null || auction.Status != "Closed" || auction.SellerId != sellerId)
             return null;
@@ -539,7 +581,7 @@ public class AuctionLogic
 
     internal async Task<ActionResponse> DeleteExecution(int id, int sellerId)
     {
-        using var db = new AppDbContext();
+        var db = _db;
         var auction = await db.Auctions.Include(a => a.Bids).FirstOrDefaultAsync(a => a.Id == id);
         if (auction == null || auction.SellerId != sellerId)
             return ActionResponse.Failure("Auction was not found or does not belong to the current seller.");
@@ -552,6 +594,7 @@ public class AuctionLogic
     private static IQueryable<Auction> BuildFilteredQuery(AppDbContext db, AuctionFilterParams filters, int? categoryId)
     {
         var query = db.Auctions
+            .AsNoTracking()
             .Include(a => a.Seller)
             .Include(a => a.Category)
             .Include(a => a.Images)

@@ -9,16 +9,47 @@ using BidZone.Domains.Entities;
 using BidZone.Domains.Responses;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace BidZone.BusinessLogic.Core.Auth;
 
-public class AuthActions
+public class AuthActions : IDisposable
 {
-    public AuthActions() { }
+    private readonly AppDbContext _db;
+    private readonly bool _ownsDb;
+    private readonly ILogger _logger;
+
+    // Preferred constructor: AppDbContext (scoped) and ILogger are supplied via DI.
+    public AuthActions(AppDbContext db, ILogger<AuthActions> logger)
+    {
+        _db = db;
+        _ownsDb = false;
+        _logger = logger;
+    }
+
+    // Fallback for the factory/inheritance path (BusinessLogic.AuthAction -> new AuthFlow()).
+    // TODO: once AuthFlow/BusinessLogic factory can move to DI, drop this and require the
+    //       injected context/logger instead of self-creating a context.
+    public AuthActions()
+    {
+        _db = new AppDbContext();
+        _ownsDb = true;
+        _logger = NullLogger<AuthActions>.Instance;
+    }
+
+    public void Dispose()
+    {
+        if (_ownsDb)
+        {
+            _db.Dispose();
+        }
+        GC.SuppressFinalize(this);
+    }
 
     internal async Task<AuthResultDto> LoginExecution(LoginRequestDto request, string? ipAddress)
     {
-        using var db = new AppDbContext();
+        var db = _db;
 
         var normalizedEmail = Normalize(request.Email);
         var user = await db.Users.FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail);
@@ -49,7 +80,7 @@ public class AuthActions
     {
         var role = RoleConstants.User;
 
-        using var db = new AppDbContext();
+        var db = _db;
 
         var normalizedEmail = Normalize(request.Email);
         var normalizedUsername = Normalize(request.Username);
@@ -107,7 +138,7 @@ public class AuthActions
 
     internal async Task<AuthResultDto> ConfirmEmailExecution(ConfirmEmailRequestDto request)
     {
-        using var db = new AppDbContext();
+        var db = _db;
         var normalizedEmail = Normalize(request.Email);
         var user = await db.Users.FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail);
         if (user == null)
@@ -135,7 +166,7 @@ public class AuthActions
 
     internal async Task<AuthResultDto> ResendConfirmationExecution(ResendConfirmationRequestDto request)
     {
-        using var db = new AppDbContext();
+        var db = _db;
         var normalizedEmail = Normalize(request.Email);
         var user = await db.Users.FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail);
 
@@ -167,7 +198,7 @@ public class AuthActions
         return CryptographicOperations.FixedTimeEquals(aBytes, bBytes);
     }
 
-    private static async Task SendConfirmationEmailAsync(User user)
+    private async Task SendConfirmationEmailAsync(User user)
     {
         if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.EmailConfirmationToken))
             return;
@@ -195,21 +226,21 @@ public class AuthActions
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Failed to send confirmation email to {user.Email}: {ex.Message}");
+            _logger.LogError(ex, "Failed to send confirmation email to {Email}.", user.Email);
         }
     }
 
     internal async Task<UserDto?> GetCurrentUserExecution(int userId)
     {
-        using var db = new AppDbContext();
-        var user = await db.Users.FindAsync(userId);
+        var db = _db;
+        var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
         if (user == null || !user.IsActive) return null;
         return Mappers.ToDto(user);
     }
 
     internal async Task<AuthResultDto> RefreshExecution(string refreshToken, string? ipAddress)
     {
-        using var db = new AppDbContext();
+        var db = _db;
         var tokenHash = RefreshTokenService.HashToken(refreshToken);
         var storedToken = await db.RefreshTokens
             .Include(r => r.User)
@@ -262,7 +293,7 @@ public class AuthActions
 
     internal async Task<ActionResponse> LogoutExecution(int userId, string? ipAddress)
     {
-        using var db = new AppDbContext();
+        var db = _db;
         var user = await db.Users
             .Include(u => u.RefreshTokens)
             .FirstOrDefaultAsync(u => u.Id == userId);

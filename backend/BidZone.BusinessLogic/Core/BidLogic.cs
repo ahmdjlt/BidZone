@@ -4,12 +4,43 @@ using BidZone.DataAccess.Context;
 using BidZone.Domains.DTOs;
 using BidZone.Domains.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace BidZone.BusinessLogic.Core;
 
-public class BidLogic
+public class BidLogic : IDisposable
 {
-    public BidLogic() { }
+    private readonly AppDbContext _db;
+    private readonly bool _ownsDb;
+    private readonly ILogger _logger;
+
+    // Preferred constructor: AppDbContext (scoped) and ILogger are supplied via DI.
+    public BidLogic(AppDbContext db, ILogger<BidLogic> logger)
+    {
+        _db = db;
+        _ownsDb = false;
+        _logger = logger;
+    }
+
+    // Fallback for the factory/inheritance path (BusinessLogic.BidAction -> new BidExecution()).
+    // TODO: once BidExecution/BusinessLogic factory can move to DI, drop this and require the
+    //       injected context/logger instead of self-creating a context.
+    public BidLogic()
+    {
+        _db = new AppDbContext();
+        _ownsDb = true;
+        _logger = NullLogger<BidLogic>.Instance;
+    }
+
+    public void Dispose()
+    {
+        if (_ownsDb)
+        {
+            _db.Dispose();
+        }
+        GC.SuppressFinalize(this);
+    }
 
     internal async Task<BidDto?> PlaceBidExecution(PlaceBidDto dto, int bidderId)
     {
@@ -34,9 +65,9 @@ public class BidLogic
         return null;
     }
 
-    private static async Task<BidDto?> PlaceBidAttemptAsync(PlaceBidDto dto, int bidderId)
+    private async Task<BidDto?> PlaceBidAttemptAsync(PlaceBidDto dto, int bidderId)
     {
-        using var db = new AppDbContext();
+        var db = _db;
         await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable);
 
         var auction = await db.Auctions
@@ -87,35 +118,37 @@ public class BidLogic
         await db.SaveChangesAsync();
         await transaction.CommitAsync();
 
-        await TryAddBidderToWatchlistAsync(bidderId, dto.AuctionId);
+        await TryAddBidderToWatchlistAsync(db, bidderId, dto.AuctionId);
 
         var created = await db.Bids
+            .AsNoTracking()
             .Include(b => b.Bidder)
             .Include(b => b.Auction)
             .FirstAsync(b => b.Id == bid.Id);
         return Mappers.ToDto(created);
     }
 
-    private static async Task TryAddBidderToWatchlistAsync(int bidderId, int auctionId)
+    private async Task TryAddBidderToWatchlistAsync(AppDbContext db, int bidderId, int auctionId)
     {
         try
         {
-            using var watchlistDb = new AppDbContext();
-            var alreadyWatching = await watchlistDb.WatchlistItems.AnyAsync(w => w.UserId == bidderId && w.AuctionId == auctionId);
+            // Reuse the single injected context; the bid was already committed above.
+            var alreadyWatching = await db.WatchlistItems.AnyAsync(w => w.UserId == bidderId && w.AuctionId == auctionId);
             if (!alreadyWatching)
             {
-                watchlistDb.WatchlistItems.Add(new WatchlistItem
+                db.WatchlistItems.Add(new WatchlistItem
                 {
                     UserId = bidderId,
                     AuctionId = auctionId,
                     AddedAt = DateTime.UtcNow
                 });
-                await watchlistDb.SaveChangesAsync();
+                await db.SaveChangesAsync();
             }
         }
-        catch (DbUpdateException)
+        catch (DbUpdateException ex)
         {
             // Race condition: watchlist item inserted concurrently. The bid was already saved above.
+            _logger.LogWarning(ex, "Failed to add bidder {BidderId} to watchlist for auction {AuctionId}.", bidderId, auctionId);
         }
     }
 
@@ -160,8 +193,8 @@ public class BidLogic
 
     internal async Task<List<BidDto>> GetByAuctionExecution(int auctionId)
     {
-        using var db = new AppDbContext();
-        var bids = await db.Bids
+        var bids = await _db.Bids
+            .AsNoTracking()
             .Include(b => b.Bidder)
             .Include(b => b.Auction)
             .Where(b => b.AuctionId == auctionId)
@@ -172,8 +205,8 @@ public class BidLogic
 
     internal async Task<List<BidDto>> GetByUserExecution(int userId)
     {
-        using var db = new AppDbContext();
-        var bids = await db.Bids
+        var bids = await _db.Bids
+            .AsNoTracking()
             .Include(b => b.Bidder)
             .Include(b => b.Auction)
             .Where(b => b.BidderId == userId)
@@ -184,9 +217,9 @@ public class BidLogic
 
     internal async Task<List<BidDto>> GetRecentExecution(int limit)
     {
-        using var db = new AppDbContext();
         var take = Math.Clamp(limit, 1, 30);
-        var bids = await db.Bids
+        var bids = await _db.Bids
+            .AsNoTracking()
             .Include(b => b.Bidder)
             .Include(b => b.Auction)
             .OrderByDescending(b => b.PlacedAt)
@@ -197,8 +230,8 @@ public class BidLogic
 
     internal async Task<BidDto?> GetHighestBidExecution(int auctionId)
     {
-        using var db = new AppDbContext();
-        var bid = await db.Bids
+        var bid = await _db.Bids
+            .AsNoTracking()
             .Include(b => b.Bidder)
             .Where(b => b.AuctionId == auctionId)
             .OrderByDescending(b => b.Amount)

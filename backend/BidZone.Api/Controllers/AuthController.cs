@@ -3,7 +3,7 @@ using BidZone.Api.Extensions;
 using BidZone.Domains.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using BusinessLogicFactory = BidZone.BusinessLogic.BusinessLogic;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace BidZone.Api.Controllers;
 
@@ -14,15 +14,15 @@ public class AuthController : ControllerBase
     internal IAuthLogic _auth;
     private readonly IWebHostEnvironment _environment;
 
-    public AuthController(IWebHostEnvironment environment)
+    public AuthController(IAuthLogic auth, IWebHostEnvironment environment)
     {
         _environment = environment;
-        var bl = new BusinessLogicFactory();
-        _auth = bl.AuthAction();
+        _auth = auth;
     }
 
     [HttpPost("login")]
     [AllowAnonymous]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
         var result = await _auth.LoginAsync(request, GetClientIpAddress());
@@ -35,6 +35,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("register")]
     [AllowAnonymous]
+    [EnableRateLimiting("auth")]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
     {
         var result = await _auth.RegisterAsync(request, GetClientIpAddress());
